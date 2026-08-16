@@ -414,6 +414,8 @@ alias and its indirect call.
 typed higher-order parameter and invokes it in the callee.
 `function_pointer_binary_typedef_parameter.c` extends that higher-order alias
 path to a two-argument callback.
+`function_pointer_void.c` checks a void-returning callback pointer invocation
+before the integer `main` result is returned.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument

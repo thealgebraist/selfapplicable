@@ -107,6 +107,16 @@ Program parse_main(std::string const& s) {
       (void)csem::infer(csem::indirect_call(csem::dereference(csem::variable(r[3].str())),{csem::literal(std::stoi(r[4]))}),global_env,functions,{});
       p.function_call=true; p.else_status=std::stoi(r[4]);
     } else {
+    static const std::regex void_callback_call(R"(void\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{\s*return\s*;\s*\}\s*int\s+main\s*\([^)]*\)\s*\{\s*void\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*\)\s*=\s*&?\s*\1\s*;\s*\2\s*\(\s*\)\s*;\s*return\s+0\s*;\s*\})");
+    if(std::regex_search(s,r,void_callback_call)) {
+      csem::Function callback{r[1].str(),{},csem::unit(),{}};
+      csem::Functions functions{{callback.name,&callback}};
+      auto fp=csem::function({},csem::unit());
+      csem::Env env{{r[2].str(),csem::pointer(fp)}};
+      (void)csem::infer(csem::assign(csem::variable(r[2].str()),csem::address(csem::function_ref(callback.name))),env,functions,{});
+      (void)csem::infer(csem::indirect_call(csem::dereference(csem::variable(r[2].str())),{}),env,functions,{});
+      p.function_call=true; p.else_status=0;
+    } else {
     static const std::regex binary_typedef_callback_parameter_call(R"(typedef\s+int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*int\s*,\s*int\s*\)\s*;\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\3\s*\+\s+\4\s*;\s*\}\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\1\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\6\s*\(\s*\7\s*,\s*\8\s*\)\s*;\s*\}\s*int\s+main\s*\([^)]*\)\s*\{\s*return\s+\5\s*\(\s*&\s*\2\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;\s*\})");
     if(std::regex_search(s,r,binary_typedef_callback_parameter_call)) {
       csem::Function add{r[2].str(),{{r[3].str(),csem::integer()},{r[4].str(),csem::integer()}},csem::integer(),{csem::binary(csem::BinOp::Add,csem::variable(r[3].str()),csem::variable(r[4].str()))}};
@@ -406,6 +416,7 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,sizegt)) { p.size_gt=true; p.size_path=d[1].str(); p.size_bytes=std::stoull(d[2]); p.then_status=std::stoi(d[3]); p.else_status=std::stoi(d[4]); }
   static const std::regex help(R"(if\s*\(\s*argc\s*==\s*2\s*&&\s*(?:streq|strcmp)\s*\(\s*argv\s*\[\s*1\s*\]\s*,\s*"--help"\s*\)\s*\)\s*return\s+([0-9]+)\s*;)");
   if(std::regex_search(body,w,help)) { p.arg_help=true; p.argc_value=2; p.then_status=std::stoi(w[1]); }
+    }
     }
     }
     }
