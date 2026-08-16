@@ -91,6 +91,9 @@ int main(){using namespace csem;try{
   auto Mode=enum_type("Mode");
   if(!same(Mode,enum_type("Mode"))||same(Mode,enum_type("Other"))||size_of(Mode,structs)!=4)throw std::runtime_error("enum type failed");
   if(!integerish(Mode)||!integerish(integer()))throw std::runtime_error("enum integer compatibility failed");
+  Aliases enum_aliases; add_alias(enum_aliases,"ModeAlias",Mode);
+  if(!same(resolve_alias(enum_aliases,"ModeAlias"),Mode))throw std::runtime_error("enum alias failed");
+  bool duplicate_enum_alias=false;try{add_alias(enum_aliases,"ModeAlias",Mode);}catch(std::exception const&){duplicate_enum_alias=true;}if(!duplicate_enum_alias)throw std::runtime_error("duplicate enum alias accepted");
   if(!same(infer(member(variable("n"),"value"),{{"n",Node}}, {}, structs),integer()))throw std::runtime_error("struct field type failed");
   if(!same(infer(arrow(variable("p"),"next"),{{"p",NodePtr}}, {}, structs),NodePtr))throw std::runtime_error("pointer field type failed");
   if(!same(infer(assign(arrow(variable("p"),"value"),literal(7)),{{"p",NodePtr}}, {}, structs),integer()))throw std::runtime_error("assignment type failed");
