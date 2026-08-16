@@ -1,0 +1,22 @@
+# External source checkout; keep it local and out of the project repository.
+coreutils-src/
+findutils-src/
+
+# Generated binaries, objects, assembly, and LaTeX build products.
+*.o
+*.aux
+*.log
+*.out
+*.toc
+/normaliser
+/normaliser-sanitize
+/normaliser-ubsan
+/normaliser_object
+/typed_selfapp
+/dependent_cli
+/coreutils_true
+/coreutils_true_slice
+/cpu_ray_codegen
+/pyarm64
+/parametric_c
+/typed_subset

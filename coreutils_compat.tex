@@ -1,0 +1,34 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black}
+\title{GNU Coreutils Compatibility Audit}
+\author{Typed C-subset compiler boundary}
+\date{16 August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The upstream GNU coreutils source has been downloaded and inspected as a compatibility target for the strongly typed compiler. This audit identifies the real dependencies of standard tools and defines an incremental path toward compiling them without pretending that the current small language already supports full C.
+\end{abstract}
+\section{Downloaded source}
+The checkout is in \texttt{coreutils-src/}, revision \texttt{d458e11}. Representative files are 73 lines for \texttt{true.c}, 286 for \texttt{echo.c}, and 386 for \texttt{pwd.c}. The source is real GNU coreutils, not toy replacements.
+\section{Observed dependencies}
+Even \texttt{true.c} includes generated \texttt{config.h}, project \texttt{system.h}, and \texttt{true.h}; accepts \texttt{argc}/\texttt{argv}; calls initialization, localization, diagnostics, and exit helpers; and uses pointers and external libc/project APIs. \texttt{echo.c} adds pointer arithmetic, option processing, character classification, variadic I/O, and project macros. \texttt{pwd.c} adds structs, allocation, filesystem APIs, and long-option parsing.
+
+The current compiler intentionally supports a much smaller typed subset. It cannot honestly compile these files directly yet, even if macro expansion is delegated to a preprocessor. Macro removal does not remove the required C type and runtime surface.
+\section{Compatibility boundary}
+The principled pipeline is:
+\[
+\text{C source}\xrightarrow{\text{preprocess}}\text{C AST}\xrightarrow{\text{typed translation}}\text{typed IR}\xrightarrow{\text{normalize}}\text{residual IR}\xrightarrow{\text{ABI lowering}}\text{machine code}.
+\]
+The next required IR features are pointers, arrays, structs, function calls, and explicit libc/syscall effects. The linker surface must be declared rather than implicitly inherited.
+\section{Milestones}
+The first practical milestone is a dependency-reduced freestanding version of `true`, followed by a small `echo` slice. Only after those pass should the project attempt `pwd`, `ls`, or `find`, whose filesystem and option APIs are substantially larger.
+\section{Conclusion}
+The source set is downloaded and inventoried. Full GNU compatibility is not yet achieved; the audit identifies the exact missing language and runtime boundaries required to proceed soundly.
+\end{document}

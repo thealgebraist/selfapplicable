@@ -1,0 +1,88 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black}
+\title{A Compiler Parameterized by a High-Level C Semantics}
+\author{Staged compiler generation for an AArch64 C variant}
+\date{16 August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+This note makes the compiler itself a parameter of a high-level semantic description of a C variant. The description records integer width, entry symbol, result register, syscall-number register, syscall number, and syscall instruction. Source expressions are normalized before lowering. The description can be quoted as typed code and unquoted to generate the compiler, demonstrating staged self-application at the compiler level. Direct and staged compilation are compared byte-for-byte.
+\end{abstract}
+\section{Semantic parameter}
+The compiler parameter is a record
+\[
+\mathsf{CDescription}=\{
+\mathsf{name}:\mathsf{String},\mathsf{integerBits}:\mathsf{Nat},
+\mathsf{entry}:\mathsf{String},\mathsf{resultRegister}:\mathsf{String},
+\mathsf{syscallRegister}:\mathsf{String},\mathsf{writeNumber}:\mathsf{Int},
+\mathsf{instruction}:\mathsf{String}\}.
+\]
+It is high-level semantic data, not an assembly fragment. A compiler is a function
+\[
+\mathsf{compile}:\mathsf{CDescription}\to\mathsf{Expr}_{C}\to\mathsf{Asm}_{AArch64}.
+\]
+Changing the description changes target policy while leaving the source expression and compiler algorithm unchanged.
+
+\section{Source and normalization}
+The demonstration source language contains integer literals, addition, and an explicit write operation. The normalizer recursively folds additions whose operands are literals. Hence
+\[
+40+(2+1)\longmapsto 43.
+\]
+The compiler lowers the normalized term under the supplied description. This is partial evaluation: static source computation is performed before residual target code is emitted.
+
+\section{Staged compiler generation}
+The semantic description has a typed code boundary:
+\[
+\mathsf{quoteDescription}:D\to\mathsf{Code}(D),
+\qquad
+\mathsf{unquoteDescription}:\mathsf{Code}(D)\to D.
+\]
+The staged generator is
+\[
+\mathsf{compileStaged}(\widehat D,e)=
+\mathsf{compile}(\mathsf{unquoteDescription}(\widehat D),e).
+\]
+Because the quoted description is inert until unquoted, this is self-application of the compiler generator at an explicit stage, not an unrestricted $\mathsf{Compiler}:\mathsf{Compiler}\to\mathsf{Compiler}$ inhabitant.
+
+\section{Evidence}
+The implementation is \texttt{parametric\_c.cpp}. It was built with:
+\begin{verbatim}
+g++ -std=c++23 -Wall -Wextra -pedantic -O2 parametric_c.cpp -o parametric_c
+./parametric_c
+\end{verbatim}
+The output begins:
+\begin{verbatim}
+staged compiler equivalence: PASS
+.text
+.global main
+main:
+  stp x29, x30, [sp, #-16]!
+  mov x29, sp
+  mov x0, #43
+  ldp x29, x30, [sp], #16
+  ret
+alternate C variant entry: entry
+\end{verbatim}
+Direct compilation from the Linux C description and compilation through its quoted description produce identical assembly. A second description changes the entry symbol to `entry`, showing that target policy is genuinely parameterized.
+
+\section{Relation to the typed C subset}
+The full typed subset can use the same pattern with a richer description containing the type interpretation, calling convention, object layout, effect set, and lowering rules. The invariant becomes
+\[
+\Gamma\vdash_D e:\tau
+\Longrightarrow
+\Gamma\vdash_D\mathsf{normalize}_D(e):\tau
+\Longrightarrow
+\mathsf{emit}_D(e):\mathsf{Asm}_D(\tau).
+\]
+The current file demonstrates the staging and parameterization boundary on a minimal expression fragment; the existing \texttt{typed\_subset.cpp} supplies the richer typed AST and ABI example.
+
+\section{Limitations}
+The parameter record is intentionally small and does not yet describe register allocation, aggregate layout, or all typed-subset operators. Extending it should preserve typed code boundaries and make each new ABI choice explicit rather than embedding target policy in the compiler algorithm.
+\end{document}

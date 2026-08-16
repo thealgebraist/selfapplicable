@@ -1,0 +1,47 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black}
+\title{Compiling the Raytracer to the Native CPU}
+\author{Generated C, x86-64 assembly, executable, and PPM output}
+\date{16 August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+This note adds a native-host backend to the parametric raytracer compiler. A raytracer semantic description is quoted and unquoted, specialized directly into x86-64 AT\&T assembly, assembled with `as --64`, linked with `ld`, and run. The executable produces and validates a 96 by 64 binary PGM image. No C compiler is used for the target build. This backend is intentionally separate from the AArch64 emitter: the high-level ray semantics are shared while the final ABI and machine lowering are target-specific.
+\end{abstract}
+\section{Compilation pipeline}
+The tested pipeline is
+\[
+D_{ray}\xrightarrow{\mathsf{quote}/\mathsf{unquote}}x86\text{-}64\text{ assembly}
+\xrightarrow{\texttt{as --64}}\text{object}
+\xrightarrow{\texttt{ld}}\text{executable}
+\xrightarrow{}\texttt{render.ppm}.
+\]
+The generated C contains a fixed-point orthographic sphere test and a nested pixel loop. It writes an ASCII PPM image with a standard header and one grayscale pixel for each coordinate.
+
+\section{Semantic specialization}
+The description contains width, height, sphere center, radius, and output path. The generator emits these as static constants in the C source. Direct generation and generation through a quoted description are compared byte-for-byte before invoking the host compiler. Therefore the tested path is genuinely staged rather than merely two independently written generators.
+
+\section{Native build and execution}
+The implementation is \texttt{cpu\_ray\_codegen.cpp}. The exact commands used were:
+\begin{verbatim}
+g++ -std=c++23 -Wall -Wextra -pedantic -O2 cpu_ray_codegen.cpp -o cpu_ray_codegen
+./cpu_ray_codegen > generated_raytracer.s
+as --64 generated_raytracer.s -o generated_raytracer.o
+ld generated_raytracer.o -o generated_raytracer
+./generated_raytracer
+\end{verbatim}
+The resulting executable is a statically linked x86-64 ELF binary on the current machine. Running it succeeds and produces a valid PGM file whose header reports $96\times64$ pixels and maximum value 255. The output file is non-empty and was identified as Netpbm image data.
+
+\section{Relation to the AArch64 backend}
+The AArch64 backend emits a ray kernel and an explicit pixel sink ABI. The native backend chooses generated C as its portable intermediate representation and delegates final register allocation, calling convention, and object emission to the host C compiler. This is a useful staged bootstrap path: the same semantic description can target both a direct AArch64 emitter and a native CPU toolchain without conflating their ABIs.
+
+\section{Limitations}
+The current renderer uses a binary PGM sink and a single sphere with fixed-point arithmetic. It does not yet implement floating-point vectors, multiple objects, materials, shadows, or acceleration structures. Those extensions can be added to the semantic description while preserving the quote/unquote boundary and the output-image validation step.
+\end{document}

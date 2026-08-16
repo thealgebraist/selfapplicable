@@ -1,0 +1,7 @@
+\contentsline {section}{\numberline {1}Question and terminology}{1}{section.1}%
+\contentsline {section}{\numberline {2}The unrestricted claim is false}{2}{section.2}%
+\contentsline {section}{\numberline {3}Sufficient conditions for normalization}{2}{section.3}%
+\contentsline {section}{\numberline {4}Adding semantics $S$}{3}{section.4}%
+\contentsline {section}{\numberline {5}Conditions for self-application}{3}{section.5}%
+\contentsline {section}{\numberline {6}What can be concluded for the implemented core}{4}{section.6}%
+\contentsline {section}{\numberline {7}Conclusion}{4}{section.7}%

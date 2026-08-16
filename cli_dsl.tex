@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black}
+\title{Four Strongly Typed CLI Tools from a Minimal DSL}
+\author{Interpreter specialization using dependent indices}
+\date{16 August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+This note describes a small C++23 command DSL implementing literal grep, head, cut, and wc -l. Programs are indexed by input and output object types. A generic interpreter executes the DSL, while specialization captures static command parameters and produces residual host functions. The construction is a practical partial-evaluation analogue of normalization followed by interpretation.
+\end{abstract}
+\section{Typed object language}
+The object-level types are $\mathsf{Text}$, $\mathsf{Lines}$, and $\mathsf{Count}$. A program has the indexed form $\mathsf{Program}(I,O)$. The tools have signatures
+\[
+\mathsf{grep},\mathsf{head},\mathsf{cut}:\mathsf{Program}(\mathsf{Text},\mathsf{Text}),\qquad
+\mathsf{wcLines}:\mathsf{Program}(\mathsf{Text},\mathsf{Count}).
+\]
+The node variant is selected by $(I,O)$, preventing a count-producing node from being used where text is required.
+\section{Interpreter and specialization}
+The generic evaluator has type
+\[
+\mathsf{interpret}:\mathsf{Program}(I,O)\to I\to O.
+\]
+The specialization pass performs
+\[
+\mathsf{specialize}(p):I\to O
+\]
+by matching once on the normalized command constructor and capturing its static pattern, line count, delimiter, or field number. Runtime input is processed by the residual closure, with command dispatch removed.
+\[
+\mathsf{normalize}(p):\mathsf{Program}(I,O).
+\]
+Thus normalization preserves the endpoint type, just as reification preserves the type of a dependently typed term.
+\section{The four tools}
+Literal grep has type $\mathsf{Text}\to\mathsf{Text}$ and retains lines containing a static pattern. Head has type $\mathsf{Text}\to\mathsf{Text}$ and retains at most the first static number of lines. Cut has type $\mathsf{Text}\to\mathsf{Text}$ and selects a static field under a static delimiter. Wc lines has type $\mathsf{Text}\to\mathsf{Count}$, explicitly recording that its result is no longer text.
+\section{Executable evidence}
+The implementation is in \texttt{cli\_dsl.cpp}. It was compiled with:
+\begin{verbatim}
+g++ -std=c++23 -Wall -Wextra -pedantic -O2 cli_dsl.cpp -o cli_dsl
+./cli_dsl
+\end{verbatim}
+The interpreter and specialized residual function are compared on the same sample input. The output is:
+\begin{verbatim}
+grep: PASS
+head: PASS
+cut: PASS
+wc -l: PASS
+all specialized CLI tools: PASS
+\end{verbatim}
+\section{Relation to dependent typing}
+A full object-language version would replace the C++ index with an indexed syntax family $\mathsf{Cmd}(I,O)$ and a typed evaluator $\mathsf{run}:\mathsf{Cmd}(I,O)\to I\to O$. Static specialization would then be a typed transformation preserving $(I,O)$. The present prototype demonstrates the same boundary: static syntax is normalized first, and only the residual program consumes dynamic input.
+\section{Limitations}
+The prototype does not yet model filesystem effects, process exit codes, lazy streaming, shell quoting, or indexed pipeline composition. Those features should introduce explicit effect and resource indices rather than weakening the input/output type boundary.
+\end{document}

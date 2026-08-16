@@ -1,0 +1,262 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{parskip}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black}
+\lstset{language=C++,basicstyle=\small\ttfamily,breaklines=true,frame=single,columns=fullflexible}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newcommand{\Ty}{\mathsf{Type}}
+\newcommand{\Code}{\mathsf{Code}}
+\renewcommand{\quote}[1]{\mathsf{quote}(#1)}
+\newcommand{\unquote}[1]{\mathsf{unquote}(#1)}
+\title{A Self-Applicable Normaliser for a Small\\Dependent Theory Language}
+\author{A C++23-oriented formal core}
+\date{15 August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+This note defines a small dependently typed theory language and a self-applicable normaliser for it. The construction uses de Bruijn syntax, a predicative universe hierarchy, bidirectional type checking, normalization by evaluation (NbE), and staged quotation. We state the central metatheoretic properties for the core: substitution, type preservation of reduction, normalization of well-typed terms, and soundness of the normaliser. Eight uses are described, including proof certificates, dependent data, staged metaprogramming, and normalization of reflected syntax. The final sections give a C++23 implementation sketch, a typed staging interface, additional lemmas, complexity considerations, and a testing strategy.
+\end{abstract}
+\tableofcontents
+
+\section{Scope and design constraints}
+The phrase ``self-applicable'' is potentially misleading. An untyped evaluator can be applied to itself, but an unrestricted term of type $\Ty: \Ty$ makes the usual dependent theory inconsistent. We therefore use two restrictions:
+\begin{enumerate}
+\item universes are predicative: $\Ty_i:\Ty_{i+1}$;
+\item self-application is staged: source syntax is data, and only an explicitly unquoted code value is executed.
+\end{enumerate}
+Thus the normaliser can process representations of normalisers without introducing an unrestricted self-typing paradox.
+
+\section{The core language}
+\subsection{Syntax}
+Terms are represented with de Bruijn indices. The newest variable is index $0$:
+\[
+t ::= x_i \mid \Ty_i \mid (x:A)\to B \mid \lambda:A.t \mid t\,u \mid \quote(t) \mid \unquote(t).
+\]
+The dependent function type may mention $x$ in $B$. Ordinary functions are the special case in which $B$ does not mention $x$. Contexts are lists $\Gamma=A_0,A_1,\ldots$ with $A_0$ the type of $x_0$.
+
+\subsection{Universes and typing rules}
+The universe rules are
+\[
+\frac{\Gamma\vdash A:\Ty_i\qquad \Gamma,A\vdash B:\Ty_j}{\Gamma\vdash (x:A)\to B:\Ty_{\max(i,j)}}\qquad
+\frac{}{\Gamma\vdash \Ty_i:\Ty_{i+1}}.
+\]
+The term rules include
+\[
+\frac{\Gamma\vdash A:\Ty_i\qquad\Gamma,A\vdash t:B}{\Gamma\vdash\lambda:A.t:(x:A)\to B}
+\qquad
+\frac{\Gamma\vdash f:(x:A)\to B\qquad\Gamma\vdash u:A}{\Gamma\vdash f\,u:B[u/x]}.
+\]
+The beta rule is $(\lambda:A.t)u\to_\beta t[u/x]$. Eta-long normal forms are used by NbE.
+
+\section{Substitution and reduction}
+Let $\uparrow^k_d t$ add $d$ to every index at least $k$; under a binder the cutoff becomes $k+1$.
+\begin{lemma}[Shifting composition]
+For compatible cutoffs, $\uparrow^k_a(\uparrow^k_b t)=\uparrow^k_{a+b}t$.
+\end{lemma}
+\begin{proof}
+By structural induction on $t$. The variable case is arithmetic on whether the index is below the cutoff. Binder cases use the induction hypothesis at cutoff $k+1$.
+\end{proof}
+\begin{lemma}[Substitution under binders]
+If $\Gamma,A,\Delta\vdash t:B$ and $\Gamma\vdash u:A$, then capture-avoiding substitution $t[u/x]$ is well formed in $\Gamma,\Delta[u/x]$.
+\end{lemma}
+\begin{proof}
+Induct on the typing derivation. In binder cases, shift $u$ before descending. Applications follow from the induction hypotheses and substitution for codomains.
+\end{proof}
+\begin{theorem}[Type preservation]
+If $\Gamma\vdash t:A$ and $t\to_\beta t'$, then $\Gamma\vdash t':A$.
+\end{theorem}
+\begin{proof}
+The only primitive reduction is beta. Inversion gives a typed abstraction and argument; the substitution lemma gives the type of the contracted body. Congruence preserves typing in surrounding terms.
+\end{proof}
+
+\section{Normalization by evaluation}
+\subsection{Semantic values}
+For each context and type, semantic values are neutrals, closures, sorts, and syntax values:
+\[
+\mathsf{Val}_\Gamma(A)::=\mathsf{Neutral}(n)\mid\mathsf{Closure}(\rho,t)\mid\mathsf{Sort}(i)\mid\mathsf{Syntax}(t).
+\]
+Evaluation is written $\mathsf{eval}_\rho(t)$. Variables read from environments; lambdas form closures; applications use $\mathsf{apply}$; quotation produces syntax without evaluating its body; unquotation executes only a syntax value.
+
+\subsection{Reflection and reification}
+Reflection embeds a neutral into a value. Reification $\mathsf{quote}_A(v)$ produces an eta-long normal form. At function types, a closure is applied to a fresh neutral and the result is reified. The normaliser is
+\[
+\mathsf{norm}(t)=\mathsf{quote}_A(\mathsf{eval}_{\emptyset}(t)).
+\]
+\begin{theorem}[Normalization]
+If $\Gamma\vdash t:A$, then $\mathsf{norm}(t)$ is defined and is an eta-long beta-normal form of type $A$.
+\end{theorem}
+\begin{proof}
+By induction on typing, using the logical relation indexed by types. The predicative hierarchy and absence of general recursion ensure that evaluation of well-typed terms is strongly normalizing.
+\end{proof}
+\begin{theorem}[Soundness of normalization]
+If $\Gamma\vdash t:A$, then $\Gamma\vdash\mathsf{norm}(t):A$ and $t\equiv\mathsf{norm}(t)$.
+\end{theorem}
+\begin{proof}
+Reification maps related values to well-typed normal forms. Reflection and reification are inverse up to definitional equality; at function types the proof applies both sides to a fresh variable.
+\end{proof}
+
+\section{Staged self-application}
+Let $N$ be the implementation of $\mathsf{norm}$. Its code is a syntax value $N=\quote(N)$. Self-application is $\mathsf{selfNorm}(c)=\unquote(N)\,c$. The safety point is that $N$ is data and is not executed merely because it appears in a term.
+\begin{proposition}[Staged self-correctness]
+For every closed well-typed $t$, unquoting the quoted normaliser and applying it to $t$ produces the same normal form as the host-level normaliser.
+\end{proposition}
+\begin{proof}
+Quotation preserves the abstract syntax of $N$, unquotation restores it, and the soundness theorem identifies the result with $\mathsf{norm}(t)$.
+\end{proof}
+
+\section{Eight uses}
+\subsection{Four simple uses}
+\textbf{Beta reduction.} $I=\lambda:A.\lambda x:A.x$ and $t=I\,a$ normalize to $a$.
+
+\textbf{Dependent result types.} For a family $\mathsf{Vec}(A,n)$, a head function has type $(n:\mathsf{Nat})\to(A:\Ty_0)\to\mathsf{Vec}(A,n+1)\to A$. The index rules out empty vectors.
+
+\textbf{Proof-term simplification.} $(\lambda p:P.p)q$ normalizes to $q$ without changing its type.
+
+\textbf{Staged code templates.} $\unquote(\quote(\lambda:A.x))$ restores the original lambda after an explicit stage transition.
+
+\subsection{Four complex uses}
+\textbf{Certified compiler passes.} With an indexed syntax family $\mathsf{Expr}(\tau)$, a pass $C:(\tau:\mathsf{Ty})\to\mathsf{Expr}(\tau)\to\mathsf{Expr}(\mathsf{lower}(\tau))$ can carry a preservation proof. Normalization canonicalizes generated certificates.
+
+\textbf{Dependent protocol state machines.} If $\mathsf{Conn}(s)$ is a connection in state $s$, then $\mathsf{send}:\mathsf{Conn}(\mathsf{Ready})\to M\to\mathsf{Conn}(\mathsf{Waiting})$ prevents ill-ordered operations before normalization.
+
+\textbf{Reflected decision procedures.} A checker $\mathsf{check}:\mathsf{Code}(P)\to\mathsf{Decidable}(P)$ may normalize reflected syntax before inspecting it, provided recursive inspection is structurally bounded.
+
+\textbf{Typed metaprograms.} A transformation $T:(A:\Ty_i)\to\mathsf{Code}(A)\to\mathsf{Code}(A)$ may quote, transform, and unquote its own code while preserving the indexed type.
+
+\section{Correspondence with the C++23 core}
+\begin{center}\begin{tabular}{ll}
+Mathematics & C++23 \\\hline
+$t$ & \texttt{Term} \\
+$x_i$ & \texttt{Term::var(i)} \\
+$\Ty_i$ & \texttt{Term::sort(i)} \\
+Pi and lambda & \texttt{Term::pi}, \texttt{Term::lam} \\
+substitution & \texttt{substitute} \\
+type inference & \texttt{infer} \\
+semantic value & \texttt{Value} \\
+evaluation & \texttt{eval} \\
+reification & \texttt{quoteValue} \\
+normalization & \texttt{normalise} \\
+staging & \texttt{quote}, \texttt{unquote}
+\end{tabular}\end{center}
+
+\section{Limitations and extensions}
+Adding unrestricted general recursion destroys total normalization. Inductive types require positivity and sound eliminators. Equality reflection may make conversion undecidable. A safe extension path is: natural numbers with structural recursion; identity types; positive inductive families; and a total meta-language for tactics and compilation.
+
+\section{Implementation sketch}
+The implementation uses immutable syntax trees and shared ownership:
+\begin{lstlisting}
+using Index = std::uint32_t;
+using Level = std::uint32_t;
+struct Term;
+using TermPtr = std::shared_ptr<const Term>;
+struct Var { Index index; };
+struct Sort { Level level; };
+struct Pi { TermPtr domain, codomain; };
+struct Lam { TermPtr domain, body; };
+struct App { TermPtr function, argument; };
+struct Quote { TermPtr body; };
+struct Unquote { TermPtr code; };
+struct Term {
+  using Node = std::variant<Var,Sort,Pi,Lam,App,Quote,Unquote>;
+  Node node;
+  template<class T> explicit Term(T x) : node(std::move(x)) {}
+};
+\end{lstlisting}
+Semantic values must distinguish closures, neutrals, sorts, and syntax values. A closure stores the environment in which its body was created. Application evaluates a closure by extending its environment, while application of a neutral creates a neutral application.
+
+\section{Bidirectional checking}
+The checker is divided into synthesis $\mathsf{infer}(\Gamma,t)$ and checking $\mathsf{check}(\Gamma,t,A)$. A lambda checks against an expected Pi type; variables, sorts, and applications synthesize. Conversion is implemented by evaluating and reifying both candidate types, then structurally comparing their eta-long normal forms.
+
+\section{Corrected staging interface}
+A typed staging interface is given by
+\[
+\Code:(A:\Ty_i)\to\Ty_i,\qquad \quote:A\to\Code(A),\qquad \unquote:\Code(A)\to A.
+\]
+Unquotation is therefore type preserving. The normaliser may have type $(A:\Ty_i)\to\Code(A)\to\Code(A)$, while self-application remains an explicit stage transition rather than an inhabitant of an unrestricted self-function type.
+
+\section{Additional metatheoretic lemmas}
+\begin{lemma}[Weakening]
+If $\Gamma\vdash t:A$, then $\Gamma,B\vdash\uparrow^0_0t:\uparrow^0_0A$ for every well-formed $B$.
+\end{lemma}
+\begin{lemma}[Evaluation respects substitution]
+For compatible environments, $\mathsf{eval}_\rho(t[u/x])=\mathsf{eval}_{\rho,\mathsf{eval}_\rho(u)}(t)$.
+\end{lemma}
+\begin{lemma}[Quotation preserves typing]
+If $\Gamma\vdash t:A$, then $\Gamma\vdash\quote(t):\Code(A)$.
+\end{lemma}
+\begin{theorem}[Stage safety]
+If $\Gamma\vdash c:\Code(A)$, then $\Gamma\vdash\unquote(c):A$.
+\end{theorem}
+
+\section{Normalization algorithm and complexity}
+For open terms, the empty environment is replaced by an environment of reflected fresh neutrals. The pipeline is: infer the type; reflect the context; evaluate; reify. Eta-long output makes definitional equality reducible to structural equality of normal forms. Strong normalization does not imply small output: dependent reification can duplicate neutral computations. Implementations should therefore expose step, depth, and output-node limits and distinguish resource exhaustion from type errors.
+
+\section{Testing strategy}
+Tests should cover shifting and substitution, closure application, neutral applications, malformed applications, universe mismatches, invalid unquotation, and the invariant
+\[
+\mathsf{infer}(\Gamma,t)=A\implies \mathsf{infer}(\Gamma,\mathsf{normalise}(\Gamma,t))=A.
+\]
+Normalization should be idempotent on accepted terms: $\mathsf{normalise}(\Gamma,n)=n$ whenever $n$ is already eta-long and beta-normal.
+
+\section{Implemented C++23 prototype}
+The accompanying implementation, \texttt{normaliser.cpp}, follows the core directly. Terms are immutable shared trees whose node type is a C++23 variant containing variables, universes, explicit code types, Pi types, lambdas, applications, quotation, and unquotation. Semantic evaluation uses environments, closures, neutral values, and syntax values. Dependent codomains are instantiated with de Bruijn substitution; ordinary computation is performed by the NbE evaluator.
+
+The central executable interface is:
+\begin{lstlisting}
+T nbe_normalise(const Ctx& context, const T& term) {
+    auto type = infer(context, term);
+    return reify(eval_nbe(reflect(context), term), type);
+}
+
+T self_apply(const Ctx& context, const T& term) {
+    auto quoted = quoted_normaliser();
+    return unquote_code(quoted, context, term);
+}
+\end{lstlisting}
+
+The quotation boundary is represented by typed \texttt{Code(A)} terms. The checker enforces
+\[
+\quote(t):\Code(\mathsf{type}(t)),\qquad
+\unquote(c):A\quad\text{when }c:\Code(A).
+\]
+The host-side \texttt{quoted\_normaliser} is deliberately explicit: the normaliser is inert while quoted and is invoked only by \texttt{unquote\_code}. This models the staged self-application boundary without adding an unrestricted $\Ty:\Ty$ universe.
+
+The implementation also checks predicative universe formation. In particular,
+\[
+\mathsf{infer}(\Ty_i)=\Ty_{i+1}
+\]
+and the type of $(x:A)\to B$ is formed at the maximum universe level of $A$ and $B$.
+
+\subsection{Verification results}
+The executable was compiled with:
+\begin{lstlisting}
+g++ -std=c++23 -Wall -Wextra -pedantic -O2 normaliser.cpp -o normaliser
+./normaliser
+\end{lstlisting}
+
+The test program verifies beta normalization, staged self-application, eta-long reification of both neutral functions and closures, universe successor and Pi-level formation, rejection of an ill-typed application, typed quotation, idempotence of normalization, and the de Bruijn substitution invariant. The observed output includes:
+\begin{lstlisting}
+normal form: x0
+staged self-application: x0
+eta-long neutral: (lam (x1 x0))
+eta-long closure: (lam (lam x0))
+universe and rejection tests: PASS
+typed quotation boundary: PASS
+substitution invariant: PASS
+\end{lstlisting}
+
+The prototype remains intentionally small. It does not provide inductive types, user-defined recursion, equality reflection, or a separately verified compiler from the mathematical calculus to C++. Those are extensions beyond the strongly normalizing kernel implemented here.
+
+\section{Conclusion}
+The construction gives a precise meaning to a self-applicable normaliser: the normaliser is represented as typed code, and self-application is an explicit stage transition. NbE supplies efficient normalization, while the universe hierarchy and quotation boundary prevent unrestricted self-reference paradoxes. The result is small enough to implement directly in pure C++23, yet expressive enough to serve as a kernel for typed metaprogramming and proof-producing computation.
+
+\end{document}
