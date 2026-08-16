@@ -40,6 +40,11 @@ Program parse_main(std::string const& s) {
     auto node=csem::structure(node_match[1].str());
     csem::validate_structs({{node_match[1].str(),{{"value",csem::integer()},{"next",csem::pointer(node)}}}});
     csem::validate_struct_cycles({{node_match[1].str(),{{"value",csem::integer()},{"next",csem::pointer(node)}}}});
+    static const std::regex pointer_global(R"(\bstruct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*;)");
+    std::vector<csem::Global> pointer_globals;
+    for(std::sregex_iterator i(s.begin(),s.end(),pointer_global), end; i!=end; ++i)
+      if((*i)[1].str()==node_match[1].str()) pointer_globals.push_back({(*i)[2].str(),csem::pointer(node),std::nullopt});
+    csem::check_globals(pointer_globals,{},{{node_match[1].str(),{{"value",csem::integer()},{"next",csem::pointer(node)}}}});
   }
   static const std::regex by_value_struct(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*struct\s+\1\s+self\s*;\s*\}\s*;)");
   if(std::regex_search(s,by_value_struct)) throw std::runtime_error("by-value recursive struct is not representable");
