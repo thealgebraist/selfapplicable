@@ -125,7 +125,10 @@ int main(){using namespace csem;try{
   StructFields callback_structs=structs;
   callback_structs["CallbackBox"]={{"run",callback_type}};
   if(!same(infer(indirect_call(member(variable("box"),"run"),{literal(9)}),{{"box",CallbackBox}},callback_fs,callback_structs),integer()))throw std::runtime_error("struct function pointer field call failed");
+  if(!same(infer(assign(member(variable("box"),"run"),function_ref("inc")),{{"box",CallbackBox}},callback_fs,callback_structs),callback_type))throw std::runtime_error("struct callback field assignment failed");
   if(!same(infer(indirect_call(arrow(variable("boxp"),"run"),{literal(9)}),{{"boxp",pointer(CallbackBox)}},callback_fs,callback_structs),integer()))throw std::runtime_error("pointer struct function field call failed");
+  if(!same(infer(assign(arrow(variable("boxp"),"run"),function_ref("inc")),{{"boxp",pointer(CallbackBox)}},callback_fs,callback_structs),callback_type))throw std::runtime_error("pointer struct callback assignment failed");
+  bool bad_callback_assignment=false;try{(void)infer(assign(member(variable("box"),"run"),literal(0)),{{"box",CallbackBox}},callback_fs,callback_structs);}catch(std::exception const&){bad_callback_assignment=true;}if(!bad_callback_assignment)throw std::runtime_error("bad callback field assignment accepted");
   auto Thunk=structure("Thunk");
   callback_structs["Thunk"]={{"run",callback_type},{"next",pointer(Thunk)}};
   validate_struct_cycles(callback_structs);

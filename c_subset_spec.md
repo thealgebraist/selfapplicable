@@ -227,6 +227,9 @@ callback dispatch remains typed after pointer member selection.
 Function-pointer fields use the core’s eight-byte pointer layout; the recursive
 callback-object fixture checks both its callback offset and its self-pointer
 offset before any lowering occurs.
+Callback fields are assignable lvalues as well: both `.` and `->` assignments
+require an exactly matching function signature, rejecting integer or unrelated
+function values.
 index expression `p[i]` requires a pointer base and integer index, while
 integer-plus-pointer arithmetic preserves the pointer element type. The
 operator vocabulary also includes subtraction, ordering, and logical forms;
