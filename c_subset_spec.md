@@ -418,6 +418,8 @@ path to a two-argument callback.
 before the integer `main` result is returned.
 `function_pointer_void_binary.c` checks the same void-returning path with two
 integer callback arguments.
+`function_pointer_void_typedef.c` checks a named typedef alias for a void
+callback signature.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
