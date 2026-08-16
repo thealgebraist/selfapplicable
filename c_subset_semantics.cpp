@@ -129,6 +129,10 @@ int main(){using namespace csem;try{
   Function recurse_callback{"recurse_callback",{{"cb",callback_type},{"x",integer()}},integer(),{indirect_call(variable("cb"),{variable("x")}),call("recurse_callback",{variable("cb"),variable("x")})}};
   Functions recursive_callback_fs{{"inc",&inc},{"recurse_callback",&recurse_callback}};
   check(recurse_callback,recursive_callback_fs,structs);
+  Function callback_even{"callback_even",{{"cb",callback_type},{"x",integer()}},integer(),{indirect_call(variable("cb"),{variable("x")}),call("callback_odd",{variable("cb"),variable("x")})}};
+  Function callback_odd{"callback_odd",{{"cb",callback_type},{"x",integer()}},integer(),{indirect_call(variable("cb"),{variable("x")}),call("callback_even",{variable("cb"),variable("x")})}};
+  Functions mutual_callback_fs{{"callback_even",&callback_even},{"callback_odd",&callback_odd},{"inc",&inc}};
+  check_program({callback_even,callback_odd},structs);
   Function make_callback{"make_callback",{},callback_type,{function_ref("inc")}};
   check(make_callback,callback_fs,structs);
   auto CallbackBox=structure("CallbackBox");
