@@ -274,6 +274,8 @@ Indexed assignment is also supported; `array_assign_return.c` writes
 Array-to-pointer initialization is supported for the fixed array form;
 `pointer_array_return.c` initializes `int *p = values` and returns `p[1]` with
 status `15`.
+Pointer-indexed assignment is supported as well; `pointer_array_assign.c`
+writes `p[1] = 16` and returns status `16`.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant
