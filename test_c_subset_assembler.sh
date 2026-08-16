@@ -79,6 +79,7 @@ expect_status fixtures/function_pointer_struct_arrow_binary_field.c 7
 expect_status fixtures/function_pointer_struct_arrow_void_field.c 0
 expect_status fixtures/function_pointer_struct_arrow_nullary_field.c 9
 expect_status fixtures/function_pointer_struct_aggregate.c 6
+expect_status fixtures/function_pointer_struct_binary_aggregate.c 7
 expect_reject fixtures/function_pointer_alias_bad_type.c
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9

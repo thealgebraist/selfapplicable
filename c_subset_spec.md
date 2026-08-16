@@ -448,6 +448,8 @@ pointer-to-struct arrow member.
 callback through the same arrow-member path.
 `function_pointer_struct_aggregate.c` checks aggregate initialization of a
 callback field before direct member dispatch.
+`function_pointer_struct_binary_aggregate.c` extends aggregate callback
+initialization to a two-argument field.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
