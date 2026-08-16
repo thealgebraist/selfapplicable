@@ -478,6 +478,8 @@ record check to two-argument callbacks.
 both returning and void callback fields.
 `function_pointer_struct_mixed_binary_aggregate.c` extends that mixed
 aggregate path to two-argument callbacks.
+`function_pointer_struct_nested_field.c` checks a pointer-to-callback pointer
+stored in a struct field and dispatched through two dereferences.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
