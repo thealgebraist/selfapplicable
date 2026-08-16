@@ -322,6 +322,8 @@ The comparison operators `>`, `<=`, `>=`, and `!=` are also typed and
 constant-lowered as integer Boolean results.
 Constant logical `&&` and `||` expressions use C truthiness and lower to 0 or
 1 exit statuses.
+Constant ternary expressions `condition ? yes : no` select and lower the
+corresponding integer branch.
 typed `sizeof` form returns an integer and uses the core's deterministic
 packed layout: `int` is 4 bytes, pointers and function references are 8 bytes,
 and struct size is the sum of its field sizes. This is a deliberate initial
