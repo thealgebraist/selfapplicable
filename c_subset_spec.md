@@ -422,6 +422,8 @@ integer callback arguments.
 callback signature.
 `function_pointer_void_binary_typedef.c` extends the named void alias to two
 integer arguments.
+`function_pointer_void_parameter.c` checks a void higher-order function that
+receives and invokes a void callback parameter.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
