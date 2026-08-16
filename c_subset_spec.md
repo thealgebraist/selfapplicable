@@ -16,7 +16,8 @@ int main(int argc, char **argv) { return identity(7); }
 ```
 
 The frontend checks the helper shape and lowers this constant call result into
-the generated exit status; the assembler target still uses `as` and `ld`.
+the generated exit status; an unknown callee is rejected. The assembler target
+still uses `as` and `ld`.
 
 The frontend also accepts the first control-flow form:
 

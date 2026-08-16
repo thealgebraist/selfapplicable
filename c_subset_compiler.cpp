@@ -39,7 +39,8 @@ Program parse_main(std::string const& s) {
     static const std::regex call(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*([0-9]+)\s*\)\s*;)");
     if(std::regex_search(body,r,call)) {
       static const std::regex identity(R"(\bint\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\2\s*;\s*\})");
-      if(!std::regex_search(s,identity)) throw std::runtime_error("function call requires an identity helper");
+      std::smatch helper;
+      if(!std::regex_search(s,helper,identity) || helper[1].str()!=r[1].str()) throw std::runtime_error("function call requires the declared identity helper");
       p.function_call=true; p.else_status=std::stoi(r[2]);
     } else {
     static const std::regex ret(R"(\breturn\s+([0-9]+)\s*;)");
