@@ -112,6 +112,15 @@ return 1;
 
 The generated code checks the `statx` mode field against `S_IFDIR`.
 
+Regular-file predicates use the corresponding form:
+
+```c
+if (isreg("normaliser.cpp")) return 0;
+return 1;
+```
+
+The backend checks `S_IFREG` from the same `statx` mode field.
+
 Permissive source-ingestion mode accepts symbolic return expressions from real
 Coreutils files, such as `return EXIT_STATUS;`, and lowers them to status 0
 with an explicit diagnostic. This proves that the macro-free frontend can
