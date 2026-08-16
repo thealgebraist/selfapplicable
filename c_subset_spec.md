@@ -178,6 +178,8 @@ Indexing an `enum Mode *` preserves `enum Mode` as the element type, while
 indexing a scalar enum is rejected.
 Enum types are preserved in function parameters and return types; calls with
 plain integer arguments are rejected.
+The same signatures survive function-address formation and indirect callback
+calls, including enum-valued results.
 The semantic regression directly checks an enum-typed selector through
 `check_switch`, in addition to the source-level named-label fixture.
 `sizeof(enum Mode)` uses the typed four-byte layout and undeclared enum names

@@ -109,6 +109,10 @@ int main(){using namespace csem;try{
   check(mode_identity,enum_functions,enum_structs);
   if(!same(infer(call(mode_identity.name,{variable("m")}),{{"m",Mode}},enum_functions,enum_structs),Mode))throw std::runtime_error("enum function signature failed");
   bool bad_enum_call=false;try{(void)infer(call(mode_identity.name,{literal(1)}),{},enum_functions,enum_structs);}catch(std::exception const&){bad_enum_call=true;}if(!bad_enum_call)throw std::runtime_error("integer passed to enum function");
+  auto mode_callback=function({Mode},Mode);
+  Env mode_callback_env{{"cb",pointer(mode_callback)},{"m",Mode}};
+  if(!same(infer(assign(variable("cb"),address(function_ref(mode_identity.name))),mode_callback_env,enum_functions,enum_structs),pointer(mode_callback)))throw std::runtime_error("enum callback assignment failed");
+  if(!same(infer(indirect_call(dereference(variable("cb")),{variable("m")}),mode_callback_env,enum_functions,enum_structs),Mode))throw std::runtime_error("enum indirect call failed");
   if(!same(infer(member(variable("n"),"value"),{{"n",Node}}, {}, structs),integer()))throw std::runtime_error("struct field type failed");
   if(!same(infer(arrow(variable("p"),"next"),{{"p",NodePtr}}, {}, structs),NodePtr))throw std::runtime_error("pointer field type failed");
   if(!same(infer(assign(arrow(variable("p"),"value"),literal(7)),{{"p",NodePtr}}, {}, structs),integer()))throw std::runtime_error("assignment type failed");
