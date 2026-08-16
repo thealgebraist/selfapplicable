@@ -363,6 +363,8 @@ The source slice also recognizes a small C-style function-pointer form:
 address/dereference/indirect-call path, and exits with status `6`.
 `function_pointer_bad_arity.c` is rejected when the indirect call supplies two
 arguments to the one-argument pointer.
+`function_pointer_global.c` covers the corresponding file-scope callback
+pointer initializer.
 For the recognized recursive-node declaration, file-scope pointer globals such
 as `struct Node *head;` are checked as `Node*`; see
 `fixtures/pointer_global.c`.
