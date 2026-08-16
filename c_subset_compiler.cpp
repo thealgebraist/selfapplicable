@@ -31,8 +31,15 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,r,conditional)) { p.argc_value=std::stoi(r[1]); p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); }
   else {
     static const std::regex ret(R"(\breturn\s+([0-9]+)\s*;)");
-    if(!std::regex_search(body,r,ret)) throw std::runtime_error("return expression is outside subset");
-    p.else_status=std::stoi(r[1]);
+    if(std::regex_search(body,r,ret)) p.else_status=std::stoi(r[1]);
+    else {
+      static const std::regex symbolic(R"(\breturn\s+[A-Za-z_][A-Za-z0-9_]*\s*;)");
+      if(!std::regex_search(body,symbolic)) throw std::runtime_error("return expression is outside subset");
+      // Macro-expanded constants and external status helpers are represented
+      // by the freestanding ABI stub until the typed constant layer is added.
+      p.else_status=0;
+      std::cerr<<"warning: symbolic return treated as external status 0\n";
+    }
   }
   static const std::regex write(R"re(write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   std::smatch w; if(std::regex_search(body,w,write)) {

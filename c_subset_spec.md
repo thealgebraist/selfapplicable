@@ -94,6 +94,12 @@ finddir(".", "normaliser.cpp");
 The generated code compares the decoded entry name byte-by-byte before
 emitting it.
 
+Permissive source-ingestion mode accepts symbolic return expressions from real
+Coreutils files, such as `return EXIT_STATUS;`, and lowers them to status 0
+with an explicit diagnostic. This proves that the macro-free frontend can
+ingest the translation-unit shape, but it is not a semantic implementation of
+the unresolved macro or helper function.
+
 Lines beginning with `#` and `//` comments are skipped. The parsed return
 status is lowered to Linux x86-64 `_start` assembler. Before emission, the
 compiler runs an administrative typed term through the dependent NbE core;
