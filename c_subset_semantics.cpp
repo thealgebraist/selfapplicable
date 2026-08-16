@@ -104,6 +104,11 @@ int main(){using namespace csem;try{
   Aliases enum_aliases; add_alias(enum_aliases,"ModeAlias",Mode);
   if(!same(resolve_alias(enum_aliases,"ModeAlias"),Mode))throw std::runtime_error("enum alias failed");
   bool duplicate_enum_alias=false;try{add_alias(enum_aliases,"ModeAlias",Mode);}catch(std::exception const&){duplicate_enum_alias=true;}if(!duplicate_enum_alias)throw std::runtime_error("duplicate enum alias accepted");
+  Function mode_identity{"mode_identity",{{"m",Mode}},Mode,{variable("m")}};
+  Functions enum_functions{{mode_identity.name,&mode_identity}};
+  check(mode_identity,enum_functions,enum_structs);
+  if(!same(infer(call(mode_identity.name,{variable("m")}),{{"m",Mode}},enum_functions,enum_structs),Mode))throw std::runtime_error("enum function signature failed");
+  bool bad_enum_call=false;try{(void)infer(call(mode_identity.name,{literal(1)}),{},enum_functions,enum_structs);}catch(std::exception const&){bad_enum_call=true;}if(!bad_enum_call)throw std::runtime_error("integer passed to enum function");
   if(!same(infer(member(variable("n"),"value"),{{"n",Node}}, {}, structs),integer()))throw std::runtime_error("struct field type failed");
   if(!same(infer(arrow(variable("p"),"next"),{{"p",NodePtr}}, {}, structs),NodePtr))throw std::runtime_error("pointer field type failed");
   if(!same(infer(assign(arrow(variable("p"),"value"),literal(7)),{{"p",NodePtr}}, {}, structs),integer()))throw std::runtime_error("assignment type failed");
