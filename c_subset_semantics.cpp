@@ -7,6 +7,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <variant>
@@ -45,6 +46,7 @@ Expr allocate(T t){return e<Alloc>(std::move(t));} Expr release(Expr x){return e
 Expr call(std::string n,std::vector<Expr>a){return e<Call>(std::move(n),std::move(a));} Expr function_ref(std::string n){return e<FunctionRef>(std::move(n));} Expr indirect_call(Expr f,std::vector<Expr>a){return e<IndirectCall>(std::move(f),std::move(a));}
 
 struct Function{std::string name;std::vector<std::pair<std::string,T>> args;T ret;std::vector<Expr> body;};
+struct Global{std::string name;T type;std::optional<Expr> initializer;};
 using Env=std::map<std::string,T>; using Functions=std::map<std::string,Function const*>;
 using StructFields=std::map<std::string,std::vector<std::pair<std::string,T>>>;
 using Aliases=std::map<std::string,T>;
@@ -75,6 +77,7 @@ void validate_structs(StructFields const&ss){for(auto const&entry:ss){std::vecto
 void validate_function(Function const&f){std::vector<std::string> names;for(auto const&a:f.args){if(std::find(names.begin(),names.end(),a.first)!=names.end())throw std::runtime_error("duplicate parameter "+f.name+"."+a.first);names.push_back(a.first);}}
 void validate_struct_cycles(StructFields const&ss){std::function<bool(std::string const&,std::vector<std::string>&)> visit=[&](std::string const&name,std::vector<std::string>&path){if(std::find(path.begin(),path.end(),name)!=path.end())return true;auto i=ss.find(name);if(i==ss.end())return false;path.push_back(name);for(auto const&f:i->second)if(auto s=std::get_if<Ty::Struct>(&f.second->n);s&&visit(s->name,path)){path.pop_back();return true;}path.pop_back();return false;};for(auto const&entry:ss){std::vector<std::string> path;if(visit(entry.first,path))throw std::runtime_error("by-value recursive struct "+entry.first);}}
 void check_program(std::vector<Function> const&program,StructFields const&ss){validate_structs(ss);validate_struct_cycles(ss);Functions fs;for(auto const&f:program){validate_function(f);if(!fs.emplace(f.name,&f).second)throw std::runtime_error("duplicate function "+f.name);}for(auto const&f:program)check(f,fs,ss);}
+Env check_globals(std::vector<Global> const&globals,Functions const&fs,StructFields const&ss){Env env;for(auto const&g:globals){if(!env.emplace(g.name,g.type).second)throw std::runtime_error("duplicate global "+g.name);if(g.initializer&&!same(infer(*g.initializer,env,fs,ss),g.type))throw std::runtime_error("global initializer type mismatch");}return env;}
 struct SwitchCase{Expr label;std::vector<Stmt> body;};
 int constant_label(Expr const&e){auto p=std::get_if<Lit>(&e->n);if(!p)throw std::runtime_error("case label must be constant");return p->value;}
 void check_switch(Expr const&selector,std::vector<SwitchCase> const&cases,std::vector<Stmt> const&default_body,T const&ret,Env const&env,Functions const&fs,StructFields const&ss,int loop_depth=0){if(!same(infer(selector,env,fs,ss),integer()))throw std::runtime_error("switch selector must be integer");std::vector<int> labels;for(auto const&c:cases){if(!same(infer(c.label,env,fs,ss),integer()))throw std::runtime_error("case label must be integer");int label=constant_label(c.label);if(std::find(labels.begin(),labels.end(),label)!=labels.end())throw std::runtime_error("duplicate case label");labels.push_back(label);check_statements(c.body,ret,env,fs,ss,loop_depth);}check_statements(default_body,ret,env,fs,ss,loop_depth);}
@@ -123,6 +126,9 @@ int main(){using namespace csem;try{
   auto Bad=structure("Bad"); bool value_cycle=false;try{validate_struct_cycles({{"Bad",{{"self",Bad}}}});}catch(std::exception const&){value_cycle=true;}if(!value_cycle)throw std::runtime_error("by-value recursive struct accepted");
   Aliases aliases;add_alias(aliases,"NodeAlias",Node);add_alias(aliases,"NodeAlias2",structure("NodeAlias"));if(!same(resolve_alias(aliases,"NodeAlias2"),Node))throw std::runtime_error("typedef resolution failed");
   bool alias_cycle=false;try{Aliases cyclic;add_alias(cyclic,"A",structure("B"));add_alias(cyclic,"B",structure("A"));(void)resolve_alias(cyclic,"A");}catch(std::exception const&){alias_cycle=true;}if(!alias_cycle)throw std::runtime_error("typedef cycle accepted");
+  auto globals=check_globals({{"limit",integer(),literal(4)},{"head",NodePtr,std::nullopt}}, {}, structs);if(globals.size()!=2)throw std::runtime_error("global environment failed");
+  bool bad_global=false;try{(void)check_globals({{"bad",integer(),variable("head")}}, {}, structs);}catch(std::exception const&){bad_global=true;}if(!bad_global)throw std::runtime_error("bad global initializer accepted");
+  bool duplicate_global=false;try{(void)check_globals({{"x",integer(),std::nullopt},{"x",integer(),std::nullopt}}, {}, structs);}catch(std::exception const&){duplicate_global=true;}if(!duplicate_global)throw std::runtime_error("duplicate global accepted");
   check_body(length,{if_stmt(arrow(variable("p"),"value"),{return_stmt(call("length",{variable("p")}))},{return_stmt(literal(0))})},fs,structs);
   bool missing_return=false;try{check_body(length,{expr_stmt(literal(1))},fs,structs);}catch(std::exception const&){missing_return=true;}if(!missing_return)throw std::runtime_error("fallthrough function accepted");
   Function mutate{"mutate",{{"p",NodePtr}},unit(),{}};
@@ -139,6 +145,6 @@ int main(){using namespace csem;try{
   bool bad_loop_control=false;try{check_body(mutate,{Stmt(BreakStmt{})},body_fs,structs);}catch(std::exception const&){bad_loop_control=true;}if(!bad_loop_control)throw std::runtime_error("top-level break accepted");
   auto bad=Function{"bad",{{"p",NodePtr}},integer(),{dereference(variable("p"))}}; bool rejected=false;try{check(bad,fs,structs);}catch(std::exception const&){rejected=true;}if(!rejected)throw std::runtime_error("bad pointer result accepted");
   using namespace st; auto A=sort(1); auto n=nbe_normalise({},normalize_code(A,quote(app(lam(A,var(0)),sort(0)))));if(!equal(n,quote(sort(0))))throw Error("NbE bridge failed");
-  std::cout<<"struct Node: PASS\nstruct fields: PASS\npointer fields: PASS\nlayout and sizeof: PASS\nfield offsets: PASS\nduplicate fields: PASS\nduplicate parameters: PASS\nby-value cycle rejection: PASS\ntypedef aliases: PASS\ntypedef cycle rejection: PASS\nallocation: PASS\ndeallocation: PASS\nassignments: PASS\nbinary operators: PASS\nsubtraction and ordering: PASS\nlogical operators: PASS\npointer indexing: PASS\npointer arithmetic: PASS\nconditionals: PASS\nwhile statements: PASS\nfor statements: PASS\ndo-while statements: PASS\nswitch statements: PASS\nduplicate cases: PASS\nloop control: PASS\nstatement bodies: PASS\ndefinite returns: PASS\nmutual recursion: PASS\nduplicate functions: PASS\nfunction references: PASS\nindirect calls: PASS\npointer types: PASS\nfunction calls: PASS\nrecursive call typing: PASS\nNbE bridge: PASS\n";
+  std::cout<<"struct Node: PASS\nstruct fields: PASS\npointer fields: PASS\nlayout and sizeof: PASS\nfield offsets: PASS\nduplicate fields: PASS\nduplicate parameters: PASS\nby-value cycle rejection: PASS\ntypedef aliases: PASS\ntypedef cycle rejection: PASS\nglobal declarations: PASS\nglobal initializer checks: PASS\nduplicate globals: PASS\nallocation: PASS\ndeallocation: PASS\nassignments: PASS\nbinary operators: PASS\nsubtraction and ordering: PASS\nlogical operators: PASS\npointer indexing: PASS\npointer arithmetic: PASS\nconditionals: PASS\nwhile statements: PASS\nfor statements: PASS\ndo-while statements: PASS\nswitch statements: PASS\nduplicate cases: PASS\nloop control: PASS\nstatement bodies: PASS\ndefinite returns: PASS\nmutual recursion: PASS\nduplicate functions: PASS\nfunction references: PASS\nindirect calls: PASS\npointer types: PASS\nfunction calls: PASS\nrecursive call typing: PASS\nNbE bridge: PASS\n";
 }catch(std::exception const&e){std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}}
 #endif

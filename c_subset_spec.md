@@ -185,6 +185,9 @@ function environment is created.
 recursive fields remain valid and are the representation used by `Node.next`.
 The `Aliases` environment provides transitive `typedef` resolution and rejects
 alias cycles before a resolved type is consumed by the checker.
+`Global` declarations form an ordered environment: duplicate names are
+rejected and each initializer is checked against its declared type, with
+earlier globals available to later initializers.
 Typed allocation `allocate(T)` produces `T*` after checking that `T` has a
 known size; `release(p)` accepts only pointer expressions and has type `void`.
 These operations currently describe the checked semantic boundary; lowering
