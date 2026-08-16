@@ -271,6 +271,9 @@ Constant three-element integer arrays can be indexed in the source subset;
 bounds constant index is rejected.
 Indexed assignment is also supported; `array_assign_return.c` writes
 `values[1] = 14` and returns status `14`.
+Array-to-pointer initialization is supported for the fixed array form;
+`pointer_array_return.c` initializes `int *p = values` and returns `p[1]` with
+status `15`.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant
