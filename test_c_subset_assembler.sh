@@ -92,6 +92,7 @@ expect_status fixtures/function_pointer_struct_void_typedef_arrow.c 0
 expect_status fixtures/function_pointer_struct_multiple_fields.c 6
 expect_status fixtures/function_pointer_struct_mixed_fields.c 6
 expect_status fixtures/function_pointer_struct_mixed_binary_fields.c 7
+expect_status fixtures/function_pointer_struct_mixed_aggregate.c 6
 expect_reject fixtures/function_pointer_alias_bad_type.c
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9
