@@ -93,6 +93,8 @@ int main(){using namespace csem;try{
   if(!integerish(Mode)||!integerish(integer()))throw std::runtime_error("enum integer compatibility failed");
   auto ModePtr=pointer(Mode);
   if(size_of(ModePtr,structs)!=8||!same(infer(allocate(Mode),{}, {},structs),ModePtr)||!same(infer(dereference(variable("mp")),{{"mp",ModePtr}}, {},structs),Mode))throw std::runtime_error("enum pointer allocation failed");
+  if(!same(infer(index(variable("modes"),literal(1)),{{"modes",ModePtr}}, {},structs),Mode))throw std::runtime_error("enum pointer indexing failed");
+  bool bad_enum_index=false;try{(void)infer(index(variable("m"),literal(0)),{{"m",Mode}}, {},structs);}catch(std::exception const&){bad_enum_index=true;}if(!bad_enum_index)throw std::runtime_error("enum value indexed");
   auto Tagged=structure("Tagged");
   StructFields enum_structs{{"Tagged",{{"kind",Mode},{"payload",integer()}}}};
   if(size_of(Tagged,enum_structs)!=8||field_offset(Tagged,"payload",enum_structs)!=4||!same(infer(member(variable("tag"),"kind"),{{"tag",Tagged}}, {},enum_structs),Mode))throw std::runtime_error("enum struct field failed");

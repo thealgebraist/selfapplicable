@@ -174,6 +174,8 @@ Enums may be stored in nominal struct fields; field typing, packed offsets,
 and aggregate size preserve the enum type.
 Assignments through `.` and `->` require a matching enum type; plain integer
 expressions are rejected for nominal enum fields.
+Indexing an `enum Mode *` preserves `enum Mode` as the element type, while
+indexing a scalar enum is rejected.
 The semantic regression directly checks an enum-typed selector through
 `check_switch`, in addition to the source-level named-label fixture.
 `sizeof(enum Mode)` uses the typed four-byte layout and undeclared enum names
