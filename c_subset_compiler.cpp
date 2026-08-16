@@ -41,6 +41,15 @@ Program parse_main(std::string const& s) {
     recursive_helper=recursive_match[1].str();
     auto recursive=csem::Function{recursive_helper,{{recursive_match[2].str(),csem::integer()}},csem::integer(),{csem::call(recursive_helper,{csem::variable(recursive_match[2].str())})}};
     csem::check_program({recursive},{});
+  } else {
+    static const std::regex recursive_base_definition(R"(\bint\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*if\s*\(\s*\2\s*==\s*0\s*\)\s*return\s+0\s*;\s*return\s+\1\s*\(\s*\2\s*-\s*1\s*\)\s*;\s*\})");
+    if(std::regex_search(s,recursive_match,recursive_base_definition)) {
+      recursive_helper=recursive_match[1].str();
+      auto n=csem::variable(recursive_match[2].str());
+      auto recursive=csem::Function{recursive_helper,{{recursive_match[2].str(),csem::integer()}},csem::integer(),{}};
+      csem::Functions functions{{recursive_helper,&recursive}};
+      csem::check_body(recursive,{csem::if_stmt(csem::binary(csem::BinOp::Equal,n,csem::literal(0)),{csem::return_stmt(csem::literal(0))},{csem::return_stmt(csem::call(recursive_helper,{csem::binary(csem::BinOp::Subtract,n,csem::literal(1))}))})},functions,{});
+    }
   }
   static const std::regex node_struct(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*int\s+value\s*;\s*struct\s+\1\s*\*\s*next\s*;\s*\}\s*;)");
   std::smatch node_match;

@@ -49,6 +49,8 @@ int main(int argc, char **argv) { return recurse(0); }
 `recursive_call.c` is the source-ingestion regression fixture. General
 recursive execution and termination analysis remain semantic-core concerns;
 this backend form only lowers the zero-call result.
+The base-case form in `recursive_base_case.c` is checked through the
+structured `if`/`return` checker and validates the decrementing recursive call.
 
 The frontend also accepts the first control-flow form:
 
