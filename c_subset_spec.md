@@ -428,6 +428,8 @@ receives and invokes a void callback parameter.
 void callback with two integer arguments.
 `function_pointer_equality.c` checks equality of two compatible function
 pointers after typed address formation.
+`function_pointer_struct_field.c` stores a typed callback in a struct field
+and dispatches through the checked member expression.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
