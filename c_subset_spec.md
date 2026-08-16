@@ -263,6 +263,8 @@ value. `fixtures/global_return.c` exits with the initialized value.
 For the recognized recursive-node declaration, file-scope pointer globals such
 as `struct Node *head;` are checked as `Node*`; see
 `fixtures/pointer_global.c`.
+Duplicate pointer globals are rejected as well; see
+`fixtures/duplicate_pointer_global.c`.
 
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can
