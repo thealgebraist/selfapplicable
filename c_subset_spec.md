@@ -29,6 +29,15 @@ int main(int argc, char **argv) { return add(2, 5); }
 The call arity and helper name are checked, and the generated target exits with
 the computed result.
 
+Nullary constant helpers are supported as well:
+
+```c
+int answer() { return 9; }
+int main(int argc, char **argv) { return answer(); }
+```
+
+The declared zero-argument signature is checked before assembly emission.
+
 The frontend also accepts the first control-flow form:
 
 ```c
