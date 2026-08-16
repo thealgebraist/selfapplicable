@@ -172,6 +172,8 @@ Enum pointers retain the ordinary eight-byte pointer layout, and
 `allocate(enum Mode)` is checked as `enum Mode *`.
 Enums may be stored in nominal struct fields; field typing, packed offsets,
 and aggregate size preserve the enum type.
+Assignments through `.` and `->` require a matching enum type; plain integer
+expressions are rejected for nominal enum fields.
 The semantic regression directly checks an enum-typed selector through
 `check_switch`, in addition to the source-level named-label fixture.
 `sizeof(enum Mode)` uses the typed four-byte layout and undeclared enum names

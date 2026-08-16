@@ -96,6 +96,9 @@ int main(){using namespace csem;try{
   auto Tagged=structure("Tagged");
   StructFields enum_structs{{"Tagged",{{"kind",Mode},{"payload",integer()}}}};
   if(size_of(Tagged,enum_structs)!=8||field_offset(Tagged,"payload",enum_structs)!=4||!same(infer(member(variable("tag"),"kind"),{{"tag",Tagged}}, {},enum_structs),Mode))throw std::runtime_error("enum struct field failed");
+  if(!same(infer(assign(member(variable("tag"),"kind"),variable("other")),{{"tag",Tagged},{"other",Mode}}, {},enum_structs),Mode))throw std::runtime_error("enum field assignment failed");
+  if(!same(infer(assign(arrow(variable("tagp"),"kind"),variable("other")),{{"tagp",pointer(Tagged)},{"other",Mode}}, {},enum_structs),Mode))throw std::runtime_error("enum arrow assignment failed");
+  bool bad_enum_assignment=false;try{(void)infer(assign(member(variable("tag"),"kind"),literal(1)),{{"tag",Tagged}}, {},enum_structs);}catch(std::exception const&){bad_enum_assignment=true;}if(!bad_enum_assignment)throw std::runtime_error("integer assigned to enum field");
   Aliases enum_aliases; add_alias(enum_aliases,"ModeAlias",Mode);
   if(!same(resolve_alias(enum_aliases,"ModeAlias"),Mode))throw std::runtime_error("enum alias failed");
   bool duplicate_enum_alias=false;try{add_alias(enum_aliases,"ModeAlias",Mode);}catch(std::exception const&){duplicate_enum_alias=true;}if(!duplicate_enum_alias)throw std::runtime_error("duplicate enum alias accepted");
