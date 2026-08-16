@@ -210,7 +210,9 @@ branch types, allowing recursive bodies to express typed base cases and
 recursive branches. `while` statements require an integer condition, check
 their body, and have type `void`; sequences return the type of their final
 item. Function references are first-class function types, and indirect calls
-check the referenced signature before returning its result type. Function-typed
+check the referenced signature before returning its result type. Function
+signatures may also be named through typedef aliases; resolving a callback
+alias preserves its argument and result types for later calls. Function-typed
 globals can be initialized by matching function references and are checked
 through the same signature path before lowering. Higher-order functions may
 take such callbacks as parameters; an `apply_callback`-shaped function can
