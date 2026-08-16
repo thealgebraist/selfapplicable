@@ -135,6 +135,7 @@ int main(){using namespace csem;try{
   if(size_of(CallbackBox,callback_structs)!=8||field_offset(CallbackBox,"run",callback_structs)!=0)throw std::runtime_error("callback struct layout failed");
   if(size_of(Thunk,callback_structs)!=16||field_offset(Thunk,"next",callback_structs)!=8)throw std::runtime_error("recursive callback layout failed");
   if(!same(infer(indirect_call(arrow(variable("thunk"),"run"),{literal(9)}),{{"thunk",pointer(Thunk)}},callback_fs,callback_structs),integer()))throw std::runtime_error("recursive callback object call failed");
+  if(!same(infer(indirect_call(arrow(arrow(variable("thunk"),"next"),"run"),{literal(9)}),{{"thunk",pointer(Thunk)}},callback_fs,callback_structs),integer()))throw std::runtime_error("recursive callback chain call failed");
   Functions higher_order_fs{{"inc",&inc},{"make_callback",&make_callback}};
   if(!same(infer(indirect_call(call("make_callback",{}),{literal(9)}),{},higher_order_fs,structs),integer()))throw std::runtime_error("call returned function type failed");
   Function bad_factory{"bad_factory",{},callback_type,{literal(0)}};

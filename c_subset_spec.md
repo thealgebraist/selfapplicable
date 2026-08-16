@@ -230,6 +230,8 @@ offset before any lowering occurs.
 Callback fields are assignable lvalues as well: both `.` and `->` assignments
 require an exactly matching function signature, rejecting integer or unrelated
 function values.
+Recursive callback chains such as `node->next->run(x)` preserve the same
+signature through each pointer traversal before dispatch.
 index expression `p[i]` requires a pointer base and integer index, while
 integer-plus-pointer arithmetic preserves the pointer element type. The
 operator vocabulary also includes subtraction, ordering, and logical forms;
