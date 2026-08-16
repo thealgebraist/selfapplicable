@@ -71,6 +71,7 @@ int constant_label(Expr const&e){auto p=std::get_if<Lit>(&e->n);if(!p)throw std:
 void check_switch(Expr const&selector,std::vector<SwitchCase> const&cases,std::vector<Stmt> const&default_body,T const&ret,Env const&env,Functions const&fs,StructFields const&ss,int loop_depth=0){if(!same(infer(selector,env,fs,ss),integer()))throw std::runtime_error("switch selector must be integer");std::vector<int> labels;for(auto const&c:cases){if(!same(infer(c.label,env,fs,ss),integer()))throw std::runtime_error("case label must be integer");int label=constant_label(c.label);if(std::find(labels.begin(),labels.end(),label)!=labels.end())throw std::runtime_error("duplicate case label");labels.push_back(label);check_statements(c.body,ret,env,fs,ss,loop_depth);}check_statements(default_body,ret,env,fs,ss,loop_depth);}
 }
 
+#ifndef CSEM_LIBRARY
 int main(){using namespace csem;try{
   auto Node=structure("Node"); auto NodePtr=pointer(Node);
   StructFields structs{{"Node",{{"value",integer()},{"next",NodePtr}}}};
@@ -122,3 +123,4 @@ int main(){using namespace csem;try{
   using namespace st; auto A=sort(1); auto n=nbe_normalise({},normalize_code(A,quote(app(lam(A,var(0)),sort(0)))));if(!equal(n,quote(sort(0))))throw Error("NbE bridge failed");
   std::cout<<"struct Node: PASS\nstruct fields: PASS\npointer fields: PASS\nlayout and sizeof: PASS\nfield offsets: PASS\nallocation: PASS\ndeallocation: PASS\nassignments: PASS\nbinary operators: PASS\nsubtraction and ordering: PASS\nlogical operators: PASS\npointer indexing: PASS\npointer arithmetic: PASS\nconditionals: PASS\nwhile statements: PASS\nfor statements: PASS\ndo-while statements: PASS\nswitch statements: PASS\nduplicate cases: PASS\nloop control: PASS\nstatement bodies: PASS\nfunction references: PASS\nindirect calls: PASS\npointer types: PASS\nfunction calls: PASS\nrecursive call typing: PASS\nNbE bridge: PASS\n";
 }catch(std::exception const&e){std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}}
+#endif

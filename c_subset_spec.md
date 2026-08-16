@@ -200,6 +200,10 @@ integers and type-checks every case and default body. Switch cases are exposed
 as a structured checker API, requires constant labels, and rejects duplicate
 labels; parser integration remains future work.
 
+Defining `CSEM_LIBRARY` when compiling `c_subset_semantics.cpp` omits the
+regression-demo `main` and exposes the typed core for reuse by a parser or
+assembler backend. The default build retains the executable test harness.
+
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can
 be assembled. The existing syscall subset remains usable for the small CLI
