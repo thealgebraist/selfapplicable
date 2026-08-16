@@ -361,6 +361,8 @@ value. `fixtures/global_return.c` exits with the initialized value.
 The source slice also recognizes a small C-style function-pointer form:
 `fixtures/function_pointer.c` assigns `identity` to `fp`, checks the typed
 address/dereference/indirect-call path, and exits with status `6`.
+`function_pointer_bad_arity.c` is rejected when the indirect call supplies two
+arguments to the one-argument pointer.
 For the recognized recursive-node declaration, file-scope pointer globals such
 as `struct Node *head;` are checked as `Node*`; see
 `fixtures/pointer_global.c`.
