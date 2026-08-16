@@ -218,7 +218,9 @@ callback pointer declarations. Such a pointer can be dereferenced and then
 used as an indirect-call callee, with the callback signature checked after
 dereference. Taking the address of a function reference produces a
 pointer-to-function value; dereferencing that address restores the signature
-for an indirect call. Function-typed
+for an indirect call. Function pointers can be compared with other compatible
+function pointers; comparisons against integers or unrelated types are
+rejected. Function-typed
 Struct fields declared as pointer-to-function values can receive `&function`
 and dispatch after `->` plus dereference, preserving the same checked
 signature.

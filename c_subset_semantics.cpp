@@ -120,6 +120,8 @@ int main(){using namespace csem;try{
   if(!same(infer(indirect_call(dereference(variable("cbp")),{literal(9)}),{{"cbp",resolve_alias(callback_aliases,"CallbackPtr")}},callback_fs,structs),integer()))throw std::runtime_error("dereferenced callback pointer call failed");
   if(!same(infer(address(function_ref("inc")),{},callback_fs,structs),pointer(callback_type)))throw std::runtime_error("function address type failed");
   if(!same(infer(indirect_call(dereference(address(function_ref("inc"))),{literal(9)}),{},callback_fs,structs),integer()))throw std::runtime_error("function address call failed");
+  if(!same(infer(binary(BinOp::Equal,address(function_ref("inc")),address(function_ref("inc"))),{},callback_fs,structs),integer()))throw std::runtime_error("function pointer equality failed");
+  bool bad_function_pointer_equality=false;try{(void)infer(binary(BinOp::Equal,address(function_ref("inc")),literal(0)),{},callback_fs,structs);}catch(std::exception const&){bad_function_pointer_equality=true;}if(!bad_function_pointer_equality)throw std::runtime_error("function pointer integer equality accepted");
   if(!same(infer(indirect_call(variable("cb"),{literal(4)}),{{"cb",callback_type}},callback_fs,structs),integer()))throw std::runtime_error("indirect call type failed");
   if(!same(infer(function_ref("inc"),{},callback_fs,structs),callback_type))throw std::runtime_error("function reference type failed");
   auto callback_globals=check_globals({{"cb",callback_type,function_ref("inc")}},callback_fs,structs);
