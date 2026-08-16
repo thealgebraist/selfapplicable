@@ -172,6 +172,7 @@ The semantic validator rejects unnamed enum declarations so nominal equality
 cannot collapse distinct anonymous cases.
 Declaration validation also rejects duplicate enumerator names and duplicate
 numeric values.
+The source enum-switch path invokes this same validator before lowering.
 Enum pointers retain the ordinary eight-byte pointer layout, and
 `allocate(enum Mode)` is checked as `enum Mode *`.
 Enums may be stored in nominal struct fields; field typing, packed offsets,

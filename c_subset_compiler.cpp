@@ -84,7 +84,7 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(s,r,enum_switch)) {
     p.switch_return=true; p.switch_two_cases=true; p.switch_case=std::stoi(r[3]); p.switch_case_status=std::stoi(r[6]);
     p.switch_case2=std::stoi(r[5]); p.switch_case2_status=std::stoi(r[7]); p.switch_default_status=std::stoi(r[8]);
-    if(p.switch_case==p.switch_case2) throw std::runtime_error("duplicate enum switch label");
+    csem::validate_enum_values({{r[2].str(),p.switch_case},{r[4].str(),p.switch_case2}});
     csem::check_switch(csem::variable("argc"),{{csem::literal(p.switch_case),{csem::return_stmt(csem::literal(p.switch_case_status))}},{csem::literal(p.switch_case2),{csem::return_stmt(csem::literal(p.switch_case2_status))}}},{csem::return_stmt(csem::literal(p.switch_default_status))},csem::integer(),{{"argc",csem::integer()}},{},{});
   }
   else if(std::regex_search(body,r,argc_switch_two)) {

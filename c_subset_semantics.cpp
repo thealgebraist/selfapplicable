@@ -94,6 +94,7 @@ int main(){using namespace csem;try{
   validate_enum(Mode); bool bad_enum_name=false;try{validate_enum(enum_type(""));}catch(std::exception const&){bad_enum_name=true;}if(!bad_enum_name)throw std::runtime_error("empty enum name accepted");
   validate_enum_values({{"First",1},{"Second",2}}); bool bad_enum_values=false;try{validate_enum_values({{"First",1},{"First",2}});}catch(std::exception const&){bad_enum_values=true;}if(!bad_enum_values)throw std::runtime_error("duplicate enumerator name accepted");
   bool bad_enum_numbers=false;try{validate_enum_values({{"First",1},{"Second",1}});}catch(std::exception const&){bad_enum_numbers=true;}if(!bad_enum_numbers)throw std::runtime_error("duplicate enumerator value accepted");
+  bool bad_enum_enumerator_name=false;try{validate_enum_values({{"",1}});}catch(std::exception const&){bad_enum_enumerator_name=true;}if(!bad_enum_enumerator_name)throw std::runtime_error("empty enumerator name accepted");
   if(!same(Mode,enum_type("Mode"))||same(Mode,enum_type("Other"))||size_of(Mode,structs)!=4)throw std::runtime_error("enum type failed");
   if(!integerish(Mode)||!integerish(integer()))throw std::runtime_error("enum integer compatibility failed");
   auto ModePtr=pointer(Mode);
