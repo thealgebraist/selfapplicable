@@ -450,6 +450,8 @@ callback through the same arrow-member path.
 callback field before direct member dispatch.
 `function_pointer_struct_binary_aggregate.c` extends aggregate callback
 initialization to a two-argument field.
+`function_pointer_struct_nullary_aggregate.c` covers aggregate initialization
+of a zero-argument callback field.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
