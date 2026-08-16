@@ -365,6 +365,8 @@ address/dereference/indirect-call path, and exits with status `6`.
 arguments to the one-argument pointer.
 `function_pointer_global.c` covers the corresponding file-scope callback
 pointer initializer.
+An integer file-scope initializer for a function pointer is rejected explicitly;
+see `function_pointer_global_bad_init.c`.
 For the recognized recursive-node declaration, file-scope pointer globals such
 as `struct Node *head;` are checked as `Node*`; see
 `fixtures/pointer_global.c`.

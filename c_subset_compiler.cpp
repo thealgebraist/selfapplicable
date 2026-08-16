@@ -71,6 +71,8 @@ Program parse_main(std::string const& s) {
   for(std::sregex_iterator i(s.begin(),s.end(),integer_global), end; i!=end; ++i)
     globals.push_back({(*i)[1].str(),csem::integer(),csem::literal(std::stoi((*i)[2]))});
   csem::check_globals(globals,{}, {});
+  static const std::regex bad_global_function_pointer(R"(int\s*\(\s*\*\s*[A-Za-z_][A-Za-z0-9_]*\s*\)\s*\(\s*int\s*\)\s*=\s*[0-9]+\s*;)");
+  if(std::regex_search(s,bad_global_function_pointer)) throw std::runtime_error("function pointer global requires a function initializer");
   if(std::regex_search(body,r,conditional)) { p.argc_value=std::stoi(r[1]); p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); }
   else if(std::regex_search(body,r,null_guard)) { p.null_guard=true; p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); auto ptr=csem::pointer(csem::integer()); (void)csem::infer(csem::binary(csem::BinOp::Equal,csem::variable("p"),csem::variable("q")),{{"p",ptr},{"q",ptr}}, {}, {}); }
   else {
