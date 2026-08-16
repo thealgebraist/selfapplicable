@@ -294,6 +294,8 @@ Pointer addition and dereference are supported in the fixed form
 `int *q = p + 1; return *q;`; `pointer_add_deref.c` returns status `17`.
 The fixed-array `sizeof` form uses the packed layout size and
 `array_sizeof_return.c` returns status `12` for three four-byte integers.
+`sizeof(struct Node)` is also lowered from the typed struct layout;
+`struct_sizeof_return.c` returns status `12`.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant
