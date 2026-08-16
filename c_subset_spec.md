@@ -227,8 +227,10 @@ rejected. Function-typed
 Struct fields declared as pointer-to-function values can receive `&function`
 and dispatch after `->` plus dereference, preserving the same checked
 signature.
-globals can be initialized by matching function references and are checked
-through the same signature path before lowering. Higher-order functions may
+Function-typed globals can be initialized by matching function references and
+are checked through the same signature path before lowering. Pointer-to-function
+globals may likewise be initialized from a function address only when the
+declared pointer signature matches. Higher-order functions may
 take such callbacks as parameters; an `apply_callback`-shaped function can
 invoke its callback only with arguments matching that signature. The
 same checking also permits function-valued returns, so a factory returning a
