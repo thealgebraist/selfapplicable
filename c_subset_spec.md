@@ -195,6 +195,9 @@ statements check their initializer, integer condition, update expression, and
 body under the same loop context.
 `do...while` checks its body first and then requires an integer post-condition,
 also preserving loop scope for `break` and `continue`.
+The semantic API additionally checks `switch` selectors and case labels as
+integers and type-checks every case and default body. Switch cases are exposed
+as a structured checker API while parser integration remains future work.
 
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can
