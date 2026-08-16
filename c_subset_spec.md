@@ -181,6 +181,8 @@ exposes this checked offset information for future `.` and `->` lowering.
 checking, preserving unambiguous nominal field lookup.
 `validate_function` likewise rejects duplicate parameter names before a
 function environment is created.
+`validate_struct_cycles` rejects by-value recursive structs, while pointer
+recursive fields remain valid and are the representation used by `Node.next`.
 Typed allocation `allocate(T)` produces `T*` after checking that `T` has a
 known size; `release(p)` accepts only pointer expressions and has type `void`.
 These operations currently describe the checked semantic boundary; lowering
