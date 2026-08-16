@@ -133,6 +133,9 @@ int main(){using namespace csem;try{
   Function callback_odd{"callback_odd",{{"cb",callback_type},{"x",integer()}},integer(),{indirect_call(variable("cb"),{variable("x")}),call("callback_even",{variable("cb"),variable("x")})}};
   Functions mutual_callback_fs{{"callback_even",&callback_even},{"callback_odd",&callback_odd},{"inc",&inc}};
   check_program({callback_even,callback_odd},structs);
+  Function bad_callback_even{"bad_callback_even",{{"cb",callback_type},{"x",integer()}},integer(),{call("bad_callback_odd",{literal(0),variable("x")})}};
+  Function bad_callback_odd{"bad_callback_odd",{{"cb",callback_type},{"x",integer()}},integer(),{literal(0)}};
+  bool bad_mutual_callback=false;try{check_program({bad_callback_even,bad_callback_odd},structs);}catch(std::exception const&){bad_mutual_callback=true;}if(!bad_mutual_callback)throw std::runtime_error("malformed mutual callback accepted");
   Function make_callback{"make_callback",{},callback_type,{function_ref("inc")}};
   check(make_callback,callback_fs,structs);
   auto CallbackBox=structure("CallbackBox");

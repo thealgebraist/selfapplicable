@@ -249,6 +249,8 @@ Recursive functions may carry callback parameters; recursive re-entry and
 indirect callback calls are checked against the same preserved signature.
 Mutually recursive functions can likewise pass callback parameters between
 each other while retaining the signature at every indirect call.
+Malformed mutual callback calls, including wrong callback argument types, are
+rejected by whole-program checking.
 index expression `p[i]` requires a pointer base and integer index, while
 integer-plus-pointer arithmetic preserves the pointer element type. The
 operator vocabulary also includes subtraction, ordering, and logical forms;
