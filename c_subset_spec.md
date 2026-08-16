@@ -472,6 +472,8 @@ dispatch to a void callback.
 and dispatches through the second member.
 `function_pointer_struct_mixed_fields.c` checks a record containing both an
 integer-returning callback and a void callback.
+`function_pointer_struct_mixed_binary_fields.c` applies the mixed-signature
+record check to two-argument callbacks.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
