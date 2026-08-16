@@ -99,6 +99,7 @@ expect_status fixtures/switch_return.c 7
 expect_status fixtures/switch_default_return.c 3
 expect_status fixtures/switch_two_cases.c 7
 expect_status fixtures/enum_switch.c 7
+expect_status fixtures/enum_switch_implicit.c 8
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c

@@ -162,6 +162,8 @@ Two constant cases are also lowered in source order, with duplicate labels
 rejected by the typed switch checker.
 Two-value `enum` declarations can provide named integer case labels; their
 values are checked for collisions before lowering.
+Implicit two-value declarations (`First, Second`) receive the standard
+zero-based values before semantic validation and lowering.
 `enum_switch_duplicate.c` verifies that colliding named values are rejected.
 `enum_switch_duplicate_name.c` verifies duplicate enumerator names are also
 rejected by the shared validator.

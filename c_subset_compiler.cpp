@@ -81,7 +81,13 @@ Program parse_main(std::string const& s) {
   static const std::regex argc_switch(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
   static const std::regex argc_switch_two(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
   static const std::regex enum_switch(R"(enum\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9]+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9]+)\s*\}\s*;[\s\S]*switch\s*\(\s*argc\s*\)\s*\{\s*case\s+\2\s*:\s*return\s+([0-9]+)\s*;\s*case\s+\4\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
-  if(std::regex_search(s,r,enum_switch)) {
+  static const std::regex enum_switch_implicit(R"(enum\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\s*;[\s\S]*switch\s*\(\s*argc\s*\)\s*\{\s*case\s+\2\s*:\s*return\s+([0-9]+)\s*;\s*case\s+\3\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
+  if(std::regex_search(s,r,enum_switch_implicit)) {
+    p.switch_return=true; p.switch_two_cases=true; p.switch_case=0; p.switch_case_status=std::stoi(r[4]);
+    p.switch_case2=1; p.switch_case2_status=std::stoi(r[5]); p.switch_default_status=std::stoi(r[6]);
+    csem::validate_enum_values({{r[2].str(),0},{r[3].str(),1}});
+  }
+  else if(std::regex_search(s,r,enum_switch)) {
     p.switch_return=true; p.switch_two_cases=true; p.switch_case=std::stoi(r[3]); p.switch_case_status=std::stoi(r[6]);
     p.switch_case2=std::stoi(r[5]); p.switch_case2_status=std::stoi(r[7]); p.switch_default_status=std::stoi(r[8]);
     csem::validate_enum_values({{r[2].str(),p.switch_case},{r[4].str(),p.switch_case2}});
