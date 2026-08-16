@@ -48,6 +48,7 @@ expect_status fixtures/function_pointer_nullary.c 9
 expect_status fixtures/function_pointer_nullary_explicit_deref.c 9
 expect_status fixtures/function_pointer_binary.c 7
 expect_status fixtures/function_pointer_binary_explicit_deref.c 7
+expect_status fixtures/function_pointer_alias.c 6
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9
 expect_status fixtures/struct_field_return.c 7

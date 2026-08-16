@@ -386,6 +386,8 @@ the corresponding `fp()` call.
 `function_pointer_binary.c` covers a two-argument callback and indirect call.
 `function_pointer_binary_explicit_deref.c` covers the corresponding
 `(*fp)(2, 5)` spelling.
+`function_pointer_alias.c` checks assignment from one compatible callback
+pointer variable to another before indirect dispatch.
 `function_pointer_address.c` accepts the explicit `&identity` spelling for a
 function-pointer initializer.
 `function_pointer_explicit_deref.c` accepts the explicit `(*fp)(6)` call
