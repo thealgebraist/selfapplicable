@@ -468,6 +468,8 @@ with pointer-to-struct arrow dispatch.
 arrow dispatch to a two-argument callback.
 `function_pointer_struct_void_typedef_arrow.c` extends alias-aware arrow
 dispatch to a void callback.
+`function_pointer_struct_multiple_fields.c` checks independent callback fields
+and dispatches through the second member.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument

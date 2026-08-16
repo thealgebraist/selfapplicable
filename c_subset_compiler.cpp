@@ -317,6 +317,19 @@ Program parse_main(std::string const& s) {
     (void)csem::infer(csem::indirect_call(csem::dereference(csem::arrow(csem::variable(r[6].str()),"run")),{csem::literal(std::stoi(r[7]))}),env,functions,fields);
     p.function_call=true; p.else_status=0;
   }
+  else if(std::regex_search(s,r,std::regex(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*int\s*\(\s*\*\s*first\s*\)\s*\(\s*int\s*\)\s*;\s*int\s*\(\s*\*\s*second\s*\)\s*\(\s*int\s*\)\s*;\s*\}\s*;\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\3\s*;\s*\}\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\5\s*;\s*\}\s*int\s+main\s*\([^)]*\)\s*\{\s*struct\s+\1\s+([A-Za-z_][A-Za-z0-9_]*)\s*;\s*\6\.first\s*=\s*&\s*\2\s*;\s*\6\.second\s*=\s*&\s*\4\s*;\s*return\s+\6\.second\s*\(\s*([0-9]+)\s*\)\s*;\s*\})"))) {
+    auto box=csem::structure(r[1].str());
+    auto fp=csem::function({csem::integer()},csem::integer());
+    csem::Function first{r[2].str(),{{r[3].str(),csem::integer()}},csem::integer(),{csem::variable(r[3].str())}};
+    csem::Function second{r[4].str(),{{r[5].str(),csem::integer()}},csem::integer(),{csem::variable(r[5].str())}};
+    csem::Functions functions{{first.name,&first},{second.name,&second}};
+    csem::StructFields fields{{r[1].str(),{{"first",csem::pointer(fp)},{"second",csem::pointer(fp)}}}};
+    csem::Env env{{r[6].str(),box}};
+    (void)csem::infer(csem::assign(csem::member(csem::variable(r[6].str()),"first"),csem::address(csem::function_ref(first.name))),env,functions,fields);
+    (void)csem::infer(csem::assign(csem::member(csem::variable(r[6].str()),"second"),csem::address(csem::function_ref(second.name))),env,functions,fields);
+    (void)csem::infer(csem::indirect_call(csem::dereference(csem::member(csem::variable(r[6].str()),"second")),{csem::literal(std::stoi(r[7]))}),env,functions,fields);
+    p.function_call=true; p.else_status=std::stoi(r[7]);
+  }
   else {
     static const std::regex global_nullary_function_pointer_call(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{\s*return\s+([0-9]+)\s*;\s*\}\s*int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*\)\s*=\s*&?\s*\1\s*;\s*int\s+main\s*\([^)]*\)\s*\{\s*return\s+(?:\3|\(\s*\*\s*\3\s*\))\s*\(\s*\)\s*;\s*\})");
     if(std::regex_search(s,r,global_nullary_function_pointer_call)) {
