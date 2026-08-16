@@ -177,6 +177,8 @@ layout model; ABI alignment and unions remain future extensions.
 Field order is retained explicitly, so `Node.value` has offset 0 and
 `Node.next` follows it at offset 4 in the example layout. The semantic core
 exposes this checked offset information for future `.` and `->` lowering.
+`validate_structs` rejects duplicate field names before whole-program function
+checking, preserving unambiguous nominal field lookup.
 Typed allocation `allocate(T)` produces `T*` after checking that `T` has a
 known size; `release(p)` accepts only pointer expressions and has type `void`.
 These operations currently describe the checked semantic boundary; lowering
