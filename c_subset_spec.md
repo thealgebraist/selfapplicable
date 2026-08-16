@@ -172,7 +172,11 @@ typed `sizeof` form returns an integer and uses the core's deterministic
 packed layout: `int` is 4 bytes, pointers and function references are 8 bytes,
 and struct size is the sum of its field sizes. This is a deliberate initial
 layout model; ABI alignment and unions remain future extensions.
-executable also sends a quoted beta-redex through the dependent NbE
+Typed allocation `allocate(T)` produces `T*` after checking that `T` has a
+known size; `release(p)` accepts only pointer expressions and has type `void`.
+These operations currently describe the checked semantic boundary; lowering
+them to Linux allocation syscalls is a separate backend step. The executable
+also sends a quoted beta-redex through the dependent NbE
 `normalizeCode` term; its output is a regression test for this bridge.
 
 This is the typed front-end boundary: general C function lowering and field
