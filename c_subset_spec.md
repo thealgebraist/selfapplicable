@@ -164,7 +164,9 @@ operands. Conditional expressions require an integer condition and identical
 branch types, allowing recursive bodies to express typed base cases and
 recursive branches. `while` statements require an integer condition, check
 their body, and have type `void`; sequences return the type of their final
-item. The executable also sends a quoted beta-redex through the dependent NbE
+item. Function references are first-class function types, and indirect calls
+check the referenced signature before returning its result type. The
+executable also sends a quoted beta-redex through the dependent NbE
 `normalizeCode` term; its output is a regression test for this bridge.
 
 This is the typed front-end boundary: general C function lowering and field
