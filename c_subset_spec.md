@@ -298,6 +298,8 @@ The fixed-array `sizeof` form uses the packed layout size and
 `struct_sizeof_return.c` returns status `12`.
 `offsetof(struct Node, next)` consumes the checked field offset and returns
 status `4` in `node_offsetof_return.c`.
+`sizeof(int)` is lowered using the scalar layout size; `int_sizeof_return.c`
+returns status `4`.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant
