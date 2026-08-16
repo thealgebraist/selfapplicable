@@ -5,6 +5,8 @@
 // x86-64 Linux assembler and linked with as/ld, never with a C compiler.
 #define NORMALISER_LIBRARY
 #include "normaliser.cpp"
+#define CSEM_LIBRARY
+#include "c_subset_semantics.cpp"
 #include <fstream>
 #include <regex>
 
@@ -87,6 +89,12 @@ void check_with_nbe() {
   auto staged=normalize_code(A,quoted);
   auto normal=nbe_normalise({},staged);
   if(!equal(normal,quote(sort(0)))) throw Error("C subset normalization failed");
+  using namespace csem;
+  auto Node=structure("CompilerNode"); auto NodePtr=pointer(Node);
+  StructFields fields{{"CompilerNode",{{"value",integer()},{"next",NodePtr}}}};
+  Function recursive{"compiler_recursive",{{"p",NodePtr}},integer(),{conditional(arrow(variable("p"),"value"),call("compiler_recursive",{variable("p")}),literal(0))}};
+  Functions functions{{"compiler_recursive",&recursive}};
+  check(recursive,functions,fields);
 }
 
 void emit_filtered_directory(Program const& p) {

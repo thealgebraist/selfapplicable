@@ -209,3 +209,9 @@ offset computation still need to be added before arbitrary GNU `find` code can
 be assembled. The existing syscall subset remains usable for the small CLI
 fixtures, and generated targets continue to use `as` and `ld` rather than
 GCC.
+
+`c_subset_compiler.cpp` now includes the reusable core and runs a typed
+recursive `struct`/pointer function check during its pre-emission validation,
+alongside the dependent NbE check. Thus every emitted assembler target passes
+both staging and the typed C semantic gate, although the permissive source
+reader still lowers only its documented syscall subset.
