@@ -269,6 +269,8 @@ and `11` respectively.
 Constant three-element integer arrays can be indexed in the source subset;
 `array_index_return.c` returns `values[1]` with status `13`, while an out of
 bounds constant index is rejected.
+Indexed assignment is also supported; `array_assign_return.c` writes
+`values[1] = 14` and returns status `14`.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant
