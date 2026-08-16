@@ -102,6 +102,7 @@ expect_status fixtures/enum_switch.c 7
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c
+expect_reject fixtures/enum_switch_duplicate_name.c
 expect_reject fixtures/function_pointer_alias_bad_type.c
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9

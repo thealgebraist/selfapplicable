@@ -163,6 +163,8 @@ rejected by the typed switch checker.
 Two-value `enum` declarations can provide named integer case labels; their
 values are checked for collisions before lowering.
 `enum_switch_duplicate.c` verifies that colliding named values are rejected.
+`enum_switch_duplicate_name.c` verifies duplicate enumerator names are also
+rejected by the shared validator.
 The semantic core represents enums nominally, gives them four-byte layout,
 and treats them as integer-like switch selectors while preserving enum-name
 equality.
