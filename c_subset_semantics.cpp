@@ -115,6 +115,8 @@ int main(){using namespace csem;try{
   auto callback_type=function({integer()},integer());
   Aliases callback_aliases; add_alias(callback_aliases,"Callback",callback_type);
   if(!same(resolve_alias(callback_aliases,"Callback"),callback_type))throw std::runtime_error("function typedef alias failed");
+  add_alias(callback_aliases,"CallbackPtr",pointer(callback_type));
+  if(!same(resolve_alias(callback_aliases,"CallbackPtr"),pointer(callback_type)))throw std::runtime_error("pointer callback typedef alias failed");
   if(!same(infer(indirect_call(variable("cb"),{literal(4)}),{{"cb",callback_type}},callback_fs,structs),integer()))throw std::runtime_error("indirect call type failed");
   if(!same(infer(function_ref("inc"),{},callback_fs,structs),callback_type))throw std::runtime_error("function reference type failed");
   auto callback_globals=check_globals({{"cb",callback_type,function_ref("inc")}},callback_fs,structs);

@@ -213,6 +213,8 @@ item. Function references are first-class function types, and indirect calls
 check the referenced signature before returning its result type. Function
 signatures may also be named through typedef aliases; resolving a callback
 alias preserves its argument and result types for later calls. Function-typed
+Pointer aliases to callback signatures are preserved as well, covering
+`typedef`-style callback pointer declarations. Function-typed
 globals can be initialized by matching function references and are checked
 through the same signature path before lowering. Higher-order functions may
 take such callbacks as parameters; an `apply_callback`-shaped function can
