@@ -83,12 +83,22 @@ finddir(".");
 ```
 
 This compiles and emits the entries in the selected directory. Recursive
-descent and name predicates remain future typed-library features.
+descent remains a future typed-library feature.
+
+Exact-name filtering is now supported for one-level traversal:
+
+```c
+finddir(".", "normaliser.cpp");
+```
+
+The generated code compares the decoded entry name byte-by-byte before
+emitting it.
 
 Lines beginning with `#` and `//` comments are skipped. The parsed return
 status is lowered to Linux x86-64 `_start` assembler. Before emission, the
 compiler runs an administrative typed term through the dependent NbE core;
-this exercises the same normalization boundary used by staged object code.
+the compiler now constructs a quoted beta-redex and applies the typed
+`normalizeCode : Code(A) -> Code(A)` term before emitting assembly.
 
 The next compatible forms are pointer expressions, conditionals, calls, and
 syscall primitives. Full GNU `true`, `echo`, `pwd`, and `ls` remain outside

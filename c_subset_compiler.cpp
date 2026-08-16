@@ -20,7 +20,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0; std::string output, loop_output, directory; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0; std::string output, loop_output, directory, filter; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false; };
 
 Program parse_main(std::string const& s) {
   static const std::regex main(R"(\bint\s+main\s*\(\s*int\s+argc\s*,\s*char\s*\*\s*\*\s*argv\s*\)\s*\{([\s\S]*)\})");
@@ -53,6 +53,8 @@ Program parse_main(std::string const& s) {
   p.cwd=std::regex_search(body,getcwd_write);
   static const std::regex dir(R"re((?:listdir|finddir)\s*\(\s*"([^"]*)"\s*\)\s*;)re");
   std::smatch d; if(std::regex_search(body,d,dir)) { p.listdir=true; p.directory=d[1].str(); }
+  static const std::regex filtered_dir(R"re(finddir\s*\(\s*"([^"]*)"\s*,\s*"([^"]*)"\s*\)\s*;)re");
+  if(std::regex_search(body,d,filtered_dir)) { p.listdir=true; p.directory=d[1].str(); p.filter=d[2].str(); }
   static const std::regex help(R"(if\s*\(\s*argc\s*==\s*2\s*&&\s*(?:streq|strcmp)\s*\(\s*argv\s*\[\s*1\s*\]\s*,\s*"--help"\s*\)\s*\)\s*return\s+([0-9]+)\s*;)");
   if(std::regex_search(body,w,help)) { p.arg_help=true; p.argc_value=2; p.then_status=std::stoi(w[1]); }
   return p;
@@ -61,9 +63,21 @@ Program parse_main(std::string const& s) {
 void check_with_nbe() {
   using namespace st;
   auto A=sort(1);
-  auto administrative=app(lam(A,var(0)),sort(0));
-  auto normal=nbe_normalise({},administrative);
-  if(!equal(normal,sort(0))) throw Error("C subset normalization failed");
+  auto redex=app(lam(A,var(0)),sort(0));
+  auto quoted=quote(redex);
+  auto staged=normalize_code(A,quoted);
+  auto normal=nbe_normalise({},staged);
+  if(!equal(normal,quote(sort(0)))) throw Error("C subset normalization failed");
+}
+
+void emit_filtered_directory(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $257, %eax\n  mov $-100, %edi\n  lea dir_path(%rip), %rsi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n  mov %eax, %r13d\n"
+    <<"  mov $217, %eax\n  mov %r13d, %edi\n  lea dir_buf(%rip), %rsi\n  mov $8192, %edx\n  syscall\n  mov %eax, %r14d\n  xor %r12d, %r12d\n.Lfd_next:\n  cmp %r14d, %r12d\n  jge .Lfd_done\n  lea dir_buf(%rip), %rsi\n  movzwl 16(%rsi,%r12,1), %ecx\n  mov %ecx, %r15d\n  test %ecx, %ecx\n  jz .Lfd_done\n  lea 19(%rsi,%r12,1), %r8\n  xor %edx, %edx\n.Lfd_len:\n  cmp %edx, %ecx\n  jle .Lfd_check\n  cmpb $0, (%r8,%rdx,1)\n  je .Lfd_check\n  inc %edx\n  jmp .Lfd_len\n.Lfd_check:\n"
+    <<"  cmp $"<<p.filter.size()<<", %edx\n  jne .Lfd_skip\n  xor %r9d, %r9d\n.Lfd_cmp:\n  cmp $"<<p.filter.size()<<", %r9d\n  jge .Lfd_emit\n  movzbq (%r8,%r9,1), %rax\n  lea filter(%rip), %r11\n  movzbq (%r11,%r9,1), %r10\n  cmp %r10b, %al\n  jne .Lfd_skip\n  inc %r9d\n  jmp .Lfd_cmp\n.Lfd_emit:\n"
+    <<"  mov $1, %eax\n  mov $1, %edi\n  mov %r8, %rsi\n  syscall\n  mov $1, %eax\n  mov $1, %edi\n  lea newline(%rip), %rsi\n  mov $1, %edx\n  syscall\n.Lfd_skip:\n  add %r15d, %r12d\n  jmp .Lfd_next\n.Lfd_done:\n  mov $0, %edi\n  mov $60, %eax\n  syscall\n.section .rodata\ndir_path:\n  .asciz \""<<p.directory<<"\"\nnewline:\n  .byte 10\nfilter:\n  .byte ";
+  for(std::size_t i=0;i<p.filter.size();++i) { if(i) std::cout<<", "; std::cout<<(unsigned)(unsigned char)p.filter[i]; }
+  std::cout<<"\n.bss\n.align 8\ndir_buf:\n  .skip 8192\n";
 }
 }
 
@@ -72,6 +86,7 @@ int main(int argc,char **argv) {
   try {
     auto program=csubset::parse_main(csubset::read_source(argv[1]));
     csubset::check_with_nbe();
+    if(program.filter.size()) { csubset::emit_filtered_directory(program); return 0; }
     std::cout<<".text\n.globl _start\n_start:\n";
     if(!program.output.empty()) std::cout
              <<"  mov $1, %eax\n  mov $1, %edi\n  lea message(%rip), %rsi\n  mov $"<<program.output.size()<<", %edx\n  syscall\n";
