@@ -219,6 +219,9 @@ used as an indirect-call callee, with the callback signature checked after
 dereference. Taking the address of a function reference produces a
 pointer-to-function value; dereferencing that address restores the signature
 for an indirect call. Function-typed
+Struct fields declared as pointer-to-function values can receive `&function`
+and dispatch after `->` plus dereference, preserving the same checked
+signature.
 globals can be initialized by matching function references and are checked
 through the same signature path before lowering. Higher-order functions may
 take such callbacks as parameters; an `apply_callback`-shaped function can

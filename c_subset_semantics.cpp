@@ -131,6 +131,10 @@ int main(){using namespace csem;try{
   auto CallbackBox=structure("CallbackBox");
   StructFields callback_structs=structs;
   callback_structs["CallbackBox"]={{"run",callback_type}};
+  auto PointerCallbackBox=structure("PointerCallbackBox");
+  callback_structs["PointerCallbackBox"]={{"run",pointer(callback_type)}};
+  if(!same(infer(assign(member(variable("pbox"),"run"),address(function_ref("inc"))),{{"pbox",PointerCallbackBox}},callback_fs,callback_structs),pointer(callback_type)))throw std::runtime_error("pointer callback field address assignment failed");
+  if(!same(infer(indirect_call(dereference(arrow(variable("pbox"),"run")),{literal(9)}),{{"pbox",pointer(PointerCallbackBox)}},callback_fs,callback_structs),integer()))throw std::runtime_error("pointer callback field dispatch failed");
   if(!same(infer(indirect_call(member(variable("box"),"run"),{literal(9)}),{{"box",CallbackBox}},callback_fs,callback_structs),integer()))throw std::runtime_error("struct function pointer field call failed");
   if(!same(infer(assign(member(variable("box"),"run"),function_ref("inc")),{{"box",CallbackBox}},callback_fs,callback_structs),callback_type))throw std::runtime_error("struct callback field assignment failed");
   if(!same(infer(indirect_call(arrow(variable("boxp"),"run"),{literal(9)}),{{"boxp",pointer(CallbackBox)}},callback_fs,callback_structs),integer()))throw std::runtime_error("pointer struct function field call failed");
