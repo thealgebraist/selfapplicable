@@ -222,6 +222,8 @@ higher-order composition is checked without erasing its signature.
 Struct fields may themselves carry function signatures; member selection
 preserves that signature, allowing a checked indirect call through a callback
 field.
+The same preservation holds through `->` on a pointer to that struct, so
+callback dispatch remains typed after pointer member selection.
 index expression `p[i]` requires a pointer base and integer index, while
 integer-plus-pointer arithmetic preserves the pointer element type. The
 operator vocabulary also includes subtraction, ordering, and logical forms;
