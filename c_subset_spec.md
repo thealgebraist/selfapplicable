@@ -162,9 +162,10 @@ field is rejected. Assignment expressions require an lvalue and matching
 types; integer `+` and equality-shaped binary expressions require integer
 operands. Conditional expressions require an integer condition and identical
 branch types, allowing recursive bodies to express typed base cases and
-recursive branches. The executable also sends a quoted beta-redex through
-the dependent NbE `normalizeCode` term; its output is a regression test for
-this bridge.
+recursive branches. `while` statements require an integer condition, check
+their body, and have type `void`; sequences return the type of their final
+item. The executable also sends a quoted beta-redex through the dependent NbE
+`normalizeCode` term; its output is a regression test for this bridge.
 
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can
