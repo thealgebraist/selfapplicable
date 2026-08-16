@@ -130,6 +130,7 @@ int main(){using namespace csem;try{
   if(!same(callback_globals.at("cb"),callback_type))throw std::runtime_error("function pointer global type failed");
   auto callback_pointer_globals=check_globals({{"cbp",resolve_alias(callback_aliases,"CallbackPtr"),address(function_ref("inc"))}},callback_fs,structs);
   if(!same(callback_pointer_globals.at("cbp"),resolve_alias(callback_aliases,"CallbackPtr")))throw std::runtime_error("callback pointer global type failed");
+  bool bad_callback_global=false;try{(void)check_globals({{"bad_cbp",resolve_alias(callback_aliases,"CallbackPtr"),literal(0)}},callback_fs,structs);}catch(std::exception const&){bad_callback_global=true;}if(!bad_callback_global)throw std::runtime_error("bad callback pointer global accepted");
   Function apply_callback{"apply_callback",{{"cb",callback_type},{"x",integer()}},integer(),{indirect_call(variable("cb"),{variable("x")})}};
   check(apply_callback,callback_fs,structs);
   Function recurse_callback{"recurse_callback",{{"cb",callback_type},{"x",integer()}},integer(),{indirect_call(variable("cb"),{variable("x")}),call("recurse_callback",{variable("cb"),variable("x")})}};
