@@ -410,6 +410,8 @@ callback pointer before indirect dispatch.
 typedef callback alias.
 `function_pointer_nullary_typedef.c` checks the zero-argument typedef callback
 alias and its indirect call.
+`function_pointer_typedef_parameter.c` passes a typedef callback alias as a
+typed higher-order parameter and invokes it in the callee.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
