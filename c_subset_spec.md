@@ -464,6 +464,8 @@ aggregate path to a void callback field.
 two-argument void callback field.
 `function_pointer_struct_typedef_arrow.c` combines a typedef callback field
 with pointer-to-struct arrow dispatch.
+`function_pointer_struct_binary_typedef_arrow.c` extends that alias-aware
+arrow dispatch to a two-argument callback.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
