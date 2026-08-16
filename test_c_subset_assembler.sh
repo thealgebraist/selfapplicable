@@ -67,6 +67,7 @@ expect_status fixtures/function_pointer_void_binary.c 0
 expect_status fixtures/function_pointer_void_typedef.c 0
 expect_status fixtures/function_pointer_void_binary_typedef.c 0
 expect_status fixtures/function_pointer_void_parameter.c 0
+expect_status fixtures/function_pointer_void_binary_parameter.c 0
 expect_reject fixtures/function_pointer_alias_bad_type.c
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9
