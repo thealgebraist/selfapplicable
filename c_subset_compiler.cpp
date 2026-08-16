@@ -78,8 +78,15 @@ Program parse_main(std::string const& s) {
       if(!std::regex_search(body,symbolic)) throw std::runtime_error("return expression is outside subset");
       // Macro-expanded constants and external status helpers are represented
       // by the freestanding ABI stub until the typed constant layer is added.
-      p.else_status=0;
-      std::cerr<<"warning: symbolic return treated as external status 0\n";
+      std::smatch global_return;
+      static const std::regex global_name_return(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*;)");
+      if(std::regex_search(body,global_return,global_name_return)) {
+        bool resolved=false;
+        for(auto const&g:globals) if(g.name==global_return[1].str() && g.initializer) {
+          if(auto lit=std::get_if<csem::Lit>(&(*g.initializer)->n)) { p.else_status=lit->value; resolved=true; }
+        }
+        if(!resolved) { p.else_status=0; std::cerr<<"warning: symbolic return treated as external status 0\n"; }
+      } else { p.else_status=0; std::cerr<<"warning: symbolic return treated as external status 0\n"; }
     }
     }
     }
