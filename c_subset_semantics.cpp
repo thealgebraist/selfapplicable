@@ -22,7 +22,7 @@ bool same(T const&a,T const&b){return std::visit([&](auto const&x,auto const&y)-
 struct E; using Expr=std::shared_ptr<const E>;
 struct Lit{int value;}; struct Var{std::string name;}; struct Addr{Expr x;}; struct Deref{Expr x;};
 struct Member{Expr base;std::string field;}; struct Arrow{Expr base;std::string field;};
-enum class BinOp { Add, Equal };
+enum class BinOp { Add, Equal, Subtract, Less, LogicalAnd, LogicalOr };
 struct Binary{BinOp op;Expr left;Expr right;}; struct Assign{Expr left;Expr right;};
 struct If{Expr condition;Expr yes;Expr no;};
 struct While{Expr condition;Expr body;}; struct Sequence{std::vector<Expr> items;};
@@ -74,6 +74,9 @@ int main(){using namespace csem;try{
   if(!same(infer(arrow(variable("p"),"next"),{{"p",NodePtr}}, {}, structs),NodePtr))throw std::runtime_error("pointer field type failed");
   if(!same(infer(assign(arrow(variable("p"),"value"),literal(7)),{{"p",NodePtr}}, {}, structs),integer()))throw std::runtime_error("assignment type failed");
   if(!same(infer(binary(BinOp::Add,literal(2),literal(3)),{}, {}, structs),integer()))throw std::runtime_error("binary operator type failed");
+  if(!same(infer(binary(BinOp::Subtract,literal(3),literal(2)),{}, {}, structs),integer()))throw std::runtime_error("subtraction type failed");
+  if(!same(infer(binary(BinOp::Less,literal(2),literal(3)),{}, {}, structs),integer()))throw std::runtime_error("ordering type failed");
+  if(!same(infer(binary(BinOp::LogicalAnd,literal(1),literal(0)),{}, {}, structs),integer()))throw std::runtime_error("logical operator type failed");
   auto IntPtr=pointer(integer());
   if(size_of(integer(),structs)!=4||size_of(IntPtr,structs)!=8||size_of(Node,structs)!=12)throw std::runtime_error("layout size failed");
   if(field_offset(Node,"value",structs)!=0||field_offset(Node,"next",structs)!=4)throw std::runtime_error("field offset failed");
@@ -109,5 +112,5 @@ int main(){using namespace csem;try{
   bool bad_loop_control=false;try{check_body(mutate,{Stmt(BreakStmt{})},body_fs,structs);}catch(std::exception const&){bad_loop_control=true;}if(!bad_loop_control)throw std::runtime_error("top-level break accepted");
   auto bad=Function{"bad",{{"p",NodePtr}},integer(),{dereference(variable("p"))}}; bool rejected=false;try{check(bad,fs,structs);}catch(std::exception const&){rejected=true;}if(!rejected)throw std::runtime_error("bad pointer result accepted");
   using namespace st; auto A=sort(1); auto n=nbe_normalise({},normalize_code(A,quote(app(lam(A,var(0)),sort(0)))));if(!equal(n,quote(sort(0))))throw Error("NbE bridge failed");
-  std::cout<<"struct Node: PASS\nstruct fields: PASS\npointer fields: PASS\nlayout and sizeof: PASS\nfield offsets: PASS\nallocation: PASS\ndeallocation: PASS\nassignments: PASS\nbinary operators: PASS\npointer indexing: PASS\npointer arithmetic: PASS\nconditionals: PASS\nwhile statements: PASS\nfor statements: PASS\ndo-while statements: PASS\nloop control: PASS\nstatement bodies: PASS\nfunction references: PASS\nindirect calls: PASS\npointer types: PASS\nfunction calls: PASS\nrecursive call typing: PASS\nNbE bridge: PASS\n";
+  std::cout<<"struct Node: PASS\nstruct fields: PASS\npointer fields: PASS\nlayout and sizeof: PASS\nfield offsets: PASS\nallocation: PASS\ndeallocation: PASS\nassignments: PASS\nbinary operators: PASS\nsubtraction and ordering: PASS\nlogical operators: PASS\npointer indexing: PASS\npointer arithmetic: PASS\nconditionals: PASS\nwhile statements: PASS\nfor statements: PASS\ndo-while statements: PASS\nloop control: PASS\nstatement bodies: PASS\nfunction references: PASS\nindirect calls: PASS\npointer types: PASS\nfunction calls: PASS\nrecursive call typing: PASS\nNbE bridge: PASS\n";
 }catch(std::exception const&e){std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}}
