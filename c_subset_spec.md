@@ -456,6 +456,8 @@ of a zero-argument callback field.
 a void callback field.
 `function_pointer_struct_typedef_aggregate.c` combines aggregate initialization
 with a typedef-named callback field.
+`function_pointer_struct_binary_typedef_aggregate.c` extends that alias-aware
+aggregate path to a two-argument callback.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
