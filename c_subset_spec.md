@@ -166,6 +166,8 @@ values are checked for collisions before lowering.
 The semantic core represents enums nominally, gives them four-byte layout,
 and treats them as integer-like switch selectors while preserving enum-name
 equality.
+The semantic regression directly checks an enum-typed selector through
+`check_switch`, in addition to the source-level named-label fixture.
 
 Directory-kind predicates are supported with:
 

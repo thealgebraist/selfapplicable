@@ -213,6 +213,8 @@ int main(){using namespace csem;try{
   Env switch_env{{"p",NodePtr}};
   check_switch(arrow(variable("p"),"value"),{{literal(0),{expr_stmt(assign(arrow(variable("p"),"value"),literal(1)))}}},{expr_stmt(assign(arrow(variable("p"),"value"),literal(2)))},unit(),switch_env,body_fs,structs);
   bool bad_switch=false;try{check_switch(variable("p"),{}, {},unit(),switch_env,body_fs,structs);}catch(std::exception const&){bad_switch=true;}if(!bad_switch)throw std::runtime_error("pointer switch selector accepted");
+  auto switch_mode=enum_type("Mode");
+  check_switch(variable("m"),{{literal(1),{expr_stmt(literal(0))}}},{expr_stmt(literal(1))},unit(),{{"m",switch_mode}},body_fs,structs);
   bool duplicate_case=false;try{check_switch(literal(1),{{literal(2),{}},{literal(2),{}}},{},unit(),{},body_fs,structs);}catch(std::exception const&){duplicate_case=true;}if(!duplicate_case)throw std::runtime_error("duplicate switch case accepted");
   bool bad_loop_control=false;try{check_body(mutate,{Stmt(BreakStmt{})},body_fs,structs);}catch(std::exception const&){bad_loop_control=true;}if(!bad_loop_control)throw std::runtime_error("top-level break accepted");
   auto bad=Function{"bad",{{"p",NodePtr}},integer(),{dereference(variable("p"))}}; bool rejected=false;try{check(bad,fs,structs);}catch(std::exception const&){rejected=true;}if(!rejected)throw std::runtime_error("bad pointer result accepted");
