@@ -402,6 +402,8 @@ from `&fp` and dispatched through two explicit dereferences.
 callback and returns the checked sum.
 `function_pointer_parameter.c` checks a higher-order function whose typed
 callback parameter is invoked inside its body.
+`function_pointer_binary_parameter.c` applies the same higher-order check to
+a callback with two integer arguments.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument

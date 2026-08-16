@@ -107,6 +107,16 @@ Program parse_main(std::string const& s) {
       (void)csem::infer(csem::indirect_call(csem::dereference(csem::variable(r[3].str())),{csem::literal(std::stoi(r[4]))}),global_env,functions,{});
       p.function_call=true; p.else_status=std::stoi(r[4]);
     } else {
+    static const std::regex binary_callback_parameter_call(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\2\s*\+\s+\3\s*;\s*\}\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*int\s*,\s*int\s*\)\s*,\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\5\s*\(\s*\6\s*,\s*\7\s*\)\s*;\s*\}\s*int\s+main\s*\([^)]*\)\s*\{\s*return\s+\4\s*\(\s*&\s*\1\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;\s*\})");
+    if(std::regex_search(s,r,binary_callback_parameter_call)) {
+      csem::Function add{r[1].str(),{{r[2].str(),csem::integer()},{r[3].str(),csem::integer()}},csem::integer(),{csem::binary(csem::BinOp::Add,csem::variable(r[2].str()),csem::variable(r[3].str()))}};
+      auto fp=csem::function({csem::integer(),csem::integer()},csem::integer());
+      csem::Function apply{r[4].str(),{{r[5].str(),csem::pointer(fp)},{r[6].str(),csem::integer()},{r[7].str(),csem::integer()}},csem::integer(),{csem::indirect_call(csem::dereference(csem::variable(r[5].str())),{csem::variable(r[6].str()),csem::variable(r[7].str())})}};
+      csem::Functions functions{{add.name,&add},{apply.name,&apply}};
+      csem::check_program({add,apply},{});
+      (void)csem::infer(csem::call(apply.name,{csem::address(csem::function_ref(add.name)),csem::literal(std::stoi(r[8])),csem::literal(std::stoi(r[9]))}),{},functions,{});
+      p.function_call=true; p.else_status=std::stoi(r[8])+std::stoi(r[9]);
+    } else {
     static const std::regex callback_parameter_call(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\2\s*;\s*\}\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*int\s*\)\s*,\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\4\s*\(\s*\5\s*\)\s*;\s*\}\s*int\s+main\s*\([^)]*\)\s*\{\s*return\s+\3\s*\(\s*&\s*\1\s*,\s*([0-9]+)\s*\)\s*;\s*\})");
     if(std::regex_search(s,r,callback_parameter_call)) {
       csem::Function identity{r[1].str(),{{r[2].str(),csem::integer()}},csem::integer(),{csem::variable(r[2].str())}};
@@ -346,6 +356,7 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,sizegt)) { p.size_gt=true; p.size_path=d[1].str(); p.size_bytes=std::stoull(d[2]); p.then_status=std::stoi(d[3]); p.else_status=std::stoi(d[4]); }
   static const std::regex help(R"(if\s*\(\s*argc\s*==\s*2\s*&&\s*(?:streq|strcmp)\s*\(\s*argv\s*\[\s*1\s*\]\s*,\s*"--help"\s*\)\s*\)\s*return\s+([0-9]+)\s*;)");
   if(std::regex_search(body,w,help)) { p.arg_help=true; p.argc_value=2; p.then_status=std::stoi(w[1]); }
+    }
     }
     }
     }
