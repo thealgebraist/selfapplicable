@@ -117,6 +117,8 @@ int main(){using namespace csem;try{
   if(!same(infer(function_ref("inc"),{},callback_fs,structs),callback_type))throw std::runtime_error("function reference type failed");
   auto callback_globals=check_globals({{"cb",callback_type,function_ref("inc")}},callback_fs,structs);
   if(!same(callback_globals.at("cb"),callback_type))throw std::runtime_error("function pointer global type failed");
+  Function apply_callback{"apply_callback",{{"cb",callback_type},{"x",integer()}},integer(),{indirect_call(variable("cb"),{variable("x")})}};
+  check(apply_callback,callback_fs,structs);
   bool bad_indirect=false;try{(void)infer(indirect_call(variable("cb"),{variable("p")}),{{"cb",callback_type},{"p",NodePtr}},callback_fs,structs);}catch(std::exception const&){bad_indirect=true;}if(!bad_indirect)throw std::runtime_error("bad indirect call accepted");
   Function length{"length",{{"p",NodePtr}},integer(),{conditional(arrow(variable("p"),"value"),call("length",{variable("p")}),literal(0))}};
   Functions fs{{"length",&length}}; check(length,fs,structs); // recursive call is type-checked
