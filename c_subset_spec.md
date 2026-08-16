@@ -315,6 +315,7 @@ operator vocabulary also includes subtraction, ordering, and logical forms;
 the current expression checker represents their result as `int`.
 The typed operator vocabulary additionally includes bitwise `&`, `|`, `^`
 and shifts `<<`, `>>`, all requiring integer operands and producing `int`.
+Integer remainder `%` is also typed and constant-lowered.
 typed `sizeof` form returns an integer and uses the core's deterministic
 packed layout: `int` is 4 bytes, pointers and function references are 8 bytes,
 and struct size is the sum of its field sizes. This is a deliberate initial
