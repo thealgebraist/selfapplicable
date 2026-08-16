@@ -168,6 +168,8 @@ and treats them as integer-like switch selectors while preserving enum-name
 equality.
 Enum types also participate in the existing alias environment, including
 duplicate-alias rejection.
+Enum pointers retain the ordinary eight-byte pointer layout, and
+`allocate(enum Mode)` is checked as `enum Mode *`.
 The semantic regression directly checks an enum-typed selector through
 `check_switch`, in addition to the source-level named-label fixture.
 `sizeof(enum Mode)` uses the typed four-byte layout and undeclared enum names

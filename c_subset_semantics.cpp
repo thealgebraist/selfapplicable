@@ -91,6 +91,8 @@ int main(){using namespace csem;try{
   auto Mode=enum_type("Mode");
   if(!same(Mode,enum_type("Mode"))||same(Mode,enum_type("Other"))||size_of(Mode,structs)!=4)throw std::runtime_error("enum type failed");
   if(!integerish(Mode)||!integerish(integer()))throw std::runtime_error("enum integer compatibility failed");
+  auto ModePtr=pointer(Mode);
+  if(size_of(ModePtr,structs)!=8||!same(infer(allocate(Mode),{}, {},structs),ModePtr)||!same(infer(dereference(variable("mp")),{{"mp",ModePtr}}, {},structs),Mode))throw std::runtime_error("enum pointer allocation failed");
   Aliases enum_aliases; add_alias(enum_aliases,"ModeAlias",Mode);
   if(!same(resolve_alias(enum_aliases,"ModeAlias"),Mode))throw std::runtime_error("enum alias failed");
   bool duplicate_enum_alias=false;try{add_alias(enum_aliases,"ModeAlias",Mode);}catch(std::exception const&){duplicate_enum_alias=true;}if(!duplicate_enum_alias)throw std::runtime_error("duplicate enum alias accepted");
