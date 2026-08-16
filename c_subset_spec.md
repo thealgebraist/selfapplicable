@@ -434,6 +434,8 @@ and dispatches through the checked member expression.
 a two-argument callback field.
 `function_pointer_struct_void_field.c` checks a void callback stored in a
 struct field and invoked through the member.
+`function_pointer_struct_nullary_field.c` checks a zero-argument integer
+callback stored and dispatched through a struct member.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
