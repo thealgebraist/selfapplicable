@@ -256,6 +256,9 @@ The source reader recognizes the recursive-node declaration shape used by the
 typed core and rejects the corresponding by-value self-cycle before assembly.
 `fixtures/struct_pointer.c` is accepted and `fixtures/struct_value_cycle.c` is
 rejected.
+Simple file-scope integer declarations with constant initializers are also
+validated through `check_globals`; duplicate names are rejected. The current
+assembler slice does not yet expose those globals to `main` expressions.
 
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can

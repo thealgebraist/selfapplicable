@@ -43,6 +43,11 @@ Program parse_main(std::string const& s) {
   }
   static const std::regex by_value_struct(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*struct\s+\1\s+self\s*;\s*\}\s*;)");
   if(std::regex_search(s,by_value_struct)) throw std::runtime_error("by-value recursive struct is not representable");
+  static const std::regex integer_global(R"(\bint\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9]+)\s*;)");
+  std::vector<csem::Global> globals;
+  for(std::sregex_iterator i(s.begin(),s.end(),integer_global), end; i!=end; ++i)
+    globals.push_back({(*i)[1].str(),csem::integer(),csem::literal(std::stoi((*i)[2]))});
+  csem::check_globals(globals,{}, {});
   if(std::regex_search(body,r,conditional)) { p.argc_value=std::stoi(r[1]); p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); }
   else {
     static const std::regex call0(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*;)");
