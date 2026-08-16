@@ -93,6 +93,9 @@ int main(){using namespace csem;try{
   if(!integerish(Mode)||!integerish(integer()))throw std::runtime_error("enum integer compatibility failed");
   auto ModePtr=pointer(Mode);
   if(size_of(ModePtr,structs)!=8||!same(infer(allocate(Mode),{}, {},structs),ModePtr)||!same(infer(dereference(variable("mp")),{{"mp",ModePtr}}, {},structs),Mode))throw std::runtime_error("enum pointer allocation failed");
+  auto Tagged=structure("Tagged");
+  StructFields enum_structs{{"Tagged",{{"kind",Mode},{"payload",integer()}}}};
+  if(size_of(Tagged,enum_structs)!=8||field_offset(Tagged,"payload",enum_structs)!=4||!same(infer(member(variable("tag"),"kind"),{{"tag",Tagged}}, {},enum_structs),Mode))throw std::runtime_error("enum struct field failed");
   Aliases enum_aliases; add_alias(enum_aliases,"ModeAlias",Mode);
   if(!same(resolve_alias(enum_aliases,"ModeAlias"),Mode))throw std::runtime_error("enum alias failed");
   bool duplicate_enum_alias=false;try{add_alias(enum_aliases,"ModeAlias",Mode);}catch(std::exception const&){duplicate_enum_alias=true;}if(!duplicate_enum_alias)throw std::runtime_error("duplicate enum alias accepted");

@@ -170,6 +170,8 @@ Enum types also participate in the existing alias environment, including
 duplicate-alias rejection.
 Enum pointers retain the ordinary eight-byte pointer layout, and
 `allocate(enum Mode)` is checked as `enum Mode *`.
+Enums may be stored in nominal struct fields; field typing, packed offsets,
+and aggregate size preserve the enum type.
 The semantic regression directly checks an enum-typed selector through
 `check_switch`, in addition to the source-level named-label fixture.
 `sizeof(enum Mode)` uses the typed four-byte layout and undeclared enum names
