@@ -56,6 +56,7 @@ expect_reject fixtures/unknown_call.c
 expect_reject fixtures/function_add_bad_arity.c
 expect_reject fixtures/function_pointer_bad_arity.c
 expect_reject fixtures/function_pointer_global_bad_init.c
+expect_reject fixtures/function_pointer_explicit_deref_bad_arity.c
 expect_reject fixtures/struct_value_cycle.c
 expect_reject fixtures/duplicate_global.c
 expect_reject fixtures/duplicate_pointer_global.c

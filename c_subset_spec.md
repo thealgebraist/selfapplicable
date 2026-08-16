@@ -369,6 +369,8 @@ pointer initializer.
 function-pointer initializer.
 `function_pointer_explicit_deref.c` accepts the explicit `(*fp)(6)` call
 spelling as well.
+The two-argument `(*fp)(1, 2)` variant is rejected by the negative fixture
+`function_pointer_explicit_deref_bad_arity.c`.
 An integer file-scope initializer for a function pointer is rejected explicitly;
 see `function_pointer_global_bad_init.c`.
 For the recognized recursive-node declaration, file-scope pointer globals such
