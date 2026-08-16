@@ -404,6 +404,8 @@ callback and returns the checked sum.
 callback parameter is invoked inside its body.
 `function_pointer_binary_parameter.c` applies the same higher-order check to
 a callback with two integer arguments.
+`function_pointer_typedef.c` checks a source-level typedef alias for a unary
+callback pointer before indirect dispatch.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
