@@ -184,7 +184,8 @@ statements, `if`, and `while`. It checks return expressions against the
 function result type and checks nested branches and loop bodies. This permits
 recursive functions to be represented with explicit C-like control-flow
 bodies; the permissive source reader and assembler lowering have not yet been
-replaced by this structured frontend.
+replaced by this structured frontend. `break` and `continue` are checked with
+an explicit loop-depth context and are rejected outside `while` bodies.
 
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can
