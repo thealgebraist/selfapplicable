@@ -420,6 +420,8 @@ before the integer `main` result is returned.
 integer callback arguments.
 `function_pointer_void_typedef.c` checks a named typedef alias for a void
 callback signature.
+`function_pointer_void_binary_typedef.c` extends the named void alias to two
+integer arguments.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
