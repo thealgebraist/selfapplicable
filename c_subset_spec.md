@@ -168,6 +168,10 @@ item. Function references are first-class function types, and indirect calls
 check the referenced signature before returning its result type. The
 index expression `p[i]` requires a pointer base and integer index, while
 integer-plus-pointer arithmetic preserves the pointer element type. The
+typed `sizeof` form returns an integer and uses the core's deterministic
+packed layout: `int` is 4 bytes, pointers and function references are 8 bytes,
+and struct size is the sum of its field sizes. This is a deliberate initial
+layout model; ABI alignment and unions remain future extensions.
 executable also sends a quoted beta-redex through the dependent NbE
 `normalizeCode` term; its output is a regression test for this bridge.
 
