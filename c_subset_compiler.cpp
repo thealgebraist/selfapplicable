@@ -83,6 +83,13 @@ Program parse_main(std::string const& s) {
       if(!std::regex_search(body,symbolic)) throw std::runtime_error("return expression is outside subset");
       // Macro-expanded constants and external status helpers are represented
       // by the freestanding ABI stub until the typed constant layer is added.
+      static const std::regex array_return(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\[\s*3\s*\]\s*=\s*\{\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\}\s*;\s*return\s+\1\s*\[\s*([0-9]+)\s*\]\s*;)");
+      std::smatch array_match;
+      if(std::regex_search(body,array_match,array_return)) {
+        int index=std::stoi(array_match[5]);
+        if(index<0 || index>2) throw std::runtime_error("constant array index out of bounds");
+        p.else_status=std::stoi(array_match[2+index]);
+      } else {
       static const std::regex next_assign_return(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\{\s*([0-9]+)\s*,\s*0\s*\}\s*;\s*\2\s*\.\s*next\s*=\s*&\2\s*;\s*return\s+\2\s*\.\s*next\s*->\s*value\s*;)");
       static const std::regex field_assign_return(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\{\s*0\s*,\s*0\s*\}\s*;\s*\2\s*\.\s*value\s*=\s*([0-9]+)\s*;\s*return\s+\2\s*\.\s*value\s*;)");
       static const std::regex arrow_assign_return(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\{\s*0\s*,\s*0\s*\}\s*;\s*\(\s*&\2\s*\)\s*->\s*value\s*=\s*([0-9]+)\s*;\s*return\s*\(\s*&\2\s*\)\s*->\s*value\s*;)");
@@ -109,6 +116,7 @@ Program parse_main(std::string const& s) {
         }
         if(!resolved) { p.else_status=0; std::cerr<<"warning: symbolic return treated as external status 0\n"; }
       } else { p.else_status=0; std::cerr<<"warning: symbolic return treated as external status 0\n"; }
+      }
       }
     }
     }

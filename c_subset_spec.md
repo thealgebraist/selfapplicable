@@ -266,6 +266,9 @@ Field assignment forms are supported for both `.` and `->`; the fixtures
 and `11` respectively.
 `struct_next_return.c` additionally assigns `node.next = &node` and reads
 `node.next->value`, verifying self-referential pointer fields with status `12`.
+Constant three-element integer arrays can be indexed in the source subset;
+`array_index_return.c` returns `values[1]` with status `13`, while an out of
+bounds constant index is rejected.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant
