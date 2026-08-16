@@ -103,6 +103,15 @@ return 1;
 
 The compiler lowers `exists` to Linux `statx` and branches on its result.
 
+Directory-kind predicates are supported with:
+
+```c
+if (isdir(".")) return 0;
+return 1;
+```
+
+The generated code checks the `statx` mode field against `S_IFDIR`.
+
 Permissive source-ingestion mode accepts symbolic return expressions from real
 Coreutils files, such as `return EXIT_STATUS;`, and lowers them to status 0
 with an explicit diagnostic. This proves that the macro-free frontend can
