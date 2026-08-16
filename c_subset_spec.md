@@ -203,6 +203,9 @@ The semantic API additionally checks `switch` selectors and case labels as
 integers and type-checks every case and default body. Switch cases are exposed
 as a structured checker API, requires constant labels, and rejects duplicate
 labels; parser integration remains future work.
+Definite-return analysis rejects fall-through in non-void structured
+functions; an `if` is considered complete only when both branches return.
+Loops are conservatively treated as potentially terminating.
 
 Defining `CSEM_LIBRARY` when compiling `c_subset_semantics.cpp` omits the
 regression-demo `main` and exposes the typed core for reuse by a parser or
