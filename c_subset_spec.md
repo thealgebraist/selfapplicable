@@ -371,6 +371,7 @@ for the file-scope form.
 `function_pointer_global_binary.c` covers a two-argument file-scope callback.
 `function_pointer_global_binary_direct.c` covers its direct `fp(2, 5)` spelling.
 `function_pointer_global_nullary.c` covers a zero-argument file-scope callback.
+`function_pointer_global_nullary_direct.c` covers its direct `fp()` spelling.
 `function_pointer_global_binary_bad_arity.c` is rejected when the binary global
 callback is invoked with only one argument.
 The local equivalent `function_pointer_binary_bad_arity.c` is rejected by the
