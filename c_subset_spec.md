@@ -452,6 +452,8 @@ callback field before direct member dispatch.
 initialization to a two-argument field.
 `function_pointer_struct_nullary_aggregate.c` covers aggregate initialization
 of a zero-argument callback field.
+`function_pointer_struct_void_aggregate.c` covers aggregate initialization of
+a void callback field.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
