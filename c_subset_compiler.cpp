@@ -34,6 +34,15 @@ Program parse_main(std::string const& s) {
   static const std::regex conditional(R"(if\s*\(\s*argc\s*==\s*([0-9]+)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)");
   auto body=s.substr(body_start+1,body_end-body_start-1); std::smatch r;
   Program p;
+  static const std::regex node_struct(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*int\s+value\s*;\s*struct\s+\1\s*\*\s*next\s*;\s*\}\s*;)");
+  std::smatch node_match;
+  if(std::regex_search(s,node_match,node_struct)) {
+    auto node=csem::structure(node_match[1].str());
+    csem::validate_structs({{node_match[1].str(),{{"value",csem::integer()},{"next",csem::pointer(node)}}}});
+    csem::validate_struct_cycles({{node_match[1].str(),{{"value",csem::integer()},{"next",csem::pointer(node)}}}});
+  }
+  static const std::regex by_value_struct(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*struct\s+\1\s+self\s*;\s*\}\s*;)");
+  if(std::regex_search(s,by_value_struct)) throw std::runtime_error("by-value recursive struct is not representable");
   if(std::regex_search(body,r,conditional)) { p.argc_value=std::stoi(r[1]); p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); }
   else {
     static const std::regex call0(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*;)");

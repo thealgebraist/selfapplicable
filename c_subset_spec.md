@@ -252,6 +252,10 @@ assembler backend. The default build retains the executable test harness.
 bodies, so mutually recursive declarations are accepted and duplicate names
 are rejected. The compiler's pre-emission gate exercises this mutual-recursion
 path.
+The source reader recognizes the recursive-node declaration shape used by the
+typed core and rejects the corresponding by-value self-cycle before assembly.
+`fixtures/struct_pointer.c` is accepted and `fixtures/struct_value_cycle.c` is
+rejected.
 
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can
