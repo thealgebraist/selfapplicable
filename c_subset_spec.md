@@ -215,6 +215,8 @@ globals can be initialized by matching function references and are checked
 through the same signature path before lowering. Higher-order functions may
 take such callbacks as parameters; an `apply_callback`-shaped function can
 invoke its callback only with arguments matching that signature. The
+same checking also permits function-valued returns, so a factory returning a
+function reference must return the exact declared callback signature. The
 index expression `p[i]` requires a pointer base and integer index, while
 integer-plus-pointer arithmetic preserves the pointer element type. The
 operator vocabulary also includes subtraction, ordering, and logical forms;
