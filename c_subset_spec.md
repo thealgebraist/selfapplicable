@@ -148,6 +148,15 @@ return 1;
 
 The compiler lowers `exists` to Linux `statx` and branches on its result.
 
+The source frontend also lowers a checked one-case switch on `argc`:
+
+```c
+switch (argc) { case 2: return 7; default: return 3; }
+```
+
+The selector and constant case label are checked through the semantic core;
+the assembler emits a direct compare and two exit paths.
+
 Directory-kind predicates are supported with:
 
 ```c
