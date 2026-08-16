@@ -351,3 +351,9 @@ boundary; the C++ implementation remains the executable artifact.
 Run `./test_c_subset_assembler.sh` to build the host compiler, emit assembly,
 assemble and link with only `as --64` and `ld`, then run positive fixtures and
 check rejection fixtures.
+
+`semantics.ott` is the corresponding Ott source. It defines the shared syntax,
+typing judgments, reduction rules, NbE-oriented big-step evaluation, and the
+C-subset big-step/small-step judgments. Ott can generate Coq and LaTeX from
+this source; building Ott from its upstream repository currently requires
+`ocamlfind`, which is not installed on this server.

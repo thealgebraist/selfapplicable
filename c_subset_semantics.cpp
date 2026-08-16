@@ -126,6 +126,10 @@ int main(){using namespace csem;try{
   callback_structs["CallbackBox"]={{"run",callback_type}};
   if(!same(infer(indirect_call(member(variable("box"),"run"),{literal(9)}),{{"box",CallbackBox}},callback_fs,callback_structs),integer()))throw std::runtime_error("struct function pointer field call failed");
   if(!same(infer(indirect_call(arrow(variable("boxp"),"run"),{literal(9)}),{{"boxp",pointer(CallbackBox)}},callback_fs,callback_structs),integer()))throw std::runtime_error("pointer struct function field call failed");
+  auto Thunk=structure("Thunk");
+  callback_structs["Thunk"]={{"run",callback_type},{"next",pointer(Thunk)}};
+  validate_struct_cycles(callback_structs);
+  if(!same(infer(indirect_call(arrow(variable("thunk"),"run"),{literal(9)}),{{"thunk",pointer(Thunk)}},callback_fs,callback_structs),integer()))throw std::runtime_error("recursive callback object call failed");
   Functions higher_order_fs{{"inc",&inc},{"make_callback",&make_callback}};
   if(!same(infer(indirect_call(call("make_callback",{}),{literal(9)}),{},higher_order_fs,structs),integer()))throw std::runtime_error("call returned function type failed");
   Function bad_factory{"bad_factory",{},callback_type,{literal(0)}};

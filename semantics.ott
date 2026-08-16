@@ -1,0 +1,152 @@
+(* Ott source for the semantic interface shared by the dependent core and
+   the typed C subset.  Generate Coq/LaTeX with Ott when the tool is present. *)
+
+metavar x, n ::= {{ com variable/index }}
+metavar i ::= {{ com universe level }}
+metavar A, B, t, u ::= {{ com term }}
+metavar v ::= {{ com value }}
+metavar tau ::= {{ com C type }}
+metavar e ::= {{ com C expression }}
+metavar r ::= {{ com integer result }}
+
+grammar
+term, t :: 't_' ::=
+  | x                         :: :: var
+  | Type i                     :: :: sort
+  | (x : A) -> B               :: :: pi (+ bind x in B +)
+  | lam x : A . t              :: :: lam (+ bind x in t +)
+  | t u                         :: :: app
+  | quote t                     :: :: quote
+  | unquote t                   :: :: unquote
+
+value, v :: 'v_' ::=
+  | neutral t                   :: :: neutral
+  | closure t                   :: :: closure
+  | syntax t                    :: :: syntax
+  | sort-value i                :: :: sort_value
+
+ctype, tau :: 'tau_' ::=
+  | int                         :: :: c_int
+  | void                        :: :: c_void
+  | tau *                       :: :: c_ptr
+  | struct x                    :: :: c_struct
+  | (tau list) -> tau           :: :: c_fun
+
+cexpr, e :: 'e_' ::=
+  | x                         :: :: c_var
+  | n                         :: :: c_lit
+  | & e                       :: :: c_addr
+  | * e                       :: :: c_deref
+  | e . x                     :: :: c_member
+  | e -> x                    :: :: c_arrow
+  | e + e                     :: :: c_add
+  | f ( e list )              :: :: c_call
+
+subrules
+  value <:: term
+
+defns
+Typing :: '' ::=
+  defn
+  G |- t : A :: :: typing::'' by
+    -------------------------- :: T_Type
+    G |- Type i : Type (i + 1)
+
+    G |- A : Type i    G, x : A |- B : Type j
+    ------------------------------------------ :: T_Pi
+    G |- (x : A) -> B : Type (max i j)
+
+    G, x : A |- t : B
+    ------------------ :: T_Lam
+    G |- lam x : A . t : (x : A) -> B
+
+    G |- f : (x : A) -> B    G |- u : A
+    ---------------------------------- :: T_App
+    G |- f u : B[u/x]
+
+    x : A in G
+    ----------- :: T_Var
+    G |- x : A
+
+Reduction :: '' ::=
+  defn
+  t --> t' :: :: reduce::'' by
+    -------------------------- :: R_Beta
+    (lam x : A . t) u --> t[u/x]
+
+    t --> t'
+    ---------- :: R_AppL
+    t u --> t' u
+
+    t --> t'
+    ---------- :: R_AppR
+    v t --> v t'
+
+BigStep :: '' ::=
+  defn
+  rho |- t => v :: :: eval::'' by
+    rho(x) = v
+    ---------- :: E_Var
+    rho |- x => v
+
+    ---------------- :: E_Lam
+    rho |- lam x : A . t => closure t
+
+    rho |- t => syntax u
+    rho |- u => v
+    ------------------ :: E_Unquote
+    rho |- unquote t => v
+
+    rho |- f => closure t    rho |- u => v    v :: rho |- t => w
+    -------------------------------------------------------------- :: E_App
+    rho |- f u => w
+
+CTyping :: '' ::=
+  defn
+  G |- e : tau :: :: ctyping::'' by
+    x : tau in G
+    ----------- :: CT_Var
+    G |- x : tau
+
+    ---------------- :: CT_Int
+    G |- n : int
+
+    G |- e : tau
+    ------------- :: CT_Addr
+    G |- & e : tau *
+
+    G |- e : tau *
+    --------------- :: CT_Deref
+    G |- * e : tau
+
+    G |- e : struct x    field(x, f) = tau
+    -------------------------------------- :: CT_Member
+    G |- e . f : tau
+
+    G |- e : (tau list) -> tau'    G |- es : tau list
+    -------------------------------------------------- :: CT_Call
+    G |- e (es) : tau'
+
+CBigStep :: '' ::=
+  defn
+  G |- e ==> r :: :: ceval::'' by
+    ---------------- :: CE_Lit
+    G |- n ==> n
+
+    G |- e1 ==> r1    G |- e2 ==> r2
+    -------------------------------- :: CE_Add
+    G |- e1 + e2 ==> r1 + r2
+
+CSmallStep :: '' ::=
+  defn
+  e -->C e' :: :: cstep::'' by
+    ------------------------------ :: CS_Add
+    n1 + n2 -->C (n1 + n2)
+
+    e1 -->C e1'
+    ------------- :: CS_AddL
+    e1 + e2 -->C e1' + e2
+
+    e2 -->C e2'
+    ------------- :: CS_AddR
+    n1 + e2 -->C n1 + e2'
