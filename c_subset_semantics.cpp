@@ -22,18 +22,22 @@ bool same(T const&a,T const&b){return std::visit([&](auto const&x,auto const&y)-
 struct E; using Expr=std::shared_ptr<const E>;
 struct Lit{int value;}; struct Var{std::string name;}; struct Addr{Expr x;}; struct Deref{Expr x;};
 struct Member{Expr base;std::string field;}; struct Arrow{Expr base;std::string field;};
+enum class BinOp { Add, Equal };
+struct Binary{BinOp op;Expr left;Expr right;}; struct Assign{Expr left;Expr right;};
 struct Call{std::string fn;std::vector<Expr> args;};
-struct E{using N=std::variant<Lit,Var,Addr,Deref,Member,Arrow,Call>;N n;template<class X>E(X x):n(std::move(x)){} };
+struct E{using N=std::variant<Lit,Var,Addr,Deref,Member,Arrow,Binary,Assign,Call>;N n;template<class X>E(X x):n(std::move(x)){} };
 template<class X,class...A>Expr e(A&&...a){return std::make_shared<E>(X{std::forward<A>(a)...});}
 Expr literal(int n){return e<Lit>(n);} Expr variable(std::string n){return e<Var>(std::move(n));} Expr address(Expr x){return e<Addr>(std::move(x));} Expr dereference(Expr x){return e<Deref>(std::move(x));}
 Expr member(Expr x,std::string n){return e<Member>(std::move(x),std::move(n));} Expr arrow(Expr x,std::string n){return e<Arrow>(std::move(x),std::move(n));}
+Expr binary(BinOp op,Expr x,Expr y){return e<Binary>(op,std::move(x),std::move(y));} Expr assign(Expr x,Expr y){return e<Assign>(std::move(x),std::move(y));}
 Expr call(std::string n,std::vector<Expr>a){return e<Call>(std::move(n),std::move(a));}
 
 struct Function{std::string name;std::vector<std::pair<std::string,T>> args;T ret;std::vector<Expr> body;};
 using Env=std::map<std::string,T>; using Functions=std::map<std::string,Function const*>;
 using StructFields=std::map<std::string,std::map<std::string,T>>;
 T field(T const&base,std::string const&name,StructFields const&ss){auto s=std::get_if<Ty::Struct>(&base->n);if(!s)throw std::runtime_error("field access on non-struct");auto si=ss.find(s->name);if(si==ss.end())throw std::runtime_error("unknown struct "+s->name);auto fi=si->second.find(name);if(fi==si->second.end())throw std::runtime_error("unknown field "+name);return fi->second;}
-T infer(Expr const&x,Env const&env,Functions const&fs,StructFields const&ss){return std::visit([&](auto const&q)->T{using X=std::decay_t<decltype(q)>;if constexpr(std::is_same_v<X,Lit>)return integer();if constexpr(std::is_same_v<X,Var>){auto i=env.find(q.name);if(i==env.end())throw std::runtime_error("unbound C variable "+q.name);return i->second;}if constexpr(std::is_same_v<X,Addr>)return pointer(infer(q.x,env,fs,ss));if constexpr(std::is_same_v<X,Deref>){auto t=infer(q.x,env,fs,ss);auto p=std::get_if<Ty::Ptr>(&t->n);if(!p)throw std::runtime_error("dereference of non-pointer");return p->to;}if constexpr(std::is_same_v<X,Member>)return field(infer(q.base,env,fs,ss),q.field,ss);if constexpr(std::is_same_v<X,Arrow>){auto t=infer(q.base,env,fs,ss);auto p=std::get_if<Ty::Ptr>(&t->n);if(!p)throw std::runtime_error("arrow access on non-pointer");return field(p->to,q.field,ss);}if constexpr(std::is_same_v<X,Call>){auto f=fs.find(q.fn);if(f==fs.end())throw std::runtime_error("unknown C function "+q.fn);if(f->second->args.size()!=q.args.size())throw std::runtime_error("C call arity");for(size_t i=0;i<q.args.size();++i)if(!same(infer(q.args[i],env,fs,ss),f->second->args[i].second))throw std::runtime_error("C call argument type");return f->second->ret;}},x->n);}
+bool lvalue(Expr const&x){return std::holds_alternative<Var>(x->n)||std::holds_alternative<Deref>(x->n)||std::holds_alternative<Member>(x->n)||std::holds_alternative<Arrow>(x->n);}
+T infer(Expr const&x,Env const&env,Functions const&fs,StructFields const&ss){return std::visit([&](auto const&q)->T{using X=std::decay_t<decltype(q)>;if constexpr(std::is_same_v<X,Lit>)return integer();if constexpr(std::is_same_v<X,Var>){auto i=env.find(q.name);if(i==env.end())throw std::runtime_error("unbound C variable "+q.name);return i->second;}if constexpr(std::is_same_v<X,Addr>){if(!lvalue(q.x))throw std::runtime_error("address of non-lvalue");return pointer(infer(q.x,env,fs,ss));}if constexpr(std::is_same_v<X,Deref>){auto t=infer(q.x,env,fs,ss);auto p=std::get_if<Ty::Ptr>(&t->n);if(!p)throw std::runtime_error("dereference of non-pointer");return p->to;}if constexpr(std::is_same_v<X,Member>)return field(infer(q.base,env,fs,ss),q.field,ss);if constexpr(std::is_same_v<X,Arrow>){auto t=infer(q.base,env,fs,ss);auto p=std::get_if<Ty::Ptr>(&t->n);if(!p)throw std::runtime_error("arrow access on non-pointer");return field(p->to,q.field,ss);}if constexpr(std::is_same_v<X,Binary>){auto l=infer(q.left,env,fs,ss);auto r=infer(q.right,env,fs,ss);if(!same(l,integer())||!same(r,integer()))throw std::runtime_error("integer binary operator types");return integer();}if constexpr(std::is_same_v<X,Assign>){if(!lvalue(q.left))throw std::runtime_error("assignment to non-lvalue");auto l=infer(q.left,env,fs,ss);auto r=infer(q.right,env,fs,ss);if(!same(l,r))throw std::runtime_error("assignment type mismatch");return l;}if constexpr(std::is_same_v<X,Call>){auto f=fs.find(q.fn);if(f==fs.end())throw std::runtime_error("unknown C function "+q.fn);if(f->second->args.size()!=q.args.size())throw std::runtime_error("C call arity");for(size_t i=0;i<q.args.size();++i)if(!same(infer(q.args[i],env,fs,ss),f->second->args[i].second))throw std::runtime_error("C call argument type");return f->second->ret;}},x->n);}
 void check(Function const&f,Functions const&fs,StructFields const&ss){Env env;for(auto const&a:f.args)env[a.first]=a.second;for(auto const&x:f.body)if(!same(infer(x,env,fs,ss),f.ret))throw std::runtime_error("C function result type");}
 }
 
@@ -42,9 +46,12 @@ int main(){using namespace csem;try{
   StructFields structs{{"Node",{{"value",integer()},{"next",NodePtr}}}};
   if(!same(infer(member(variable("n"),"value"),{{"n",Node}}, {}, structs),integer()))throw std::runtime_error("struct field type failed");
   if(!same(infer(arrow(variable("p"),"next"),{{"p",NodePtr}}, {}, structs),NodePtr))throw std::runtime_error("pointer field type failed");
+  if(!same(infer(assign(arrow(variable("p"),"value"),literal(7)),{{"p",NodePtr}}, {}, structs),integer()))throw std::runtime_error("assignment type failed");
+  if(!same(infer(binary(BinOp::Add,literal(2),literal(3)),{}, {}, structs),integer()))throw std::runtime_error("binary operator type failed");
+  bool bad_assignment=false;try{(void)infer(assign(arrow(variable("p"),"value"),variable("p")),{{"p",NodePtr}}, {}, structs);}catch(std::exception const&){bad_assignment=true;}if(!bad_assignment)throw std::runtime_error("bad assignment accepted");
   Function length{"length",{{"p",NodePtr}},integer(),{call("length",{variable("p")})}};
   Functions fs{{"length",&length}}; check(length,fs,structs); // recursive call is type-checked
   auto bad=Function{"bad",{{"p",NodePtr}},integer(),{dereference(variable("p"))}}; bool rejected=false;try{check(bad,fs,structs);}catch(std::exception const&){rejected=true;}if(!rejected)throw std::runtime_error("bad pointer result accepted");
   using namespace st; auto A=sort(1); auto n=nbe_normalise({},normalize_code(A,quote(app(lam(A,var(0)),sort(0)))));if(!equal(n,quote(sort(0))))throw Error("NbE bridge failed");
-  std::cout<<"struct Node: PASS\nstruct fields: PASS\npointer fields: PASS\npointer types: PASS\nfunction calls: PASS\nrecursive call typing: PASS\nNbE bridge: PASS\n";
+  std::cout<<"struct Node: PASS\nstruct fields: PASS\npointer fields: PASS\nassignments: PASS\nbinary operators: PASS\npointer types: PASS\nfunction calls: PASS\nrecursive call typing: PASS\nNbE bridge: PASS\n";
 }catch(std::exception const&e){std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}}
