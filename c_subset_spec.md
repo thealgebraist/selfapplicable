@@ -388,6 +388,8 @@ the corresponding `fp()` call.
 `(*fp)(2, 5)` spelling.
 `function_pointer_alias.c` checks assignment from one compatible callback
 pointer variable to another before indirect dispatch.
+`function_pointer_binary_alias.c` applies the same aliasing path to a binary
+callback signature.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
