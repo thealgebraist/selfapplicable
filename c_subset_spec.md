@@ -162,6 +162,9 @@ Two constant cases are also lowered in source order, with duplicate labels
 rejected by the typed switch checker.
 Two-value `enum` declarations can provide named integer case labels; their
 values are checked for collisions before lowering.
+The semantic core represents enums nominally, gives them four-byte layout,
+and treats them as integer-like switch selectors while preserving enum-name
+equality.
 
 Directory-kind predicates are supported with:
 
