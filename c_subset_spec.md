@@ -216,7 +216,9 @@ alias preserves its argument and result types for later calls. Pointer aliases
 to callback signatures are preserved as well, covering `typedef`-style
 callback pointer declarations. Such a pointer can be dereferenced and then
 used as an indirect-call callee, with the callback signature checked after
-dereference. Function-typed
+dereference. Taking the address of a function reference produces a
+pointer-to-function value; dereferencing that address restores the signature
+for an indirect call. Function-typed
 globals can be initialized by matching function references and are checked
 through the same signature path before lowering. Higher-order functions may
 take such callbacks as parameters; an `apply_callback`-shaped function can
