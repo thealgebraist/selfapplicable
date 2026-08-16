@@ -376,6 +376,8 @@ for the file-scope form.
 callback is invoked with only one argument.
 The direct-call variant `function_pointer_global_binary_direct_bad_arity.c`
 is rejected as well.
+`function_pointer_global_nullary_bad_arity.c` rejects an argument supplied to
+a zero-argument global callback.
 The local equivalent `function_pointer_binary_bad_arity.c` is rejected by the
 same declaration-aware check.
 `function_pointer_nullary.c` covers an empty-argument callback signature and
