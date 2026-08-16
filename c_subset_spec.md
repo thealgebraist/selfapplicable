@@ -259,6 +259,8 @@ rejected.
 The constant struct-field form in `fixtures/struct_field_return.c` lowers
 `node.value` to the initialized exit status, providing the first source-level
 field-read path.
+The corresponding address/arrow form `(&node)->value` is supported by
+`fixtures/struct_arrow_return.c`, which exits with the initialized value.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant
