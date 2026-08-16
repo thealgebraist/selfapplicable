@@ -36,6 +36,7 @@ expect_status fixtures/echo.c 0
 expect_status fixtures/function_call.c 7
 expect_status fixtures/function_pointer.c 6
 expect_status fixtures/function_pointer_address.c 6
+expect_status fixtures/function_pointer_explicit_deref.c 6
 expect_status fixtures/function_pointer_global.c 6
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9

@@ -367,6 +367,8 @@ arguments to the one-argument pointer.
 pointer initializer.
 `function_pointer_address.c` accepts the explicit `&identity` spelling for a
 function-pointer initializer.
+`function_pointer_explicit_deref.c` accepts the explicit `(*fp)(6)` call
+spelling as well.
 An integer file-scope initializer for a function pointer is rejected explicitly;
 see `function_pointer_global_bad_init.c`.
 For the recognized recursive-node declaration, file-scope pointer globals such
