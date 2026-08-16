@@ -476,6 +476,8 @@ integer-returning callback and a void callback.
 record check to two-argument callbacks.
 `function_pointer_struct_mixed_aggregate.c` checks aggregate initialization of
 both returning and void callback fields.
+`function_pointer_struct_mixed_binary_aggregate.c` extends that mixed
+aggregate path to two-argument callbacks.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
