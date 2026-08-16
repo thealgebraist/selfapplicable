@@ -97,6 +97,7 @@ expect_status fixtures/function_pointer_struct_mixed_binary_aggregate.c 7
 expect_status fixtures/function_pointer_struct_nested_field.c 6
 expect_status fixtures/switch_return.c 7
 expect_status fixtures/switch_default_return.c 3
+expect_status fixtures/switch_two_cases.c 7
 expect_reject fixtures/function_pointer_alias_bad_type.c
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9

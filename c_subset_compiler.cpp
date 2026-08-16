@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -79,7 +79,13 @@ Program parse_main(std::string const& s) {
   static const std::regex bad_binary_function_pointer_arity(R"(int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*int\s*,\s*int\s*\)\s*=\s*[^;]+;[\s\S]*return\s*\(\s*\*\s*\1\s*\)\s*\(\s*[0-9]+\s*\)\s*;)");
   if(std::regex_search(s,bad_binary_function_pointer_arity)) throw std::runtime_error("binary function pointer call arity");
   static const std::regex argc_switch(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
-  if(std::regex_search(body,r,argc_switch)) {
+  static const std::regex argc_switch_two(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
+  if(std::regex_search(body,r,argc_switch_two)) {
+    p.switch_return=true; p.switch_two_cases=true; p.switch_case=std::stoi(r[1]); p.switch_case_status=std::stoi(r[2]);
+    p.switch_case2=std::stoi(r[3]); p.switch_case2_status=std::stoi(r[4]); p.switch_default_status=std::stoi(r[5]);
+    csem::check_switch(csem::variable("argc"),{{csem::literal(p.switch_case),{csem::return_stmt(csem::literal(p.switch_case_status))}},{csem::literal(p.switch_case2),{csem::return_stmt(csem::literal(p.switch_case2_status))}}},{csem::return_stmt(csem::literal(p.switch_default_status))},csem::integer(),{{"argc",csem::integer()}},{},{});
+  }
+  else if(std::regex_search(body,r,argc_switch)) {
     p.switch_return=true; p.switch_case=std::stoi(r[1]);
     p.switch_case_status=std::stoi(r[2]); p.switch_default_status=std::stoi(r[3]);
     csem::check_switch(csem::variable("argc"),{{csem::literal(p.switch_case),{csem::return_stmt(csem::literal(p.switch_case_status))}}},{csem::return_stmt(csem::literal(p.switch_default_status))},csem::integer(),{{"argc",csem::integer()}},{},{});
@@ -923,7 +929,8 @@ int main(int argc,char **argv) {
              <<"  mov $"<<program.then_status<<", %edi\n  jmp .Lexit\n";
     if(program.switch_return) std::cout
              <<"  mov (%rsp), %rdi\n  cmp $"<<program.switch_case<<", %rdi\n"
-             <<"  jne .Lswitch_default\n  mov $"<<program.switch_case_status<<", %edi\n  jmp .Lexit\n.Lswitch_default:\n"
+             <<"  jne .Lswitch_case2\n  mov $"<<program.switch_case_status<<", %edi\n  jmp .Lexit\n.Lswitch_case2:\n"
+             <<(program.switch_two_cases ? "  cmp $"+std::to_string(program.switch_case2)+", %rdi\n  jne .Lswitch_default\n  mov $"+std::to_string(program.switch_case2_status)+", %edi\n  jmp .Lexit\n.Lswitch_default:\n" : "  jmp .Lswitch_default\n.Lswitch_default:\n")
              <<"  mov $"<<program.switch_default_status<<", %edi\n  jmp .Lexit\n";
     if(program.argc_value>=0) std::cout
              <<"  mov (%rsp), %rdi\n  cmp $"<<program.argc_value<<", %rdi\n"
