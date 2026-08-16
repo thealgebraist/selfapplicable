@@ -372,6 +372,8 @@ for the file-scope form.
 `function_pointer_global_nullary.c` covers a zero-argument file-scope callback.
 `function_pointer_global_binary_bad_arity.c` is rejected when the binary global
 callback is invoked with only one argument.
+The local equivalent `function_pointer_binary_bad_arity.c` is rejected by the
+same declaration-aware check.
 `function_pointer_nullary.c` covers an empty-argument callback signature and
 the corresponding `fp()` call.
 `function_pointer_nullary_explicit_deref.c` covers the explicit `(*fp)()` form.
