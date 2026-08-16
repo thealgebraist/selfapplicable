@@ -20,7 +20,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -72,6 +72,8 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,isdir)) { p.is_directory=true; p.directory_path=d[1].str(); p.then_status=std::stoi(d[2]); p.else_status=std::stoi(d[3]); }
   static const std::regex isreg(R"re(if\s*\(\s*isreg\s*\(\s*"([^"]*)"\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
   if(std::regex_search(body,d,isreg)) { p.is_regular=true; p.regular_path=d[1].str(); p.then_status=std::stoi(d[2]); p.else_status=std::stoi(d[3]); }
+  static const std::regex sizegt(R"re(if\s*\(\s*sizegt\s*\(\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
+  if(std::regex_search(body,d,sizegt)) { p.size_gt=true; p.size_path=d[1].str(); p.size_bytes=std::stoull(d[2]); p.then_status=std::stoi(d[3]); p.else_status=std::stoi(d[4]); }
   static const std::regex help(R"(if\s*\(\s*argc\s*==\s*2\s*&&\s*(?:streq|strcmp)\s*\(\s*argv\s*\[\s*1\s*\]\s*,\s*"--help"\s*\)\s*\)\s*return\s+([0-9]+)\s*;)");
   if(std::regex_search(body,w,help)) { p.arg_help=true; p.argc_value=2; p.then_status=std::stoi(w[1]); }
   return p;
@@ -111,6 +113,11 @@ void emit_isreg(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
            <<"  mov $332, %eax\n  mov $-100, %edi\n  lea isreg_path(%rip), %rsi\n  xor %edx, %edx\n  mov $2047, %r10d\n  lea isreg_buf(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lisreg_no\n  movzwl 28(%r8), %eax\n  and $61440, %eax\n  cmp $32768, %eax\n  jne .Lisreg_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lisreg_done\n.Lisreg_no:\n  mov $"<<p.else_status<<", %edi\n.Lisreg_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nisreg_path:\n  .asciz \""<<p.regular_path<<"\"\n.bss\n.align 8\nisreg_buf:\n  .skip 256\n";
 }
+
+void emit_sizegt(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+           <<"  mov $332, %eax\n  mov $-100, %edi\n  lea size_path(%rip), %rsi\n  xor %edx, %edx\n  mov $2047, %r10d\n  lea size_buf(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lsize_no\n  mov $"<<p.size_bytes<<", %rax\n  cmp %rax, 40(%r8)\n  jbe .Lsize_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lsize_done\n.Lsize_no:\n  mov $"<<p.else_status<<", %edi\n.Lsize_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nsize_path:\n  .asciz \""<<p.size_path<<"\"\n.bss\n.align 8\nsize_buf:\n  .skip 256\n";
+}
 }
 
 int main(int argc,char **argv) {
@@ -121,6 +128,7 @@ int main(int argc,char **argv) {
     if(program.exists) { csubset::emit_exists(program); return 0; }
     if(program.is_directory) { csubset::emit_isdir(program); return 0; }
     if(program.is_regular) { csubset::emit_isreg(program); return 0; }
+    if(program.size_gt) { csubset::emit_sizegt(program); return 0; }
     if(program.filter.size()) { csubset::emit_filtered_directory(program); return 0; }
     std::cout<<".text\n.globl _start\n_start:\n";
     if(!program.output.empty()) std::cout

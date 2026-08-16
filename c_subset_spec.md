@@ -121,6 +121,15 @@ return 1;
 
 The backend checks `S_IFREG` from the same `statx` mode field.
 
+Size predicates use:
+
+```c
+if (sizegt("normaliser.cpp", 1)) return 0;
+return 1;
+```
+
+The compiler reads `stx_size` and performs an unsigned byte-size comparison.
+
 Permissive source-ingestion mode accepts symbolic return expressions from real
 Coreutils files, such as `return EXIT_STATUS;`, and lowers them to status 0
 with an explicit diagnostic. This proves that the macro-free frontend can
