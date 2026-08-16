@@ -714,6 +714,7 @@ Program parse_main(std::string const& s) {
       static const std::regex enum_sizeof_return(R"(return\s+sizeof\s*\(\s*enum\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*;)");
       static const std::regex bitwise_return(R"(return\s+([0-9]+)\s*([&|^%/]|<<|>>)\s*([0-9]+)\s*;)");
       static const std::regex comparison_return(R"(return\s+([0-9]+)\s*(==|!=|<=|>=|<|>)\s*([0-9]+)\s*;)");
+      static const std::regex logical_return(R"(return\s+([0-9]+)\s*(&&|\|\|)\s*([0-9]+)\s*;)");
       static const std::regex node_offsetof_return(R"(return\s+offsetof\s*\(\s*struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*next\s*\)\s*;)");
       static const std::regex struct_sizeof_return(R"(return\s+sizeof\s*\(\s*struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*;)");
       static const std::regex array_sizeof_return(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\[\s*3\s*\]\s*=\s*\{\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\}\s*;\s*return\s+sizeof\s*\(\s*\1\s*\)\s*;)");
@@ -746,6 +747,9 @@ Program parse_main(std::string const& s) {
         if(op=="==") p.else_status=left==right; else if(op=="!=") p.else_status=left!=right;
         else if(op=="<") p.else_status=left<right; else if(op==">") p.else_status=left>right;
         else if(op=="<=") p.else_status=left<=right; else p.else_status=left>=right;
+      } else if(std::regex_search(body,array_match,logical_return)) {
+        int left=std::stoi(array_match[1]), right=std::stoi(array_match[3]);
+        p.else_status=array_match[2].str()=="&&" ? (left!=0 && right!=0) : (left!=0 || right!=0);
       } else if(std::regex_search(body,array_match,node_offsetof_return) && node_match.ready() && array_match[1].str()==node_match[1].str()) {
         p.else_status=4;
       } else if(std::regex_search(body,array_match,struct_sizeof_return) && node_match.ready() && array_match[1].str()==node_match[1].str()) {
