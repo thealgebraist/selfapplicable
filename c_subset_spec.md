@@ -357,3 +357,6 @@ typing judgments, reduction rules, NbE-oriented big-step evaluation, and the
 C-subset big-step/small-step judgments. Ott can generate Coq and LaTeX from
 this source; building Ott from its upstream repository currently requires
 `ocamlfind`, which is not installed on this server.
+When Ott is installed, generate its output reproducibly with
+`./generate_semantics.sh [OUTPUT]`; the `OTT_BIN` environment variable can
+select a non-default Ott executable.
