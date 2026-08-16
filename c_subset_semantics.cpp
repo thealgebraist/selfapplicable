@@ -118,6 +118,8 @@ int main(){using namespace csem;try{
   add_alias(callback_aliases,"CallbackPtr",pointer(callback_type));
   if(!same(resolve_alias(callback_aliases,"CallbackPtr"),pointer(callback_type)))throw std::runtime_error("pointer callback typedef alias failed");
   if(!same(infer(indirect_call(dereference(variable("cbp")),{literal(9)}),{{"cbp",resolve_alias(callback_aliases,"CallbackPtr")}},callback_fs,structs),integer()))throw std::runtime_error("dereferenced callback pointer call failed");
+  add_alias(callback_aliases,"CallbackPtrPtr",pointer(pointer(callback_type)));
+  if(!same(infer(indirect_call(dereference(dereference(variable("cbpp"))),{literal(9)}),{{"cbpp",resolve_alias(callback_aliases,"CallbackPtrPtr")}},callback_fs,structs),integer()))throw std::runtime_error("nested callback pointer call failed");
   if(!same(infer(address(function_ref("inc")),{},callback_fs,structs),pointer(callback_type)))throw std::runtime_error("function address type failed");
   if(!same(infer(indirect_call(dereference(address(function_ref("inc"))),{literal(9)}),{},callback_fs,structs),integer()))throw std::runtime_error("function address call failed");
   if(!same(infer(binary(BinOp::Equal,address(function_ref("inc")),address(function_ref("inc"))),{},callback_fs,structs),integer()))throw std::runtime_error("function pointer equality failed");
