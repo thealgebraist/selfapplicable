@@ -36,6 +36,13 @@ Program parse_main(std::string const& s) {
   Program p;
   if(std::regex_search(body,r,conditional)) { p.argc_value=std::stoi(r[1]); p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); }
   else {
+    static const std::regex call2(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)");
+    if(std::regex_search(body,r,call2)) {
+      static const std::regex add(R"(\bint\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\2\s*\+\s+\3\s*;\s*\})");
+      std::smatch helper;
+      if(!std::regex_search(s,helper,add) || helper[1].str()!=r[1].str()) throw std::runtime_error("two-argument call requires the declared add helper");
+      p.function_call=true; p.else_status=std::stoi(r[2])+std::stoi(r[3]);
+    } else {
     static const std::regex call(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*([0-9]+)\s*\)\s*;)");
     if(std::regex_search(body,r,call)) {
       static const std::regex identity(R"(\bint\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\2\s*;\s*\})");
@@ -52,6 +59,7 @@ Program parse_main(std::string const& s) {
       // by the freestanding ABI stub until the typed constant layer is added.
       p.else_status=0;
       std::cerr<<"warning: symbolic return treated as external status 0\n";
+    }
     }
     }
   }
@@ -104,7 +112,9 @@ void check_with_nbe() {
     {"compiler_even",{{"p",NodePtr}},integer(),{call("compiler_odd",{variable("p")})}},
     {"compiler_odd",{{"p",NodePtr}},integer(),{call("compiler_even",{variable("p")})}},
     {"compiler_identity",{{"x",integer()}},integer(),{variable("x")}},
-    {"compiler_call",{},integer(),{call("compiler_identity",{literal(7)})}}
+    {"compiler_call",{},integer(),{call("compiler_identity",{literal(7)})}},
+    {"compiler_add",{{"left",integer()},{"right",integer()}},integer(),{binary(BinOp::Add,variable("left"),variable("right"))}},
+    {"compiler_add_call",{},integer(),{call("compiler_add",{literal(2),literal(5)})}}
   };
   check_program(declarations,fields);
 }

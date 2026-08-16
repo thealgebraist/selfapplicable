@@ -19,6 +19,16 @@ The frontend checks the helper shape and lowers this constant call result into
 the generated exit status; an unknown callee is rejected. The assembler target
 still uses `as` and `ld`.
 
+Two-argument constant addition is also accepted:
+
+```c
+int add(int left, int right) { return left + right; }
+int main(int argc, char **argv) { return add(2, 5); }
+```
+
+The call arity and helper name are checked, and the generated target exits with
+the computed result.
+
 The frontend also accepts the first control-flow form:
 
 ```c
