@@ -400,6 +400,8 @@ from `&fp` and dispatched through two explicit dereferences.
 `int -> int` callback and checks that its argument signature is preserved.
 `function_pointer_nested_binary.c` extends the traversal to a two-argument
 callback and returns the checked sum.
+`function_pointer_parameter.c` checks a higher-order function whose typed
+callback parameter is invoked inside its body.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
