@@ -96,7 +96,7 @@ Program parse_main(std::string const& s) {
       (void)csem::infer(csem::indirect_call(csem::dereference(csem::variable(r[3].str())),{csem::literal(std::stoi(r[4]))}),{{r[3].str(),csem::pointer(fp)}},functions,{});
       p.function_call=true; p.else_status=std::stoi(r[4]);
     } else {
-    static const std::regex nullary_function_pointer_call(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{\s*return\s+([0-9]+)\s*;\s*\}\s*int\s+main\s*\([^)]*\)\s*\{\s*int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*\)\s*=\s*&?\s*\1\s*;\s*return\s+\3\s*\(\s*\)\s*;\s*\})");
+    static const std::regex nullary_function_pointer_call(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{\s*return\s+([0-9]+)\s*;\s*\}\s*int\s+main\s*\([^)]*\)\s*\{\s*int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*\)\s*=\s*&?\s*\1\s*;\s*return\s+(?:\3|\(\s*\*\s*\3\s*\))\s*\(\s*\)\s*;\s*\})");
     if(std::regex_search(s,r,nullary_function_pointer_call)) {
       csem::Function callback{r[1].str(),{},csem::integer(),{csem::literal(std::stoi(r[2]))}};
       csem::Functions functions{{callback.name,&callback}};
