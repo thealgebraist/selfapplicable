@@ -365,6 +365,8 @@ address/dereference/indirect-call path, and exits with status `6`.
 arguments to the one-argument pointer.
 `function_pointer_global.c` covers the corresponding file-scope callback
 pointer initializer.
+`function_pointer_global_address.c` covers the explicit `&identity` spelling
+for the file-scope form.
 `function_pointer_address.c` accepts the explicit `&identity` spelling for a
 function-pointer initializer.
 `function_pointer_explicit_deref.c` accepts the explicit `(*fp)(6)` call
