@@ -99,6 +99,7 @@ expect_status fixtures/switch_return.c 7
 expect_status fixtures/switch_default_return.c 3
 expect_status fixtures/switch_two_cases.c 7
 expect_status fixtures/enum_switch.c 7
+expect_reject fixtures/enum_switch_duplicate.c
 expect_reject fixtures/function_pointer_alias_bad_type.c
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9
