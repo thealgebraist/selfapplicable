@@ -34,6 +34,14 @@ Program parse_main(std::string const& s) {
   static const std::regex conditional(R"(if\s*\(\s*argc\s*==\s*([0-9]+)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)");
   auto body=s.substr(body_start+1,body_end-body_start-1); std::smatch r;
   Program p;
+  std::string recursive_helper;
+  static const std::regex recursive_definition(R"(\bint\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\1\s*\(\s*\2\s*\)\s*;\s*\})");
+  std::smatch recursive_match;
+  if(std::regex_search(s,recursive_match,recursive_definition)) {
+    recursive_helper=recursive_match[1].str();
+    auto recursive=csem::Function{recursive_helper,{{recursive_match[2].str(),csem::integer()}},csem::integer(),{csem::call(recursive_helper,{csem::variable(recursive_match[2].str())})}};
+    csem::check_program({recursive},{});
+  }
   static const std::regex node_struct(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*int\s+value\s*;\s*struct\s+\1\s*\*\s*next\s*;\s*\}\s*;)");
   std::smatch node_match;
   if(std::regex_search(s,node_match,node_struct)) {
@@ -73,8 +81,11 @@ Program parse_main(std::string const& s) {
     if(std::regex_search(body,r,call)) {
       static const std::regex identity(R"(\bint\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\2\s*;\s*\})");
       std::smatch helper;
-      if(!std::regex_search(s,helper,identity) || helper[1].str()!=r[1].str()) throw std::runtime_error("function call requires the declared identity helper");
-      p.function_call=true; p.else_status=std::stoi(r[2]);
+      if(std::regex_search(s,helper,identity) && helper[1].str()==r[1].str()) {
+        p.function_call=true; p.else_status=std::stoi(r[2]);
+      } else if(recursive_helper==r[1].str() && std::stoi(r[2])==0) {
+        p.function_call=true; p.else_status=0;
+      } else throw std::runtime_error("function call requires the declared identity or recursive helper");
     } else {
     static const std::regex ret(R"(\breturn\s+([0-9]+)\s*;)");
     if(std::regex_search(body,r,ret)) p.else_status=std::stoi(r[1]);

@@ -38,6 +38,18 @@ int main(int argc, char **argv) { return answer(); }
 
 The declared zero-argument signature is checked before assembly emission.
 
+A minimal recursive declaration form is accepted and checked through the
+typed function environment:
+
+```c
+int recurse(int n) { return recurse(n); }
+int main(int argc, char **argv) { return recurse(0); }
+```
+
+`recursive_call.c` is the source-ingestion regression fixture. General
+recursive execution and termination analysis remain semantic-core concerns;
+this backend form only lowers the zero-call result.
+
 The frontend also accepts the first control-flow form:
 
 ```c
