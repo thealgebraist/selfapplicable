@@ -96,6 +96,15 @@ Program parse_main(std::string const& s) {
       (void)csem::infer(csem::indirect_call(csem::dereference(csem::variable(r[3].str())),{csem::literal(std::stoi(r[4]))}),{{r[3].str(),csem::pointer(fp)}},functions,{});
       p.function_call=true; p.else_status=std::stoi(r[4]);
     } else {
+    static const std::regex nullary_function_pointer_call(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{\s*return\s+([0-9]+)\s*;\s*\}\s*int\s+main\s*\([^)]*\)\s*\{\s*int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*\)\s*=\s*&?\s*\1\s*;\s*return\s+\3\s*\(\s*\)\s*;\s*\})");
+    if(std::regex_search(s,r,nullary_function_pointer_call)) {
+      csem::Function callback{r[1].str(),{},csem::integer(),{csem::literal(std::stoi(r[2]))}};
+      csem::Functions functions{{callback.name,&callback}};
+      auto fp=csem::function({},csem::integer());
+      (void)csem::infer(csem::assign(csem::variable(r[3].str()),csem::address(csem::function_ref(callback.name))),{{r[3].str(),csem::pointer(fp)}},functions,{});
+      (void)csem::infer(csem::indirect_call(csem::dereference(csem::variable(r[3].str())),{}),{{r[3].str(),csem::pointer(fp)}},functions,{});
+      p.function_call=true; p.else_status=std::stoi(r[2]);
+    } else {
     static const std::regex call0(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*;)");
     if(std::regex_search(body,r,call0)) {
       static const std::regex constant(R"(\bint\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{\s*return\s+([0-9]+)\s*;\s*\})");
@@ -232,6 +241,7 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,sizegt)) { p.size_gt=true; p.size_path=d[1].str(); p.size_bytes=std::stoull(d[2]); p.then_status=std::stoi(d[3]); p.else_status=std::stoi(d[4]); }
   static const std::regex help(R"(if\s*\(\s*argc\s*==\s*2\s*&&\s*(?:streq|strcmp)\s*\(\s*argv\s*\[\s*1\s*\]\s*,\s*"--help"\s*\)\s*\)\s*return\s+([0-9]+)\s*;)");
   if(std::regex_search(body,w,help)) { p.arg_help=true; p.argc_value=2; p.then_status=std::stoi(w[1]); }
+    }
     }
   return p;
 }

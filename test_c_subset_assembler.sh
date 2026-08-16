@@ -40,6 +40,7 @@ expect_status fixtures/function_pointer_explicit_deref.c 6
 expect_status fixtures/function_pointer_global.c 6
 expect_status fixtures/function_pointer_global_address.c 6
 expect_status fixtures/function_pointer_global_explicit_deref.c 6
+expect_status fixtures/function_pointer_nullary.c 9
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9
 expect_status fixtures/struct_field_return.c 7
