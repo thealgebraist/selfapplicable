@@ -20,3 +20,13 @@ findutils-src/
 /pyarm64
 /parametric_c
 /typed_subset
+/c_subset_compiler
+/true_subset
+/true_subset.o
+/true_subset.s
+/echo_subset
+/echo_subset.o
+/echo_subset.s
+/echo_argv
+/echo_argv.o
+/echo_argv.s
