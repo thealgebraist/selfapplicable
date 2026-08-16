@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -32,6 +32,7 @@ Program parse_main(std::string const& s) {
   auto body_end=s.rfind('}');
   if(body_start==std::string::npos || body_end<=body_start) throw std::runtime_error("malformed main body");
   static const std::regex conditional(R"(if\s*\(\s*argc\s*==\s*([0-9]+)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)");
+  static const std::regex null_guard(R"(int\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*0\s*;\s*if\s*\(\s*\1\s*==\s*0\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)");
   auto body=s.substr(body_start+1,body_end-body_start-1); std::smatch r;
   Program p;
   std::string recursive_helper;
@@ -71,6 +72,7 @@ Program parse_main(std::string const& s) {
     globals.push_back({(*i)[1].str(),csem::integer(),csem::literal(std::stoi((*i)[2]))});
   csem::check_globals(globals,{}, {});
   if(std::regex_search(body,r,conditional)) { p.argc_value=std::stoi(r[1]); p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); }
+  else if(std::regex_search(body,r,null_guard)) { p.null_guard=true; p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); auto ptr=csem::pointer(csem::integer()); (void)csem::infer(csem::binary(csem::BinOp::Equal,csem::variable("p"),csem::variable("q")),{{"p",ptr},{"q",ptr}}, {}, {}); }
   else {
     static const std::regex call0(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*;)");
     if(std::regex_search(body,r,call0)) {
@@ -305,6 +307,8 @@ int main(int argc,char **argv) {
              <<"  cmpb $'p', 5(%rsi)\n  jne .Lhelp_no\n"
              <<"  mov $"<<program.then_status<<", %edi\n  jmp .Lexit\n.Lhelp_no:\n";
     if(program.argv1) std::cout<<".Largv_done:\n  mov $"<<program.else_status<<", %edi\n";
+    if(program.null_guard) std::cout
+             <<"  mov $"<<program.then_status<<", %edi\n  jmp .Lexit\n";
     if(program.argc_value>=0) std::cout
              <<"  mov (%rsp), %rdi\n  cmp $"<<program.argc_value<<", %rdi\n"
              <<"  jne .Lelse\n  mov $"<<program.then_status<<", %edi\n  jmp .Lexit\n.Lelse:\n";

@@ -302,6 +302,9 @@ status `4` in `node_offsetof_return.c`.
 returns status `4`.
 `sizeof(int *)` uses the typed pointer size and `pointer_sizeof_return.c`
 returns status `8`.
+The null-pointer guard form validates pointer equality and lowers
+`if (p == 0)` for a zero-initialized `int *`; `null_guard.c` exits with status
+`1`.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant
