@@ -318,6 +318,8 @@ and shifts `<<`, `>>`, all requiring integer operands and producing `int`.
 Integer remainder `%` is also typed and constant-lowered.
 Integer division `/` is typed and constant-lowered; a constant zero divisor
 is rejected before assembly.
+The comparison operators `>`, `<=`, `>=`, and `!=` are also typed and
+constant-lowered as integer Boolean results.
 typed `sizeof` form returns an integer and uses the core's deterministic
 packed layout: `int` is 4 bytes, pointers and function references are 8 bytes,
 and struct size is the sum of its field sizes. This is a deliberate initial

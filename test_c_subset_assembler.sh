@@ -105,6 +105,7 @@ expect_status fixtures/shift_return.c 4
 expect_status fixtures/modulo_return.c 1
 expect_status fixtures/division_return.c 3
 expect_reject fixtures/division_by_zero.c
+expect_status fixtures/comparison_return.c 1
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c

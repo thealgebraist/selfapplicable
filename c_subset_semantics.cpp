@@ -28,7 +28,7 @@ bool integerish(T const&t){return std::holds_alternative<Ty::Int>(t->n)||std::ho
 struct E; using Expr=std::shared_ptr<const E>;
 struct Lit{int value;}; struct Var{std::string name;}; struct Addr{Expr x;}; struct Deref{Expr x;};
 struct Member{Expr base;std::string field;}; struct Arrow{Expr base;std::string field;};
-enum class BinOp { Add, Equal, Subtract, Less, Modulo, Divide, LogicalAnd, LogicalOr, BitAnd, BitOr, BitXor, ShiftLeft, ShiftRight };
+enum class BinOp { Add, Equal, NotEqual, Subtract, Less, Greater, LessEqual, GreaterEqual, Modulo, Divide, LogicalAnd, LogicalOr, BitAnd, BitOr, BitXor, ShiftLeft, ShiftRight };
 struct Binary{BinOp op;Expr left;Expr right;}; struct Assign{Expr left;Expr right;};
 struct If{Expr condition;Expr yes;Expr no;};
 struct While{Expr condition;Expr body;}; struct Sequence{std::vector<Expr> items;};
@@ -129,6 +129,7 @@ int main(){using namespace csem;try{
   if(!same(infer(binary(BinOp::BitAnd,literal(6),literal(3)),{}, {}, structs),integer())||!same(infer(binary(BinOp::BitOr,literal(4),literal(1)),{}, {}, structs),integer())||!same(infer(binary(BinOp::BitXor,literal(7),literal(2)),{}, {}, structs),integer())||!same(infer(binary(BinOp::ShiftLeft,literal(1),literal(2)),{}, {}, structs),integer())||!same(infer(binary(BinOp::ShiftRight,literal(8),literal(1)),{}, {}, structs),integer()))throw std::runtime_error("bitwise operator type failed");
   if(!same(infer(binary(BinOp::Modulo,literal(7),literal(3)),{}, {}, structs),integer()))throw std::runtime_error("modulo operator type failed");
   if(!same(infer(binary(BinOp::Divide,literal(7),literal(3)),{}, {}, structs),integer()))throw std::runtime_error("division operator type failed");
+  if(!same(infer(binary(BinOp::Greater,literal(3),literal(2)),{}, {}, structs),integer())||!same(infer(binary(BinOp::LessEqual,literal(2),literal(2)),{}, {}, structs),integer())||!same(infer(binary(BinOp::GreaterEqual,literal(3),literal(2)),{}, {}, structs),integer())||!same(infer(binary(BinOp::NotEqual,literal(3),literal(2)),{}, {}, structs),integer()))throw std::runtime_error("comparison operator type failed");
   auto IntPtr=pointer(integer());
   if(size_of(integer(),structs)!=4||size_of(IntPtr,structs)!=8||size_of(Node,structs)!=12)throw std::runtime_error("layout size failed");
   if(field_offset(Node,"value",structs)!=0||field_offset(Node,"next",structs)!=4)throw std::runtime_error("field offset failed");
