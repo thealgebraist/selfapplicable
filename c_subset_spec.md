@@ -142,7 +142,27 @@ compiler runs an administrative typed term through the dependent NbE core;
 the compiler now constructs a quoted beta-redex and applies the typed
 `normalizeCode : Code(A) -> Code(A)` term before emitting assembly.
 
-The next compatible forms are pointer expressions, conditionals, calls, and
-syscall primitives. Full GNU `true`, `echo`, `pwd`, and `ls` remain outside
-this slice because they require structs, loops, libc/POSIX APIs, generated
-headers, and extensive project headers.
+## Typed structs, pointers, calls, and recursion
+
+`c_subset_semantics.cpp` provides the typed semantic core for the next source
+layer. It represents the following C-like declarations without relying on a
+host C compiler:
+
+```c
+struct Node { int value; struct Node *next; };
+int length(struct Node *p) { return length(p); }
+```
+
+The checker has nominal struct types, pointer formation and dereference,
+function signatures, arity and argument checking, and recursive function
+declarations. A function is entered in the function environment before its
+body is checked, so a recursive call is well-scoped while an incorrect
+pointer result is rejected. The executable also sends a quoted beta-redex
+through the dependent NbE `normalizeCode` term; its output is a regression
+test for this bridge.
+
+This is the typed front-end boundary: general C function lowering and field
+offset computation still need to be added before arbitrary GNU `find` code can
+be assembled. The existing syscall subset remains usable for the small CLI
+fixtures, and generated targets continue to use `as` and `ld` rather than
+GCC.
