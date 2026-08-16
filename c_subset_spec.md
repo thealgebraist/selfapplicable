@@ -177,6 +177,9 @@ cannot collapse distinct anonymous cases.
 Declaration validation also rejects duplicate enumerator names and duplicate
 numeric values.
 The source enum-switch path invokes this same validator before lowering.
+Constant bitwise and shift return expressions are lowered to their computed
+integer exit statuses; `bitwise_return.c` and `shift_return.c` cover these
+assembler paths.
 Enum pointers retain the ordinary eight-byte pointer layout, and
 `allocate(enum Mode)` is checked as `enum Mode *`.
 Enums may be stored in nominal struct fields; field typing, packed offsets,
