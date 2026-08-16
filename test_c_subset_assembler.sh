@@ -50,6 +50,7 @@ expect_status fixtures/function_pointer_binary.c 7
 expect_status fixtures/function_pointer_binary_explicit_deref.c 7
 expect_status fixtures/function_pointer_alias.c 6
 expect_status fixtures/function_pointer_binary_alias.c 7
+expect_status fixtures/function_pointer_binary_alias_explicit_deref.c 7
 expect_reject fixtures/function_pointer_alias_bad_type.c
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9
