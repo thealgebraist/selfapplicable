@@ -324,6 +324,8 @@ Constant logical `&&` and `||` expressions use C truthiness and lower to 0 or
 1 exit statuses.
 Constant ternary expressions `condition ? yes : no` select and lower the
 corresponding integer branch.
+Constant unary `!` and `-` expressions are lowered as logical-not and
+arithmetic-negation results.
 typed `sizeof` form returns an integer and uses the core's deterministic
 packed layout: `int` is 4 bytes, pointers and function references are 8 bytes,
 and struct size is the sum of its field sizes. This is a deliberate initial
