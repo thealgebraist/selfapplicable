@@ -134,6 +134,17 @@ Program parse_main(std::string const& s) {
     (void)csem::infer(csem::indirect_call(csem::dereference(csem::member(csem::variable(r[4].str()),"run")),{}),env,functions,fields);
     p.function_call=true; p.else_status=std::stoi(r[3]);
   }
+  else if(std::regex_search(s,r,std::regex(R"(typedef\s+int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*int\s*\)\s*;\s*struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*\1\s+run\s*;\s*\}\s*;\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\4\s*;\s*\}\s*int\s+main\s*\([^)]*\)\s*\{\s*struct\s+\2\s+([A-Za-z_][A-Za-z0-9_]*)\s*;\s*\5\.run\s*=\s*&\s*\3\s*;\s*return\s+\5\.run\s*\(\s*([0-9]+)\s*\)\s*;\s*\})"))) {
+    auto box=csem::structure(r[2].str());
+    auto fp=csem::function({csem::integer()},csem::integer());
+    csem::Function identity{r[3].str(),{{r[4].str(),csem::integer()}},csem::integer(),{csem::variable(r[4].str())}};
+    csem::Functions functions{{identity.name,&identity}};
+    csem::StructFields fields{{r[2].str(),{{"run",csem::pointer(fp)}}}};
+    csem::Env env{{r[5].str(),box}};
+    (void)csem::infer(csem::assign(csem::member(csem::variable(r[5].str()),"run"),csem::address(csem::function_ref(identity.name))),env,functions,fields);
+    (void)csem::infer(csem::indirect_call(csem::dereference(csem::member(csem::variable(r[5].str()),"run")),{csem::literal(std::stoi(r[6]))}),env,functions,fields);
+    p.function_call=true; p.else_status=std::stoi(r[6]);
+  }
   else {
     static const std::regex global_nullary_function_pointer_call(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{\s*return\s+([0-9]+)\s*;\s*\}\s*int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*\)\s*=\s*&?\s*\1\s*;\s*int\s+main\s*\([^)]*\)\s*\{\s*return\s+(?:\3|\(\s*\*\s*\3\s*\))\s*\(\s*\)\s*;\s*\})");
     if(std::regex_search(s,r,global_nullary_function_pointer_call)) {

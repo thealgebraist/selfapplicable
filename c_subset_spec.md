@@ -436,6 +436,8 @@ a two-argument callback field.
 struct field and invoked through the member.
 `function_pointer_struct_nullary_field.c` checks a zero-argument integer
 callback stored and dispatched through a struct member.
+`function_pointer_struct_typedef_field.c` uses a typedef callback alias as the
+struct field type before member dispatch.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
