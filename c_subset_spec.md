@@ -367,6 +367,7 @@ arguments to the one-argument pointer.
 pointer initializer.
 `function_pointer_global_address.c` covers the explicit `&identity` spelling
 for the file-scope form.
+`function_pointer_global_explicit_deref.c` covers `(*fp)(6)` for that form.
 `function_pointer_address.c` accepts the explicit `&identity` spelling for a
 function-pointer initializer.
 `function_pointer_explicit_deref.c` accepts the explicit `(*fp)(6)` call
