@@ -168,6 +168,8 @@ and treats them as integer-like switch selectors while preserving enum-name
 equality.
 Enum types also participate in the existing alias environment, including
 duplicate-alias rejection.
+The semantic validator rejects unnamed enum declarations so nominal equality
+cannot collapse distinct anonymous cases.
 Enum pointers retain the ordinary eight-byte pointer layout, and
 `allocate(enum Mode)` is checked as `enum Mode *`.
 Enums may be stored in nominal struct fields; field typing, packed offsets,

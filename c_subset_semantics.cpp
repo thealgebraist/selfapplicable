@@ -18,6 +18,7 @@ namespace csem {
 struct Ty; using T=std::shared_ptr<const Ty>;
 struct Ty { struct Int{}; struct Enum{std::string name;}; struct Void{}; struct Ptr{T to;}; struct Struct{std::string name;}; struct Fn{std::vector<T> args; T ret;}; using N=std::variant<Int,Enum,Void,Ptr,Struct,Fn>; N n; template<class X> Ty(X x):n(std::move(x)){} };
 T integer(){return std::make_shared<Ty>(Ty::Int{});} T enum_type(std::string n){return std::make_shared<Ty>(Ty::Enum{std::move(n)});} T unit(){return std::make_shared<Ty>(Ty::Void{});}
+void validate_enum(T const&t){auto e=std::get_if<Ty::Enum>(&t->n);if(!e||e->name.empty())throw std::runtime_error("invalid enum declaration");}
 T pointer(T x){return std::make_shared<Ty>(Ty::Ptr{std::move(x)});} T structure(std::string n){return std::make_shared<Ty>(Ty::Struct{std::move(n)});}
 T function(std::vector<T> a,T r){return std::make_shared<Ty>(Ty::Fn{std::move(a),std::move(r)});}
 bool same(T const&a,T const&b){return std::visit([&](auto const&x,auto const&y)->bool{using X=std::decay_t<decltype(x)>;using Y=std::decay_t<decltype(y)>;if constexpr(!std::is_same_v<X,Y>)return false;else if constexpr(std::is_same_v<X,Ty::Enum>)return x.name==y.name;else if constexpr(std::is_same_v<X,Ty::Ptr>)return same(x.to,y.to);else if constexpr(std::is_same_v<X,Ty::Struct>)return x.name==y.name;else if constexpr(std::is_same_v<X,Ty::Fn>){if(x.args.size()!=y.args.size()||!same(x.ret,y.ret))return false;for(size_t i=0;i<x.args.size();++i)if(!same(x.args[i],y.args[i]))return false;return true;}else return true;},a->n,b->n);}
@@ -89,6 +90,7 @@ int main(){using namespace csem;try{
   auto Node=structure("Node"); auto NodePtr=pointer(Node);
   StructFields structs{{"Node",{{"value",integer()},{"next",NodePtr}}}};
   auto Mode=enum_type("Mode");
+  validate_enum(Mode); bool bad_enum_name=false;try{validate_enum(enum_type(""));}catch(std::exception const&){bad_enum_name=true;}if(!bad_enum_name)throw std::runtime_error("empty enum name accepted");
   if(!same(Mode,enum_type("Mode"))||same(Mode,enum_type("Other"))||size_of(Mode,structs)!=4)throw std::runtime_error("enum type failed");
   if(!integerish(Mode)||!integerish(integer()))throw std::runtime_error("enum integer compatibility failed");
   auto ModePtr=pointer(Mode);
