@@ -392,6 +392,8 @@ pointer variable to another before indirect dispatch.
 callback signature.
 `function_pointer_binary_alias_explicit_deref.c` covers `(*gp)(2, 5)` after
 the compatible alias assignment.
+`function_pointer_nullary_alias.c` covers compatible aliasing for an empty
+argument callback.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
