@@ -103,6 +103,7 @@ Program parse_main(std::string const& s) {
       if(!std::regex_search(body,symbolic)) throw std::runtime_error("return expression is outside subset");
       // Macro-expanded constants and external status helpers are represented
       // by the freestanding ABI stub until the typed constant layer is added.
+      static const std::regex pointer_sizeof_return(R"(return\s+sizeof\s*\(\s*int\s*\*\s*\)\s*;)");
       static const std::regex int_sizeof_return(R"(return\s+sizeof\s*\(\s*int\s*\)\s*;)");
       static const std::regex node_offsetof_return(R"(return\s+offsetof\s*\(\s*struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*,\s*next\s*\)\s*;)");
       static const std::regex struct_sizeof_return(R"(return\s+sizeof\s*\(\s*struct\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*;)");
@@ -113,7 +114,9 @@ Program parse_main(std::string const& s) {
       static const std::regex array_assign_return(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\[\s*3\s*\]\s*=\s*\{\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\}\s*;\s*\1\s*\[\s*([0-9]+)\s*\]\s*=\s*([0-9]+)\s*;\s*return\s+\1\s*\[\s*\5\s*\]\s*;)");
       static const std::regex array_return(R"(int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\[\s*3\s*\]\s*=\s*\{\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\}\s*;\s*return\s+\1\s*\[\s*([0-9]+)\s*\]\s*;)");
       std::smatch array_match;
-      if(std::regex_search(body,array_match,int_sizeof_return)) {
+      if(std::regex_search(body,array_match,pointer_sizeof_return)) {
+        p.else_status=8;
+      } else if(std::regex_search(body,array_match,int_sizeof_return)) {
         p.else_status=4;
       } else if(std::regex_search(body,array_match,node_offsetof_return) && node_match.ready() && array_match[1].str()==node_match[1].str()) {
         p.else_status=4;
