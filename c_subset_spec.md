@@ -210,7 +210,9 @@ branch types, allowing recursive bodies to express typed base cases and
 recursive branches. `while` statements require an integer condition, check
 their body, and have type `void`; sequences return the type of their final
 item. Function references are first-class function types, and indirect calls
-check the referenced signature before returning its result type. The
+check the referenced signature before returning its result type. Function-typed
+globals can be initialized by matching function references and are checked
+through the same signature path before lowering. The
 index expression `p[i]` requires a pointer base and integer index, while
 integer-plus-pointer arithmetic preserves the pointer element type. The
 operator vocabulary also includes subtraction, ordering, and logical forms;
