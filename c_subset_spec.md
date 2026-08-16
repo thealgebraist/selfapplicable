@@ -219,6 +219,9 @@ same checking also permits function-valued returns, so a factory returning a
 function reference must return the exact declared callback signature. The
 the returned function can itself be passed to an indirect call, so nested
 higher-order composition is checked without erasing its signature.
+Struct fields may themselves carry function signatures; member selection
+preserves that signature, allowing a checked indirect call through a callback
+field.
 index expression `p[i]` requires a pointer base and integer index, while
 integer-plus-pointer arithmetic preserves the pointer element type. The
 operator vocabulary also includes subtraction, ordering, and logical forms;
