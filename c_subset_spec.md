@@ -438,6 +438,8 @@ struct field and invoked through the member.
 callback stored and dispatched through a struct member.
 `function_pointer_struct_typedef_field.c` uses a typedef callback alias as the
 struct field type before member dispatch.
+`function_pointer_struct_arrow_field.c` stores and dispatches a callback
+through a pointer-to-struct `->` member expression.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument
