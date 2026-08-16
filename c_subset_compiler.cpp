@@ -80,7 +80,14 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(s,bad_binary_function_pointer_arity)) throw std::runtime_error("binary function pointer call arity");
   static const std::regex argc_switch(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
   static const std::regex argc_switch_two(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
-  if(std::regex_search(body,r,argc_switch_two)) {
+  static const std::regex enum_switch(R"(enum\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9]+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9]+)\s*\}\s*;[\s\S]*switch\s*\(\s*argc\s*\)\s*\{\s*case\s+\2\s*:\s*return\s+([0-9]+)\s*;\s*case\s+\4\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
+  if(std::regex_search(s,r,enum_switch)) {
+    p.switch_return=true; p.switch_two_cases=true; p.switch_case=std::stoi(r[3]); p.switch_case_status=std::stoi(r[6]);
+    p.switch_case2=std::stoi(r[5]); p.switch_case2_status=std::stoi(r[7]); p.switch_default_status=std::stoi(r[8]);
+    if(p.switch_case==p.switch_case2) throw std::runtime_error("duplicate enum switch label");
+    csem::check_switch(csem::variable("argc"),{{csem::literal(p.switch_case),{csem::return_stmt(csem::literal(p.switch_case_status))}},{csem::literal(p.switch_case2),{csem::return_stmt(csem::literal(p.switch_case2_status))}}},{csem::return_stmt(csem::literal(p.switch_default_status))},csem::integer(),{{"argc",csem::integer()}},{},{});
+  }
+  else if(std::regex_search(body,r,argc_switch_two)) {
     p.switch_return=true; p.switch_two_cases=true; p.switch_case=std::stoi(r[1]); p.switch_case_status=std::stoi(r[2]);
     p.switch_case2=std::stoi(r[3]); p.switch_case2_status=std::stoi(r[4]); p.switch_default_status=std::stoi(r[5]);
     csem::check_switch(csem::variable("argc"),{{csem::literal(p.switch_case),{csem::return_stmt(csem::literal(p.switch_case_status))}},{csem::literal(p.switch_case2),{csem::return_stmt(csem::literal(p.switch_case2_status))}}},{csem::return_stmt(csem::literal(p.switch_default_status))},csem::integer(),{{"argc",csem::integer()}},{},{});

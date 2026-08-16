@@ -160,6 +160,8 @@ Both the matching-case and default runtime paths are covered by the switch
 fixtures.
 Two constant cases are also lowered in source order, with duplicate labels
 rejected by the typed switch checker.
+Two-value `enum` declarations can provide named integer case labels; their
+values are checked for collisions before lowering.
 
 Directory-kind predicates are supported with:
 
