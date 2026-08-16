@@ -203,6 +203,10 @@ labels; parser integration remains future work.
 Defining `CSEM_LIBRARY` when compiling `c_subset_semantics.cpp` omits the
 regression-demo `main` and exposes the typed core for reuse by a parser or
 assembler backend. The default build retains the executable test harness.
+`check_program` constructs the complete function environment before checking
+bodies, so mutually recursive declarations are accepted and duplicate names
+are rejected. The compiler's pre-emission gate exercises this mutual-recursion
+path.
 
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can

@@ -92,9 +92,11 @@ void check_with_nbe() {
   using namespace csem;
   auto Node=structure("CompilerNode"); auto NodePtr=pointer(Node);
   StructFields fields{{"CompilerNode",{{"value",integer()},{"next",NodePtr}}}};
-  Function recursive{"compiler_recursive",{{"p",NodePtr}},integer(),{conditional(arrow(variable("p"),"value"),call("compiler_recursive",{variable("p")}),literal(0))}};
-  Functions functions{{"compiler_recursive",&recursive}};
-  check(recursive,functions,fields);
+  std::vector<Function> declarations{
+    {"compiler_even",{{"p",NodePtr}},integer(),{call("compiler_odd",{variable("p")})}},
+    {"compiler_odd",{{"p",NodePtr}},integer(),{call("compiler_even",{variable("p")})}}
+  };
+  check_program(declarations,fields);
 }
 
 void emit_filtered_directory(Program const& p) {
