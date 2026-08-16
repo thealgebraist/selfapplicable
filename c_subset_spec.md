@@ -153,13 +153,14 @@ struct Node { int value; struct Node *next; };
 int length(struct Node *p) { return length(p); }
 ```
 
-The checker has nominal struct types, pointer formation and dereference,
-function signatures, arity and argument checking, and recursive function
-declarations. A function is entered in the function environment before its
-body is checked, so a recursive call is well-scoped while an incorrect
-pointer result is rejected. The executable also sends a quoted beta-redex
-through the dependent NbE `normalizeCode` term; its output is a regression
-test for this bridge.
+The checker has nominal struct types, named field declarations, `.` and `->`
+field access, pointer formation and dereference, function signatures, arity
+and argument checking, and recursive function declarations. A function is
+entered in the function environment before its body is checked, so a
+recursive call is well-scoped while an incorrect pointer result or unknown
+field is rejected. The executable also sends a quoted beta-redex through the
+dependent NbE `normalizeCode` term; its output is a regression test for this
+bridge.
 
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can
