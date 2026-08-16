@@ -140,6 +140,12 @@ int main(){using namespace csem;try{
   if(!same(infer(indirect_call(call("make_callback",{}),{literal(9)}),{},higher_order_fs,structs),integer()))throw std::runtime_error("call returned function type failed");
   Function bad_factory{"bad_factory",{},callback_type,{literal(0)}};
   bool bad_factory_rejected=false;try{check(bad_factory,callback_fs,structs);}catch(std::exception const&){bad_factory_rejected=true;}if(!bad_factory_rejected)throw std::runtime_error("bad function-valued return accepted");
+  Function sink{"sink",{{"x",integer()}},unit(),{literal(0)}};
+  Functions void_callback_fs{{"sink",&sink}};
+  auto void_callback_type=function({integer()},unit());
+  Function consume_callback{"consume_callback",{{"cb",void_callback_type},{"x",integer()}},unit(),{indirect_call(variable("cb"),{variable("x")})}};
+  check(consume_callback,void_callback_fs,structs);
+  if(!same(infer(indirect_call(variable("cb"),{literal(3)}),{{"cb",void_callback_type}},void_callback_fs,structs),unit()))throw std::runtime_error("void callback call failed");
   bool bad_indirect=false;try{(void)infer(indirect_call(variable("cb"),{variable("p")}),{{"cb",callback_type},{"p",NodePtr}},callback_fs,structs);}catch(std::exception const&){bad_indirect=true;}if(!bad_indirect)throw std::runtime_error("bad indirect call accepted");
   Function length{"length",{{"p",NodePtr}},integer(),{conditional(arrow(variable("p"),"value"),call("length",{variable("p")}),literal(0))}};
   Functions fs{{"length",&length}}; check(length,fs,structs); // recursive call is type-checked
