@@ -368,6 +368,7 @@ pointer initializer.
 `function_pointer_global_address.c` covers the explicit `&identity` spelling
 for the file-scope form.
 `function_pointer_global_explicit_deref.c` covers `(*fp)(6)` for that form.
+`function_pointer_global_binary.c` covers a two-argument file-scope callback.
 `function_pointer_nullary.c` covers an empty-argument callback signature and
 the corresponding `fp()` call.
 `function_pointer_nullary_explicit_deref.c` covers the explicit `(*fp)()` form.
