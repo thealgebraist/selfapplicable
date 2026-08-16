@@ -245,6 +245,8 @@ Recursive callback chains such as `node->next->run(x)` preserve the same
 signature through each pointer traversal before dispatch.
 Callback signatures may return `void`; the checker validates void-returning
 indirect calls and higher-order consumers without treating them as integers.
+Recursive functions may carry callback parameters; recursive re-entry and
+indirect callback calls are checked against the same preserved signature.
 index expression `p[i]` requires a pointer base and integer index, while
 integer-plus-pointer arithmetic preserves the pointer element type. The
 operator vocabulary also includes subtraction, ordering, and logical forms;

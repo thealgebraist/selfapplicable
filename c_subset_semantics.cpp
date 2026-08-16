@@ -126,6 +126,9 @@ int main(){using namespace csem;try{
   if(!same(callback_globals.at("cb"),callback_type))throw std::runtime_error("function pointer global type failed");
   Function apply_callback{"apply_callback",{{"cb",callback_type},{"x",integer()}},integer(),{indirect_call(variable("cb"),{variable("x")})}};
   check(apply_callback,callback_fs,structs);
+  Function recurse_callback{"recurse_callback",{{"cb",callback_type},{"x",integer()}},integer(),{indirect_call(variable("cb"),{variable("x")}),call("recurse_callback",{variable("cb"),variable("x")})}};
+  Functions recursive_callback_fs{{"inc",&inc},{"recurse_callback",&recurse_callback}};
+  check(recurse_callback,recursive_callback_fs,structs);
   Function make_callback{"make_callback",{},callback_type,{function_ref("inc")}};
   check(make_callback,callback_fs,structs);
   auto CallbackBox=structure("CallbackBox");
