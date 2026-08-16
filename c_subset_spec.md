@@ -156,6 +156,8 @@ switch (argc) { case 2: return 7; default: return 3; }
 
 The selector and constant case label are checked through the semantic core;
 the assembler emits a direct compare and two exit paths.
+Both the matching-case and default runtime paths are covered by the switch
+fixtures.
 
 Directory-kind predicates are supported with:
 
