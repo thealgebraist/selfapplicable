@@ -147,6 +147,8 @@ int main(){using namespace csem;try{
   callback_structs["CallbackBox"]={{"run",callback_type}};
   auto PointerCallbackBox=structure("PointerCallbackBox");
   callback_structs["PointerCallbackBox"]={{"run",pointer(callback_type)}};
+  if(size_of(pointer(callback_type),callback_structs)!=8||size_of(resolve_alias(callback_aliases,"CallbackPtrPtr"),callback_structs)!=8)throw std::runtime_error("callback pointer sizeof failed");
+  if(field_offset(PointerCallbackBox,"run",callback_structs)!=0)throw std::runtime_error("callback pointer field offset failed");
   if(!same(infer(assign(member(variable("pbox"),"run"),address(function_ref("inc"))),{{"pbox",PointerCallbackBox}},callback_fs,callback_structs),pointer(callback_type)))throw std::runtime_error("pointer callback field address assignment failed");
   if(!same(infer(indirect_call(dereference(arrow(variable("pbox"),"run")),{literal(9)}),{{"pbox",pointer(PointerCallbackBox)}},callback_fs,callback_structs),integer()))throw std::runtime_error("pointer callback field dispatch failed");
   if(!same(infer(indirect_call(member(variable("box"),"run"),{literal(9)}),{{"box",CallbackBox}},callback_fs,callback_structs),integer()))throw std::runtime_error("struct function pointer field call failed");

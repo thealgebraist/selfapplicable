@@ -216,7 +216,8 @@ alias preserves its argument and result types for later calls. Pointer aliases
 to callback signatures are preserved as well, covering `typedef`-style
 callback pointer declarations. Such a pointer can be dereferenced and then
 used as an indirect-call callee, with the callback signature checked after
-dereference. Nested pointer layers are handled compositionally, so a
+dereference. Pointer-to-function and nested callback-pointer types retain the
+ordinary eight-byte pointer size and deterministic field offsets. Nested pointer layers are handled compositionally, so a
 pointer-to-pointer callback can be dereferenced twice before an indirect call.
 Taking the address of a function reference produces a
 pointer-to-function value; dereferencing that address restores the signature
