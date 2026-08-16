@@ -188,6 +188,8 @@ replaced by this structured frontend. `break` and `continue` are checked with
 an explicit loop-depth context and are rejected outside loop bodies. `for`
 statements check their initializer, integer condition, update expression, and
 body under the same loop context.
+`do...while` checks its body first and then requires an integer post-condition,
+also preserving loop scope for `break` and `continue`.
 
 This is the typed front-end boundary: general C function lowering and field
 offset computation still need to be added before arbitrary GNU `find` code can
