@@ -390,6 +390,8 @@ the corresponding `fp()` call.
 pointer variable to another before indirect dispatch.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
+The semantic core applies the same alias-assignment rule to two-argument
+callback signatures before binary indirect dispatch.
 `function_pointer_address.c` accepts the explicit `&identity` spelling for a
 function-pointer initializer.
 `function_pointer_explicit_deref.c` accepts the explicit `(*fp)(6)` call

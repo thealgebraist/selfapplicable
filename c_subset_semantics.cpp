@@ -118,6 +118,13 @@ int main(){using namespace csem;try{
   add_alias(callback_aliases,"CallbackPtr",pointer(callback_type));
   if(!same(resolve_alias(callback_aliases,"CallbackPtr"),pointer(callback_type)))throw std::runtime_error("pointer callback typedef alias failed");
   if(!same(infer(indirect_call(dereference(variable("cbp")),{literal(9)}),{{"cbp",resolve_alias(callback_aliases,"CallbackPtr")}},callback_fs,structs),integer()))throw std::runtime_error("dereferenced callback pointer call failed");
+  Function add_callback{"add_callback",{{"left",integer()},{"right",integer()}},integer(),{binary(BinOp::Add,variable("left"),variable("right"))}};
+  Functions binary_callback_fs{{"add_callback",&add_callback}};
+  auto binary_callback_type=function({integer(),integer()},integer());
+  Env binary_callback_env{{"fp",pointer(binary_callback_type)},{"gp",pointer(binary_callback_type)}};
+  (void)infer(assign(variable("fp"),address(function_ref("add_callback"))),binary_callback_env,binary_callback_fs,structs);
+  (void)infer(assign(variable("gp"),variable("fp")),binary_callback_env,binary_callback_fs,structs);
+  if(!same(infer(indirect_call(dereference(variable("gp")),{literal(2),literal(5)}),binary_callback_env,binary_callback_fs,structs),integer()))throw std::runtime_error("binary callback pointer alias call failed");
   add_alias(callback_aliases,"CallbackPtrPtr",pointer(pointer(callback_type)));
   if(!same(infer(indirect_call(dereference(dereference(variable("cbpp"))),{literal(9)}),{{"cbpp",resolve_alias(callback_aliases,"CallbackPtrPtr")}},callback_fs,structs),integer()))throw std::runtime_error("nested callback pointer call failed");
   if(!same(infer(address(function_ref("inc")),{},callback_fs,structs),pointer(callback_type)))throw std::runtime_error("function address type failed");
