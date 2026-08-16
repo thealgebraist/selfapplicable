@@ -358,5 +358,7 @@ C-subset big-step/small-step judgments. Ott can generate Coq and LaTeX from
 this source; building Ott from its upstream repository currently requires
 `ocamlfind`, which is not installed on this server.
 When Ott is installed, generate its output reproducibly with
-`./generate_semantics.sh [OUTPUT]`; the `OTT_BIN` environment variable can
+`./generate_semantics.sh tex [OUTPUT]` or
+`./generate_semantics.sh coq [OUTPUT]`; `./generate_semantics.sh check`
+performs a syntax/type-checking run. The `OTT_BIN` environment variable can
 select a non-default Ott executable.

@@ -10,5 +10,11 @@ if ! command -v "$ott_bin" >/dev/null 2>&1; then
   exit 2
 fi
 
-out=${1:-"$root/generated-semantics.tex"}
-exec "$ott_bin" -i "$root/semantics.ott" -o "$out"
+mode=${1:-tex}
+out=${2:-"$root/generated-semantics.$mode"}
+case "$mode" in
+  tex|coq) ;;
+  check) exec "$ott_bin" -i "$root/semantics.ott" >/dev/null ;;
+  *) echo "usage: $0 [tex|coq|check] [OUTPUT]" >&2; exit 2 ;;
+esac
+exec "$ott_bin" -i "$root/semantics.ott" "-$mode" -o "$out"
