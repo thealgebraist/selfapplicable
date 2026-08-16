@@ -23,10 +23,14 @@ std::string read_source(const char *path) {
 struct Program { int argc_value=-1, then_status=0, else_status=0; std::string output, loop_output, directory, filter; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false; };
 
 Program parse_main(std::string const& s) {
-  static const std::regex main(R"(\bint\s+main\s*\(\s*int\s+argc\s*,\s*char\s*\*\s*\*\s*argv\s*\)\s*\{([\s\S]*)\})");
-  std::smatch m; if(!std::regex_search(s,m,main)) throw std::runtime_error("unsupported main declaration");
+  std::smatch main_match;
+  if(!std::regex_search(s,main_match,std::regex(R"(\bint\s+main\s*)"))) throw std::runtime_error("unsupported main declaration");
+  auto main_pos=(std::size_t)main_match.position();
+  auto body_start=s.find('{',main_pos);
+  auto body_end=s.rfind('}');
+  if(body_start==std::string::npos || body_end<=body_start) throw std::runtime_error("malformed main body");
   static const std::regex conditional(R"(if\s*\(\s*argc\s*==\s*([0-9]+)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)");
-  auto body=m[1].str(); std::smatch r;
+  auto body=s.substr(body_start+1,body_end-body_start-1); std::smatch r;
   Program p;
   if(std::regex_search(body,r,conditional)) { p.argc_value=std::stoi(r[1]); p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); }
   else {
