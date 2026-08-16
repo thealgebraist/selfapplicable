@@ -276,6 +276,8 @@ Array-to-pointer initialization is supported for the fixed array form;
 status `15`.
 Pointer-indexed assignment is supported as well; `pointer_array_assign.c`
 writes `p[1] = 16` and returns status `16`.
+Pointer addition and dereference are supported in the fixed form
+`int *q = p + 1; return *q;`; `pointer_add_deref.c` returns status `17`.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant
