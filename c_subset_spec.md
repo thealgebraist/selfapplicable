@@ -388,6 +388,8 @@ the corresponding `fp()` call.
 `(*fp)(2, 5)` spelling.
 `function_pointer_alias.c` checks assignment from one compatible callback
 pointer variable to another before indirect dispatch.
+`function_pointer_alias_bad_type.c` is rejected when the source and destination
+callback signatures differ.
 `function_pointer_address.c` accepts the explicit `&identity` spelling for a
 function-pointer initializer.
 `function_pointer_explicit_deref.c` accepts the explicit `(*fp)(6)` call
