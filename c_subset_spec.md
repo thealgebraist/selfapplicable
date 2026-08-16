@@ -369,6 +369,7 @@ pointer initializer.
 for the file-scope form.
 `function_pointer_global_explicit_deref.c` covers `(*fp)(6)` for that form.
 `function_pointer_global_binary.c` covers a two-argument file-scope callback.
+`function_pointer_global_binary_direct.c` covers its direct `fp(2, 5)` spelling.
 `function_pointer_global_nullary.c` covers a zero-argument file-scope callback.
 `function_pointer_global_binary_bad_arity.c` is rejected when the binary global
 callback is invoked with only one argument.
