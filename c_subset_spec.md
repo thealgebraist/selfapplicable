@@ -374,6 +374,8 @@ for the file-scope form.
 `function_pointer_global_nullary_direct.c` covers its direct `fp()` spelling.
 `function_pointer_global_binary_bad_arity.c` is rejected when the binary global
 callback is invoked with only one argument.
+The direct-call variant `function_pointer_global_binary_direct_bad_arity.c`
+is rejected as well.
 The local equivalent `function_pointer_binary_bad_arity.c` is rejected by the
 same declaration-aware check.
 `function_pointer_nullary.c` covers an empty-argument callback signature and
