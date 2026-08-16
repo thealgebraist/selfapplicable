@@ -394,6 +394,8 @@ callback signature.
 the compatible alias assignment.
 `function_pointer_nullary_alias.c` covers compatible aliasing for an empty
 argument callback.
+`function_pointer_nested.c` covers a pointer-to-callback pointer initialized
+from `&fp` and dispatched through two explicit dereferences.
 `function_pointer_alias_bad_type.c` is rejected when the source and destination
 callback signatures differ.
 The semantic core applies the same alias-assignment rule to two-argument

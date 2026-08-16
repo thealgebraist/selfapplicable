@@ -52,6 +52,7 @@ expect_status fixtures/function_pointer_alias.c 6
 expect_status fixtures/function_pointer_binary_alias.c 7
 expect_status fixtures/function_pointer_binary_alias_explicit_deref.c 7
 expect_status fixtures/function_pointer_nullary_alias.c 9
+expect_status fixtures/function_pointer_nested.c 9
 expect_reject fixtures/function_pointer_alias_bad_type.c
 expect_status fixtures/function_add.c 7
 expect_status fixtures/function_constant.c 9
