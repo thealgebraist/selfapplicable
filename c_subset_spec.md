@@ -326,3 +326,15 @@ recursive `struct`/pointer function check during its pre-emission validation,
 alongside the dependent NbE check. Thus every emitted assembler target passes
 both staging and the typed C semantic gate, although the permissive source
 reader still lowers only its documented syscall subset.
+
+## Coq semantic reference and regression suite
+
+`semantics.v` records classic relational big-step judgments for the dependent
+core (`eval`) and C subset (`ceval`), together with small-step relations
+(`red` and `cstep`). It also names the intended preservation and normalizer
+soundness theorems. The admitted proof bodies are an explicit proof-development
+boundary; the C++ implementation remains the executable artifact.
+
+Run `./test_c_subset_assembler.sh` to build the host compiler, emit assembly,
+assemble and link with only `as --64` and `ld`, then run positive fixtures and
+check rejection fixtures.
