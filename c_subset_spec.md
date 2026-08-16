@@ -256,6 +256,9 @@ The source reader recognizes the recursive-node declaration shape used by the
 typed core and rejects the corresponding by-value self-cycle before assembly.
 `fixtures/struct_pointer.c` is accepted and `fixtures/struct_value_cycle.c` is
 rejected.
+The constant struct-field form in `fixtures/struct_field_return.c` lowers
+`node.value` to the initialized exit status, providing the first source-level
+field-read path.
 Simple file-scope integer declarations with constant initializers are also
 validated through `check_globals`; duplicate names are rejected. The current
 assembler slice resolves a return of such a global and emits its constant

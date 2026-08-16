@@ -79,10 +79,15 @@ Program parse_main(std::string const& s) {
     static const std::regex ret(R"(\breturn\s+([0-9]+)\s*;)");
     if(std::regex_search(body,r,ret)) p.else_status=std::stoi(r[1]);
     else {
-      static const std::regex symbolic(R"(\breturn\s+[A-Za-z_][A-Za-z0-9_]*\s*;)");
+      static const std::regex symbolic(R"(\breturn\s+[A-Za-z_][A-Za-z0-9_]*(?:\s*\.\s*[A-Za-z_][A-Za-z0-9_]*)?\s*;)");
       if(!std::regex_search(body,symbolic)) throw std::runtime_error("return expression is outside subset");
       // Macro-expanded constants and external status helpers are represented
       // by the freestanding ABI stub until the typed constant layer is added.
+      static const std::regex field_return(R"(struct\s+([A-Za-z_][A-Za-z0-9_]*)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*\{\s*([0-9]+)\s*,\s*0\s*\}\s*;\s*return\s+\2\s*\.\s*value\s*;)");
+      std::smatch field_match;
+      if(std::regex_search(body,field_match,field_return) && node_match.ready() && field_match[1].str()==node_match[1].str()) {
+        p.else_status=std::stoi(field_match[3]);
+      } else {
       std::smatch global_return;
       static const std::regex global_name_return(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*;)");
       if(std::regex_search(body,global_return,global_name_return)) {
@@ -92,6 +97,7 @@ Program parse_main(std::string const& s) {
         }
         if(!resolved) { p.else_status=0; std::cerr<<"warning: symbolic return treated as external status 0\n"; }
       } else { p.else_status=0; std::cerr<<"warning: symbolic return treated as external status 0\n"; }
+      }
     }
     }
     }
