@@ -94,6 +94,15 @@ finddir(".", "normaliser.cpp");
 The generated code compares the decoded entry name byte-by-byte before
 emitting it.
 
+Filesystem existence predicates are supported with:
+
+```c
+if (exists("normaliser.cpp")) return 0;
+return 1;
+```
+
+The compiler lowers `exists` to Linux `statx` and branches on its result.
+
 Permissive source-ingestion mode accepts symbolic return expressions from real
 Coreutils files, such as `return EXIT_STATUS;`, and lowers them to status 0
 with an explicit diagnostic. This proves that the macro-free frontend can
