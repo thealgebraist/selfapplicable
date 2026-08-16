@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -36,6 +36,12 @@ Program parse_main(std::string const& s) {
   Program p;
   if(std::regex_search(body,r,conditional)) { p.argc_value=std::stoi(r[1]); p.then_status=std::stoi(r[2]); p.else_status=std::stoi(r[3]); }
   else {
+    static const std::regex call(R"(\breturn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*([0-9]+)\s*\)\s*;)");
+    if(std::regex_search(body,r,call)) {
+      static const std::regex identity(R"(\bint\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*int\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\{\s*return\s+\2\s*;\s*\})");
+      if(!std::regex_search(s,identity)) throw std::runtime_error("function call requires an identity helper");
+      p.function_call=true; p.else_status=std::stoi(r[2]);
+    } else {
     static const std::regex ret(R"(\breturn\s+([0-9]+)\s*;)");
     if(std::regex_search(body,r,ret)) p.else_status=std::stoi(r[1]);
     else {
@@ -45,6 +51,7 @@ Program parse_main(std::string const& s) {
       // by the freestanding ABI stub until the typed constant layer is added.
       p.else_status=0;
       std::cerr<<"warning: symbolic return treated as external status 0\n";
+    }
     }
   }
   static const std::regex write(R"re(write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
@@ -94,7 +101,9 @@ void check_with_nbe() {
   StructFields fields{{"CompilerNode",{{"value",integer()},{"next",NodePtr}}}};
   std::vector<Function> declarations{
     {"compiler_even",{{"p",NodePtr}},integer(),{call("compiler_odd",{variable("p")})}},
-    {"compiler_odd",{{"p",NodePtr}},integer(),{call("compiler_even",{variable("p")})}}
+    {"compiler_odd",{{"p",NodePtr}},integer(),{call("compiler_even",{variable("p")})}},
+    {"compiler_identity",{{"x",integer()}},integer(),{variable("x")}},
+    {"compiler_call",{},integer(),{call("compiler_identity",{literal(7)})}}
   };
   check_program(declarations,fields);
 }

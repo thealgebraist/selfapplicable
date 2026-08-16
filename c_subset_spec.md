@@ -7,6 +7,17 @@ translation unit containing one function with the shape:
 int main(int argc, char **argv) { return DECIMAL; }
 ```
 
+A small function-call form is also accepted when the translation unit defines
+an identity helper:
+
+```c
+int identity(int value) { return value; }
+int main(int argc, char **argv) { return identity(7); }
+```
+
+The frontend checks the helper shape and lowers this constant call result into
+the generated exit status; the assembler target still uses `as` and `ld`.
+
 The frontend also accepts the first control-flow form:
 
 ```c
