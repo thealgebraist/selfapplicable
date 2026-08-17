@@ -117,6 +117,7 @@ Counted-loop writes use the same decoding path, covered by
 `loop_write_adjacent_nul.c` verifies embedded NUL bytes across adjacent
 literal fragments.
 `loop_write_adjacent_high_byte.c` verifies high-byte values across fragments.
+`loop_write_adjacent_newline.c` verifies newline bytes across fragments.
 `loop_write_adjacent.c` verifies adjacent string fragments inside a counted
 loop.
 `loop_write_adjacent_hex.c` combines adjacent fragments with hexadecimal
