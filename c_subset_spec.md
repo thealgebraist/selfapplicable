@@ -365,6 +365,8 @@ Strict-bound braced `for` bodies with five fragments are covered by
 `loop_write_braced_five.c`.
 The two-fragment braced form is covered by
 `loop_write_braced_adjacent_binary.c`.
+Three adjacent fragments in a strict braced body are covered by
+`loop_write_braced_three_adjacent_binary.c`.
 Inclusive bounds compose with this form in
 `loop_write_inclusive_braced_adjacent_binary.c`.
 Braced `for` bodies may likewise contain two checked literal writes, covered
