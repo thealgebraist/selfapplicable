@@ -15,6 +15,8 @@ int loop_break_at = -1;
 int loop_continue_at = -1;
 int switch_case3 = -1;
 int switch_case3_status = 0;
+int switch_case4 = -1;
+int switch_case4_status = 0;
 
 bool emit_getuid_mode = false;
 bool emit_geteuid_mode = false;
@@ -448,6 +450,7 @@ Program parse_main(std::string const& s) {
   loop_break_at=-1;
   loop_continue_at=-1;
   switch_case3=-1;
+  switch_case4=-1;
   std::smatch main_match;
   if(!std::regex_search(s,main_match,std::regex(R"(\bint\s+main\s*)"))) throw std::runtime_error("unsupported main declaration");
   auto main_pos=(std::size_t)main_match.position();
@@ -502,6 +505,7 @@ Program parse_main(std::string const& s) {
   static const std::regex bad_binary_function_pointer_arity(R"(int\s*\(\s*\*\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*\(\s*int\s*,\s*int\s*\)\s*=\s*[^;]+;[\s\S]*return\s*\(\s*\*\s*\1\s*\)\s*\(\s*[0-9]+\s*\)\s*;)");
   if(std::regex_search(s,bad_binary_function_pointer_arity)) throw std::runtime_error("binary function pointer call arity");
   static const std::regex argc_switch(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
+  static const std::regex argc_switch_four(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
   static const std::regex argc_switch_three(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
   static const std::regex argc_switch_two(R"(switch\s*\(\s*argc\s*\)\s*\{\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*case\s+([0-9]+)\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
   static const std::regex enum_switch(R"(enum\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9]+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9]+)\s*\}\s*;[\s\S]*switch\s*\(\s*argc\s*\)\s*\{\s*case\s+\2\s*:\s*return\s+([0-9]+)\s*;\s*case\s+\4\s*:\s*return\s+([0-9]+)\s*;\s*default\s*:\s*return\s+([0-9]+)\s*;\s*\})");
@@ -516,6 +520,10 @@ Program parse_main(std::string const& s) {
     p.switch_case2=std::stoi(r[5]); p.switch_case2_status=std::stoi(r[7]); p.switch_default_status=std::stoi(r[8]);
     csem::validate_enum_values({{r[2].str(),p.switch_case},{r[4].str(),p.switch_case2}});
     csem::check_switch(csem::variable("argc"),{{csem::literal(p.switch_case),{csem::return_stmt(csem::literal(p.switch_case_status))}},{csem::literal(p.switch_case2),{csem::return_stmt(csem::literal(p.switch_case2_status))}}},{csem::return_stmt(csem::literal(p.switch_default_status))},csem::integer(),{{"argc",csem::integer()}},{},{});
+  }
+  else if(std::regex_search(body,r,argc_switch_four)) {
+    p.switch_return=true; p.switch_two_cases=true; p.switch_case=std::stoi(r[1]); p.switch_case_status=std::stoi(r[2]);
+    p.switch_case2=std::stoi(r[3]); p.switch_case2_status=std::stoi(r[4]); switch_case3=std::stoi(r[5]); switch_case3_status=std::stoi(r[6]); switch_case4=std::stoi(r[7]); switch_case4_status=std::stoi(r[8]); p.switch_default_status=std::stoi(r[9]);
   }
   else if(std::regex_search(body,r,argc_switch_three)) {
     p.switch_return=true; p.switch_two_cases=true; p.switch_case=std::stoi(r[1]); p.switch_case_status=std::stoi(r[2]);
@@ -6763,7 +6771,7 @@ int main(int argc,char **argv) {
     if(program.switch_return) std::cout
              <<"  mov (%rsp), %rdi\n  cmp $"<<program.switch_case<<", %rdi\n"
              <<"  jne .Lswitch_case2\n  mov $"<<program.switch_case_status<<", %edi\n  jmp .Lexit\n.Lswitch_case2:\n"
-             <<(csubset::switch_case3 >= 0 ? "  cmp $"+std::to_string(program.switch_case2)+", %rdi\n  jne .Lswitch_case3\n  mov $"+std::to_string(program.switch_case2_status)+", %edi\n  jmp .Lexit\n.Lswitch_case3:\n  cmp $"+std::to_string(csubset::switch_case3)+", %rdi\n  jne .Lswitch_default\n  mov $"+std::to_string(csubset::switch_case3_status)+", %edi\n  jmp .Lexit\n.Lswitch_default:\n" : (program.switch_two_cases ? "  cmp $"+std::to_string(program.switch_case2)+", %rdi\n  jne .Lswitch_default\n  mov $"+std::to_string(program.switch_case2_status)+", %edi\n  jmp .Lexit\n.Lswitch_default:\n" : "  jmp .Lswitch_default\n.Lswitch_default:\n"))
+             <<(csubset::switch_case4 >= 0 ? "  cmp $"+std::to_string(program.switch_case2)+", %rdi\n  jne .Lswitch_case3\n  mov $"+std::to_string(program.switch_case2_status)+", %edi\n  jmp .Lexit\n.Lswitch_case3:\n  cmp $"+std::to_string(csubset::switch_case3)+", %rdi\n  jne .Lswitch_case4\n  mov $"+std::to_string(csubset::switch_case3_status)+", %edi\n  jmp .Lexit\n.Lswitch_case4:\n  cmp $"+std::to_string(csubset::switch_case4)+", %rdi\n  jne .Lswitch_default\n  mov $"+std::to_string(csubset::switch_case4_status)+", %edi\n  jmp .Lexit\n.Lswitch_default:\n" : (csubset::switch_case3 >= 0 ? "  cmp $"+std::to_string(program.switch_case2)+", %rdi\n  jne .Lswitch_case3\n  mov $"+std::to_string(program.switch_case2_status)+", %edi\n  jmp .Lexit\n.Lswitch_case3:\n  cmp $"+std::to_string(csubset::switch_case3)+", %rdi\n  jne .Lswitch_default\n  mov $"+std::to_string(csubset::switch_case3_status)+", %edi\n  jmp .Lexit\n.Lswitch_default:\n" : (program.switch_two_cases ? "  cmp $"+std::to_string(program.switch_case2)+", %rdi\n  jne .Lswitch_default\n  mov $"+std::to_string(program.switch_case2_status)+", %edi\n  jmp .Lexit\n.Lswitch_default:\n" : "  jmp .Lswitch_default\n.Lswitch_default:\n")))
              <<"  mov $"<<program.switch_default_status<<", %edi\n  jmp .Lexit\n";
     if(program.argc_value>=0) std::cout
              <<"  mov (%rsp), %rdi\n  cmp $"<<program.argc_value<<", %rdi\n"
