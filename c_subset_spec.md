@@ -209,6 +209,17 @@ for (int i = 0; i < 3; i++) write(1, "x\\n", 2);
 The loop counter is lowered to a register that survives Linux `syscall`
 clobbers.
 
+A bounded `while` form is also supported when its counter is initialized to
+zero and compared against a literal:
+
+```c
+int i = 0;
+while (i < 3) write(1, "w", 1);
+```
+
+It uses the same checked literal payload and counter lowering as the bounded
+`for` form. Unbounded or non-literal `while` loops remain outside the subset.
+
 The first filesystem primitive is the `pwd` pattern:
 
 ```c
