@@ -283,6 +283,7 @@ expect_status fixtures/membarrier_query.c 0
 expect_status fixtures/get_mempolicy_query.c 0
 expect_status fixtures/faccessat2_tmp.c 0
 expect_status fixtures/syncfs_stdout.c 0
+expect_status fixtures/io_uring_setup_query.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
