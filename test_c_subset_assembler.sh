@@ -261,6 +261,7 @@ expect_bytes fixtures/while_write_five.c "414200ff43414200ff43"
 expect_bytes fixtures/while_write_braced.c "51005100"
 expect_output fixtures/while_write_explicit_increment.c "RRR"
 expect_output fixtures/while_write_inclusive.c "III"
+expect_bytes fixtures/while_write_inclusive_three.c "4100ff4100ff"
 expect_output fixtures/while_write_inclusive_braced.c "JJ"
 expect_status fixtures/global_return.c 4
 
