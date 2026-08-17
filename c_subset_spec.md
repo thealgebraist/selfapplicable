@@ -109,6 +109,7 @@ after decoding and length validation; `write_adjacent.c` and
 `write_adjacent_whitespace.c` verifies newline and tab preservation across
 fragments.
 `write_adjacent_form_vertical.c` verifies form-feed and vertical-tab fragments.
+`write_adjacent_binary_mixed.c` combines NUL and high-byte fragments.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
