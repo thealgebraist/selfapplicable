@@ -183,6 +183,21 @@ Inductive cexpr_step : cmemory -> cstore -> cexpr -> cexpr -> Prop :=
     cexpr_step M σ (CXAdd (CXVal (CVInt x)) (CXVal (CVInt y)))
       (CXVal (CVInt (x+y))).
 
+Lemma cexpr_step_preserves_big : forall M σ e e' v,
+  cexpr_step M σ e e' ->
+  cexpr_big M σ e' v ->
+  cexpr_big M σ e v.
+Proof.
+  intros M σ e e' v Hstep.
+  induction Hstep; intros Hbig.
+  - inversion Hbig; subst. constructor.
+  - inversion Hbig; subst. eapply CXBLoad; eauto.
+  - inversion Hbig; subst. eauto using CXBLoad.
+  - inversion Hbig; subst. eapply CXBAdd; eauto.
+  - inversion Hbig; subst. eapply CXBAdd; eauto.
+  - inversion Hbig; subst. constructor.
+Qed.
+
 Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
   fun a' => if Nat.eqb a a' then v else σ a'.
 
