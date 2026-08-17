@@ -120,6 +120,8 @@ fragments.
 fragments.
 `write_adjacent_mixed_apostrophe_hex.c` combines apostrophe and hexadecimal
 fragments.
+`write_adjacent_mixed_backslash_hex.c` combines backslash and hexadecimal
+fragments.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
