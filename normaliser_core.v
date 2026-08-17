@@ -387,7 +387,7 @@ Proof.
     reflexivity.
   - rewrite IHC.
     reflexivity.
-  - rewrite IHC.
+  - rewrite (IHC (S depth) s t).
     reflexivity.
   - rewrite IHC.
     reflexivity.
