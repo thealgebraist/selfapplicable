@@ -669,7 +669,7 @@ Proof.
         -- exact Hguard.
         -- constructor.
            ++ exact Hbody.
-           ++ constructor.
+           ++ constructor; assumption.
         -- constructor.
       * exact Hσ.
 Qed.
