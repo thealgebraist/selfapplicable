@@ -878,7 +878,20 @@ Qed.
 
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
-Proof. Admitted.
+Proof.
+  intros t u n Hstep.
+  induction Hstep; intros Hvalue.
+  - inversion Hvalue; subst.
+    constructor.
+    + eauto.
+    + assumption.
+  - inversion Hvalue; subst.
+    constructor.
+    + assumption.
+    + eauto.
+  - inversion Hvalue; subst.
+    constructor; constructor.
+Qed.
 
 (* The proof above is deliberately phrased over the relation rather than an
    executable evaluator: it is the classic preservation direction used when
