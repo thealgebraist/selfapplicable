@@ -268,6 +268,7 @@ expect_status fixtures/prctl_get_timerslack.c 0
 expect_status fixtures/prctl_get_child_subreaper.c 0
 expect_status fixtures/prctl_get_ambient_zero.c 0
 expect_status fixtures/prctl_get_pdeathsig.c 0
+expect_status fixtures/prctl_get_tid_address.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
