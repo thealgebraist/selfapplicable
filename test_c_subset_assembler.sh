@@ -369,6 +369,7 @@ expect_status fixtures/socketpair_query.c 1
 expect_status fixtures/accept4_query.c 1
 expect_status fixtures/shutdown_query.c 1
 expect_status fixtures/getsockopt_query.c 1
+expect_status fixtures/setsockopt_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
