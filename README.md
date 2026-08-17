@@ -49,3 +49,15 @@ Verify both layers with:
 ```sh
 ./verify_release_bundle.sh dist/selfapplicable-VERSION.tar.gz
 ```
+
+Live work-matrix publication
+
+`WORK_MATRIX.md` is served directly from the working tree through Cloudflared,
+and is also rendered as HTML, so the public matrix reflects edits on the next
+request. The current endpoints are:
+
+`https://brokers-serving-pairs-duck.trycloudflare.com/WORK_MATRIX.md`
+
+`https://brokers-serving-pairs-duck.trycloudflare.com/WORK_MATRIX.html`
+
+Run `./publish_matrix_cloudflared.sh` to start the same arrangement elsewhere.
