@@ -507,6 +507,7 @@ expect_status fixtures/capget_query.c 1
 expect_status fixtures/umount2_query.c 1
 expect_status fixtures/readahead_query.c 1
 expect_status fixtures/close_range_query.c 1
+expect_status fixtures/getdents64_query.c 1
 expect_status fixtures/landlock_add_rule_query.c 1
 expect_status fixtures/landlock_restrict_self_query.c 1
 expect_status fixtures/keyctl_query.c 1
