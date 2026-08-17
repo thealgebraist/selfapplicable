@@ -430,6 +430,13 @@ The `cat` primitive copies a named file to standard output using only
 cat("fixtures/cat_payload.txt");
 ```
 
+The `mkdir` primitive lowers to Linux `mkdir` with mode `0700` and returns
+status 0 on success or 1 when the syscall fails:
+
+```c
+mkdir("/tmp/new-directory");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
