@@ -233,6 +233,7 @@ bool emit_copy_file_range_query_mode = false;
 bool emit_splice_query_mode = false;
 bool emit_tee_query_mode = false;
 bool emit_vmsplice_query_mode = false;
+bool emit_pidfd_open_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -2041,6 +2042,7 @@ Program parse_main(std::string const& s) {
   emit_splice_query_mode=std::regex_search(body,std::regex(R"re(\bsplice_query\s*\(\s*\)\s*;)re"));
   emit_tee_query_mode=std::regex_search(body,std::regex(R"re(\btee_query\s*\(\s*\)\s*;)re"));
   emit_vmsplice_query_mode=std::regex_search(body,std::regex(R"re(\bvmsplice_query\s*\(\s*\)\s*;)re"));
+  emit_pidfd_open_query_mode=std::regex_search(body,std::regex(R"re(\bpidfd_open_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -3902,6 +3904,14 @@ void emit_vmsplice_query(Program const&) {
     <<".Lvmsplice_fail:\n  mov $1, %edi\n.Lvmsplice_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_pidfd_open_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $434, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lpidfd_open_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lpidfd_open_done\n"
+    <<".Lpidfd_open_fail:\n  mov $1, %edi\n.Lpidfd_open_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -4232,6 +4242,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_splice_query_mode) { csubset::emit_splice_query(program); return 0; }
     if(csubset::emit_tee_query_mode) { csubset::emit_tee_query(program); return 0; }
     if(csubset::emit_vmsplice_query_mode) { csubset::emit_vmsplice_query(program); return 0; }
+    if(csubset::emit_pidfd_open_query_mode) { csubset::emit_pidfd_open_query(program); return 0; }
     if(csubset::emit_epoll_wait_mode) { csubset::emit_epoll_wait(program); return 0; }
     if(csubset::emit_futex_wait_mode) { csubset::emit_futex_wait(program); return 0; }
     if(csubset::emit_timerfd_gettime_mode) { csubset::emit_timerfd_gettime(program); return 0; }
