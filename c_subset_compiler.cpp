@@ -986,6 +986,13 @@ Program parse_main(std::string const& s) {
     if(std::stoi(w[5])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
     p.output.clear();
   }
+  static const std::regex inclusive_four_adjacent_loop(
+    R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<=\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
+  if(p.loop_count==0 && std::regex_search(body,w,inclusive_four_adjacent_loop)) {
+    p.loop_count=std::stoi(w[1]); p.loop_present=true; p.loop_inclusive=true; p.loop_output=decode_write(w[2].str())+decode_write(w[3].str())+decode_write(w[4].str())+decode_write(w[5].str());
+    if(std::stoi(w[6])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
   static const std::regex inclusive_braced_loop(
     R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<=\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
   if(p.loop_count==0 && std::regex_search(body,w,inclusive_braced_loop)) {
