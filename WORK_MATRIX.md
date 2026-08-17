@@ -24,7 +24,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Closure compatibility under application | [x] | CI run `32040605802` proves `nred_star_app_left` and `nred_star_app_right` |
 | Core language | Closure compatibility under lambda binders | [x] | CI run `32040705678` proves `NRLamBody` and `nred_star_lam` |
 | Core language | De Bruijn beta substitution in Coq reduction | [x] | CI run `32040793617` compiles `nshift`, `nsubst0`, and substitution-producing `NRBeta` |
-| Core language | Coq beta substitution sanity lemmas | [ ] | Added `nsubst0_var0`, `nsubst0_var_succ`, and `beta_identity`; await CI confirmation |
+| Core language | Coq beta substitution sanity lemmas | [x] | CI run `32040998545` proves `nsubst0_var0`, `nsubst0_var_succ`, and `beta_identity` |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
