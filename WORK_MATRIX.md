@@ -30,7 +30,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Structural substitution equations | [x] | CI run `32042396965` proves application, quote, and unquote substitution lemmas |
 | Core language | Beta witnesses in multi-step closure | [x] | CI run `32042515552` proves `beta_identity_star` and `beta_outer_variable_star` |
 | Core language | Combined application closure compatibility | [x] | CI run `32042623643` proves `nred_star_app_both` |
-| Core language | Lambda-application closure sequencing | [ ] | Added `nred_star_lam_app`; await CI confirmation |
+| Core language | Lambda-application closure sequencing | [x] | CI run `32042712233` proves `nred_star_lam_app` |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
