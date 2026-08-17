@@ -360,6 +360,7 @@ expect_status fixtures/sched_setaffinity_query.c 1
 expect_status fixtures/sched_getcpu_query.c 0
 expect_status fixtures/getpriority_query.c 0
 expect_status fixtures/getrlimit_query.c 0
+expect_status fixtures/getrusage_query.c 0
 expect_status fixtures/process_vm_writev_query.c 0
 expect_status fixtures/clone3_query.c 1
 expect_status fixtures/userfaultfd_query.c 1
