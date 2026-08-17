@@ -72,6 +72,16 @@ Proof.
   - apply nred_star_refl.
 Qed.
 
+Lemma nstage_then_nred_star : forall t u v,
+  nstage t u -> nred_star u v -> nred_star t v.
+Proof.
+  intros t u v Hstage Htail.
+  apply nred_star_trans with (u := u).
+  - apply nstage_to_nred_star.
+    exact Hstage.
+  - exact Htail.
+Qed.
+
 Lemma nred_star_trans : forall t u v,
   nred_star t u -> nred_star u v -> nred_star t v.
 Proof.
