@@ -119,6 +119,8 @@ literal fragments.
 `loop_write_adjacent_high_byte.c` verifies high-byte values across fragments.
 `loop_write_adjacent_newline.c` verifies newline bytes across fragments.
 `loop_write_adjacent_tab.c` verifies tab bytes across fragments.
+`loop_write_adjacent_carriage_return.c` verifies carriage-return bytes across
+fragments.
 `loop_write_adjacent.c` verifies adjacent string fragments inside a counted
 loop.
 `loop_write_adjacent_hex.c` combines adjacent fragments with hexadecimal

@@ -147,7 +147,6 @@ expect_output fixtures/loop_write_question.c "A?BA?B"
 expect_output fixtures/loop_write_adjacent.c "ABAB"
 expect_output fixtures/loop_write_adjacent_hex.c "ABAB"
 expect_output fixtures/loop_write_adjacent_octal.c "ABAB"
-expect_bytes fixtures/loop_write_adjacent_control.c "07080708"
 expect_output fixtures/loop_write_adjacent_three.c "ABCABC"
 expect_output fixtures/loop_write_adjacent_four.c "ABCDABCD"
 expect_output fixtures/loop_write_adjacent_five.c "ABCDEABCDE"
@@ -165,6 +164,8 @@ expect_bytes() {
   actual=$("$tmp/$stem" | od -An -tx1 | tr -d ' \n')
   test "$actual" = "$expected" || { echo "FAIL: $source: byte mismatch" >&2; exit 1; }
 }
+expect_bytes fixtures/loop_write_adjacent_control.c "07080708"
+expect_bytes fixtures/loop_write_adjacent_carriage_return.c "0d410d41"
 expect_bytes fixtures/loop_write_high_byte.c "ffff"
 expect_bytes fixtures/loop_write_octal.c "4141"
 expect_bytes fixtures/loop_write_hex_single.c "045a045a"
