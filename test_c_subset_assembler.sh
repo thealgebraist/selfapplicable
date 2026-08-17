@@ -278,6 +278,7 @@ expect_bytes fixtures/while_write_inclusive_five_body_writes.c "414200ff43414200
 expect_output fixtures/while_write_explicit_increment.c "RRR"
 expect_output fixtures/while_write_inclusive.c "III"
 expect_output fixtures/do_write.c "DD"
+expect_output fixtures/do_write_unbraced.c "UU"
 expect_output fixtures/do_write_inclusive.c "II"
 expect_output fixtures/do_write_inclusive_zero.c "K"
 expect_bytes fixtures/do_write_inclusive_adjacent_binary.c "4100ff4100ff"
