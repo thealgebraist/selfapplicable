@@ -69,6 +69,14 @@ Proof.
   now apply NTQuote.
 Qed.
 
+Lemma neutral_has_quote : forall A k,
+  exists t, nquote A (NNNeutral (NNVar k)) t.
+Proof.
+  intros A k.
+  exists (NVar 0).
+  constructor.
+Qed.
+
 Lemma staged_normalise_has_type : forall Γ t A n,
   staged_normalise Γ t A n -> ntyped Γ t A.
 Proof.
