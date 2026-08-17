@@ -520,6 +520,7 @@ expect_status fixtures/futimesat_query.c 1
 expect_status fixtures/preadv2_query.c 1
 expect_status fixtures/pwritev2_query.c 1
 expect_status fixtures/readv_query.c 1
+expect_status fixtures/writev_query.c 1
 expect_status fixtures/readlinkat_query.c 1
 expect_status fixtures/renameat2_query.c 1
 expect_status fixtures/symlinkat_query.c 1
