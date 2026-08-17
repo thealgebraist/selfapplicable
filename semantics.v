@@ -655,7 +655,10 @@ Lemma typed_while_zero_unfold : forall M Γ σ e st,
     (CMIf e (CMSeq st (CMWhile e st)) CMSkip, σ).
 Proof.
   intros M Γ σ e st Hwhile He Hσ.
-  inversion Hwhile; subst.
+  assert (Hguard : cexpr_typed_in Γ e CInt) by
+    (inversion Hwhile; assumption).
+  assert (Hbody : cmstmt_typed Γ st CVoid) by
+    (inversion Hwhile; assumption).
   split.
   - now apply CMSWhile.
   - exists (CMIf e (CMSeq st (CMWhile e st)) CMSkip), σ, CVoid.
@@ -663,9 +666,9 @@ Proof.
     + reflexivity.
     + split.
       * constructor.
-        -- exact H0.
+        -- exact Hguard.
         -- constructor.
-           ++ exact H1.
+           ++ exact Hbody.
            ++ constructor.
         -- constructor.
       * exact Hσ.
