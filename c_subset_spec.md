@@ -478,6 +478,13 @@ symlink("/dev/null", "/tmp/link");
 link("/dev/null", "/tmp/hard-link");
 ```
 
+`readlink("path")` reads a symbolic-link target into a fixed buffer and
+writes the returned bytes to standard output:
+
+```c
+readlink("/proc/self/exe");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
