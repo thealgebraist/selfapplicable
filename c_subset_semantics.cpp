@@ -92,6 +92,7 @@ int main(){using namespace csem;try{
   StructFields structs{{"Node",{{"value",integer()},{"next",NodePtr}}}};
   auto Mode=enum_type("Mode");
   auto Char=character(); if(size_of(Char,structs)!=1||same(Char,integer())||!same(infer(allocate(Char),{}, {},structs),pointer(Char)))throw std::runtime_error("char type failed");
+  auto CharPtr=pointer(Char); if(!same(infer(binary(BinOp::Add,variable("chars"),literal(1)),{{"chars",CharPtr}}, {},structs),CharPtr)||!same(infer(index(variable("chars"),literal(1)),{{"chars",CharPtr}}, {},structs),Char))throw std::runtime_error("char pointer arithmetic failed");
   auto CharPair=structure("CharPair"); StructFields char_structs{{"CharPair",{{"tag",Char},{"value",integer()}}}};
   if(size_of(CharPair,char_structs)!=5||field_offset(CharPair,"value",char_structs)!=1||!same(infer(member(variable("cp"),"tag"),{{"cp",CharPair}}, {},char_structs),Char))throw std::runtime_error("char struct field failed");
   validate_enum(Mode); bool bad_enum_name=false;try{validate_enum(enum_type(""));}catch(std::exception const&){bad_enum_name=true;}if(!bad_enum_name)throw std::runtime_error("empty enum name accepted");
