@@ -304,6 +304,7 @@ expect_status fixtures/tee_zero.c 0
 expect_status fixtures/vmsplice_zero.c 0
 expect_status fixtures/memfd_get_seals_query.c 0
 expect_status fixtures/fcntl_getpipe_sz_query.c 0
+expect_status fixtures/ioctl_pipe_fionread_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
