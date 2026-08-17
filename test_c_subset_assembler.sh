@@ -128,6 +128,17 @@ expect_status fixtures/character_octal_return.c 65
 expect_reject fixtures/character_bad_hex.c
 expect_reject fixtures/character_bad_octal.c
 expect_reject fixtures/character_multi_byte.c
+expect_output() {
+  source=$1
+  expected=$2
+  stem=$(basename "$source" .c)
+  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
+  ld "$tmp/$stem.o" -o "$tmp/$stem"
+  actual=$("$tmp/$stem")
+  test "$actual" = "$expected" || { echo "FAIL: $source: output mismatch" >&2; exit 1; }
+}
+expect_output fixtures/write_escape.c "A	B"
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c

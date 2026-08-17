@@ -842,12 +842,16 @@ Program parse_main(std::string const& s) {
   std::smatch w; if(std::regex_search(body,w,write)) {
     p.output=w[1].str();
     std::size_t nl; while((nl=p.output.find("\\n"))!=std::string::npos) p.output.replace(nl,2,"\n");
+    while((nl=p.output.find("\\t"))!=std::string::npos) p.output.replace(nl,2,"\t");
+    while((nl=p.output.find("\\\\"))!=std::string::npos) p.output.replace(nl,2,"\\");
   if(std::stoi(w[2])!=(int)p.output.size()) throw std::runtime_error("write length mismatch");
   }
   static const std::regex loop(R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,loop)) {
     p.loop_count=std::stoi(w[1]); p.loop_output=w[2].str();
     std::size_t nl; while((nl=p.loop_output.find("\\n"))!=std::string::npos) p.loop_output.replace(nl,2,"\n");
+    while((nl=p.loop_output.find("\\t"))!=std::string::npos) p.loop_output.replace(nl,2,"\t");
+    while((nl=p.loop_output.find("\\\\"))!=std::string::npos) p.loop_output.replace(nl,2,"\\");
     if(std::stoi(w[3])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
     p.output.clear();
   }

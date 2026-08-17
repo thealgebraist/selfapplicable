@@ -82,6 +82,8 @@ write(1, argv[1], strlen(argv[1]));
 The compiler lowers `argv[1]` from the Linux entry stack and emits a bytewise
 NUL scan before the syscall. Missing `argv[1]` produces an empty successful
 command in this initial slice.
+String writes decode `\\n`, `\\t`, `\\\\`, and escaped quotes before length
+checking and emission; `write_escape.c` verifies the resulting bytes.
 
 The option guard used by `true(1)` is recognized in this reduced form:
 
