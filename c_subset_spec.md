@@ -219,6 +219,8 @@ while (i < 3) write(1, "w", 1);
 
 It uses the same checked literal payload and counter lowering as the bounded
 `for` form. Unbounded or non-literal `while` loops remain outside the subset.
+Adjacent literal fragments, including embedded binary bytes, use the same
+rules; `while_write_adjacent_binary.c` covers that case.
 
 The first filesystem primitive is the `pwd` pattern:
 

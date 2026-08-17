@@ -245,6 +245,7 @@ expect_status fixtures/node_offsetof_return.c 4
 expect_status fixtures/null_guard.c 1
 expect_status fixtures/recursive_base_case.c 0
 expect_output fixtures/while_write.c "www"
+expect_bytes fixtures/while_write_adjacent_binary.c "41004100"
 expect_status fixtures/global_return.c 4
 
 expect_reject fixtures/unknown_call.c
