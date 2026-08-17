@@ -850,16 +850,13 @@ Program parse_main(std::string const& s) {
     return value;
   };
   std::smatch w;
-  static const std::regex two_writes(
-    R"re(write\s*\(\s*1\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
-  if(std::regex_search(body,w,two_writes)) {
-    auto first=decode_write(w[1].str()); auto second=decode_write(w[3].str());
-    if(std::stoi(w[2])!=(int)first.size() || std::stoi(w[4])!=(int)second.size())
-      throw std::runtime_error("write length mismatch");
-    p.output=first+second;
-  } else if(std::regex_search(body,w,write)) {
-    p.output=decode_write(w[1].str());
-    if(std::stoi(w[2])!=(int)p.output.size()) throw std::runtime_error("write length mismatch");
+  // Collect every literal write in source order.  This deliberately keeps
+  // each call's declared byte count independently checked before combining
+  // the payload into one static message.
+  for(std::sregex_iterator it(body.begin(),body.end(),write), end; it!=end; ++it) {
+    auto payload=decode_write((*it)[1].str());
+    if(std::stoi((*it)[2])!=(int)payload.size()) throw std::runtime_error("write length mismatch");
+    p.output+=payload;
   }
   static const std::regex loop(R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*write\s*\(\s*1\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,loop)) {
