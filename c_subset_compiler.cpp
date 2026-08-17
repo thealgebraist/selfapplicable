@@ -886,6 +886,8 @@ Program parse_main(std::string const& s) {
   static const std::regex nonzero_do_init(R"(\bint\s+i\s*=\s*([^;]+);\s*do\s*\{)");
   std::smatch do_init_match;
   if(std::regex_search(body,do_init_match,nonzero_do_init) && !std::regex_match(do_init_match[1].str(),std::regex(R"(\s*0\s*)"))) throw std::runtime_error("unsupported do initializer");
+  static const std::regex any_do(R"(\bdo\s*\{)"), supported_do_update(R"(\bdo\s*\{[\s\S]*i\+\+)" );
+  if(std::regex_search(body,any_do) && !std::regex_search(body,supported_do_update)) throw std::runtime_error("unsupported do update");
   static const std::regex do_inclusive_write_loop(
     R"re(int\s+i\s*=\s*0\s*;\s*do\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*while\s*\(\s*i\s*<=\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,do_inclusive_write_loop)) {

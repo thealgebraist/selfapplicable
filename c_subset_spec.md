@@ -234,6 +234,8 @@ Non-literal post-test bounds are rejected as well; `do_write_unbounded.c`
 covers that boundary.
 The reduced post-test form also requires `int i = 0`; nonzero starts are
 rejected by `do_write_nonzero_init.c`.
+Its update must be the literal `i++`; `do_write_nonincrement.c` verifies
+rejection of alternative updates.
 `do_write_zero.c` verifies that the first iteration remains present even with
 a zero bound.
 Adjacent binary fragments are supported in the post-test body by
