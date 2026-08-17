@@ -306,6 +306,7 @@ bool emit_tee_query_mode = false;
 bool emit_vmsplice_query_mode = false;
 bool emit_pidfd_open_query_mode = false;
 bool emit_pidfd_send_signal_query_mode = false;
+bool emit_pidfd_getfd_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -2187,6 +2188,7 @@ Program parse_main(std::string const& s) {
   emit_vmsplice_query_mode=std::regex_search(body,std::regex(R"re(\bvmsplice_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_open_query_mode=std::regex_search(body,std::regex(R"re(\bpidfd_open_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_send_signal_query_mode=std::regex_search(body,std::regex(R"re(\bpidfd_send_signal_query\s*\(\s*\)\s*;)re"));
+  emit_pidfd_getfd_query_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -4064,6 +4066,16 @@ void emit_pidfd_send_signal_query(Program const&) {
     <<".Lpidfd_send_signal_fail:\n  mov $1, %edi\n.Lpidfd_send_signal_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_pidfd_getfd_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $438, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lpidfd_getfd_fail\n"
+    <<"  mov %eax, %edi\n  mov $3, %eax\n  syscall\n"
+    <<"  xor %edi, %edi\n  jmp .Lpidfd_getfd_done\n"
+    <<".Lpidfd_getfd_fail:\n  mov $1, %edi\n.Lpidfd_getfd_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
 void emit_getrandom_query(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $318, %eax\n  lea getrandom_buffer(%rip), %rdi\n  mov $16, %esi\n  xor %edx, %edx\n  syscall\n"
@@ -5040,6 +5052,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_vmsplice_query_mode) { csubset::emit_vmsplice_query(program); return 0; }
     if(csubset::emit_pidfd_open_query_mode) { csubset::emit_pidfd_open_query(program); return 0; }
     if(csubset::emit_pidfd_send_signal_query_mode) { csubset::emit_pidfd_send_signal_query(program); return 0; }
+    if(csubset::emit_pidfd_getfd_query_mode) { csubset::emit_pidfd_getfd_query(program); return 0; }
     if(csubset::emit_epoll_wait_mode) { csubset::emit_epoll_wait(program); return 0; }
     if(csubset::emit_futex_wait_mode) { csubset::emit_futex_wait(program); return 0; }
     if(csubset::emit_timerfd_gettime_mode) { csubset::emit_timerfd_gettime(program); return 0; }
