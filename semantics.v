@@ -262,6 +262,14 @@ Inductive cmstmt_step : cmemory -> cmconfig -> cmconfig -> Prop :=
       (CMIf e (CMSeq st (CMWhile e st)) CMSkip, σ)
 | CMSCall : forall M σ body,
     cmstmt_step M (CMCall body, σ) (body, σ)
+| CMSSwitchCase : forall M σ e cases default n body,
+    cexpr_big M σ e (CVInt n) ->
+    ccase_selected n cases body ->
+    cmstmt_step M (CMSwitch e cases default, σ) (body, σ)
+| CMSSwitchDefault : forall M σ e cases default n,
+    cexpr_big M σ e (CVInt n) ->
+    (forall body, ~ ccase_selected n cases body) ->
+    cmstmt_step M (CMSwitch e cases default, σ) (default, σ)
 | CMSReturnValue : forall M σ v,
     cmstmt_step M (CMReturn (CXVal v), σ) (CMSkip, σ).
 
