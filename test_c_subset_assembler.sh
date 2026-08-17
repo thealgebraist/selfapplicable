@@ -384,6 +384,7 @@ expect_status fixtures/sendmsg_query.c 1
 expect_status fixtures/pkey_alloc_query.c 0
 expect_status fixtures/pkey_free_query.c 1
 expect_status fixtures/pkey_mprotect_query.c 0
+expect_status fixtures/quotactl_fd_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
