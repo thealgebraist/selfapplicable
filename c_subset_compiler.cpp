@@ -182,6 +182,7 @@ bool emit_getpgrp_query_mode = false;
 bool emit_fanotify_mark_query_mode = false;
 bool emit_unshare_query_mode = false;
 bool emit_setresuid_query_mode = false;
+bool emit_setresgid_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1939,6 +1940,7 @@ Program parse_main(std::string const& s) {
   emit_fanotify_mark_query_mode=std::regex_search(body,std::regex(R"re(\bfanotify_mark_query\s*\(\s*\)\s*;)re"));
   emit_unshare_query_mode=std::regex_search(body,std::regex(R"re(\bunshare_query\s*\(\s*\)\s*;)re"));
   emit_setresuid_query_mode=std::regex_search(body,std::regex(R"re(\bsetresuid_query\s*\(\s*\)\s*;)re"));
+  emit_setresgid_query_mode=std::regex_search(body,std::regex(R"re(\bsetresgid_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -3367,6 +3369,15 @@ void emit_setresuid_query(Program const&) {
     <<".Lsetresuid_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_setresgid_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $119, %eax\n  mov $-1, %edi\n  mov $-1, %esi\n  mov $-1, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lsetresgid_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lsetresgid_done\n"
+    <<".Lsetresgid_fail:\n  mov $1, %edi\n"
+    <<".Lsetresgid_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -3800,6 +3811,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_fanotify_mark_query_mode) { csubset::emit_fanotify_mark_query(program); return 0; }
     if(csubset::emit_unshare_query_mode) { csubset::emit_unshare_query(program); return 0; }
     if(csubset::emit_setresuid_query_mode) { csubset::emit_setresuid_query(program); return 0; }
+    if(csubset::emit_setresgid_query_mode) { csubset::emit_setresgid_query(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
