@@ -518,6 +518,7 @@ expect_status fixtures/eventfd2_query.c 0
 expect_status fixtures/dup3_query.c 1
 expect_status fixtures/timerfd_create_query.c 0
 expect_status fixtures/signalfd_query.c 1
+expect_status fixtures/mmap_query.c 1
 expect_status fixtures/fstatat_query.c 1
 expect_status fixtures/mknodat_query.c 1
 expect_status fixtures/utimensat_query.c 1
