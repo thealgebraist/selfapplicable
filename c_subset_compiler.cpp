@@ -965,6 +965,13 @@ Program parse_main(std::string const& s) {
     if(std::stoi(w[3])!=(int)first.size() || std::stoi(w[5])!=(int)second.size() || std::stoi(w[7])!=(int)third.size()) throw std::runtime_error("loop write length mismatch");
     p.loop_count=std::stoi(w[1]); p.loop_present=true; p.loop_output=first+second+third; p.output.clear();
   }
+  static const std::regex braced_while_four_writes(
+    R"re(int\s+i\s*=\s*0\s*;\s*while\s*\(\s*i\s*<\s*([0-9]+)\s*\)\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
+  if(p.loop_count==0 && std::regex_search(body,w,braced_while_four_writes)) {
+    auto a=decode_write(w[2].str()), b=decode_write(w[4].str()), c=decode_write(w[6].str()), d=decode_write(w[8].str());
+    if(std::stoi(w[3])!=(int)a.size() || std::stoi(w[5])!=(int)b.size() || std::stoi(w[7])!=(int)c.size() || std::stoi(w[9])!=(int)d.size()) throw std::runtime_error("loop write length mismatch");
+    p.loop_count=std::stoi(w[1]); p.loop_present=true; p.loop_output=a+b+c+d; p.output.clear();
+  }
   static const std::regex braced_while_inclusive_two_writes(
     R"re(int\s+i\s*=\s*0\s*;\s*while\s*\(\s*i\s*<=\s*([0-9]+)\s*\)\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
   if(p.loop_count==0 && std::regex_search(body,w,braced_while_inclusive_two_writes)) {
