@@ -193,7 +193,7 @@ Proof.
   induction Hstep; intros result Hbig.
   - inversion Hbig; subst. constructor.
   - inversion Hbig; subst.
-    apply (CXBLoad M σ p a v).
+    apply (CXBLoad M σ p a result).
     + apply IHHstep. exact H0.
     + exact H3.
   - inversion Hbig; subst.
