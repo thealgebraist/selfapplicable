@@ -589,6 +589,7 @@ expect_status fixtures/io_pgetevents_query.c 1
 expect_status fixtures/kexec_load_query.c 1
 expect_status fixtures/kexec_file_load_query.c 1
 expect_status fixtures/syslog_query.c 1
+expect_status fixtures/sysctl_query.c 1
 expect_status fixtures/setrlimit_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
