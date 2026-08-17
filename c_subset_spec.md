@@ -102,6 +102,7 @@ Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
 `loop_write_quote.c` verifies escaped quotes in counted-loop payloads.
+`loop_write_apostrophe.c` verifies escaped apostrophes in the same path.
 `loop_write_adjacent.c` verifies adjacent string fragments inside a counted
 loop.
 `loop_write_adjacent_three.c` extends that coverage to three fragments.
