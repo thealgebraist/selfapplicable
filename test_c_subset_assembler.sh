@@ -143,6 +143,7 @@ expect_output fixtures/loop_write_escape.c "x	x	"
 expect_output fixtures/loop_write_hex.c "AA"
 expect_output fixtures/loop_write_quote.c 'A"BA"B'
 expect_output fixtures/loop_write_apostrophe.c "A'BA'B"
+expect_output fixtures/loop_write_question.c "A?BA?B"
 expect_output fixtures/loop_write_adjacent.c "ABAB"
 expect_output fixtures/loop_write_adjacent_three.c "ABCABC"
 expect_output fixtures/loop_write_adjacent_four.c "ABCDABCD"
