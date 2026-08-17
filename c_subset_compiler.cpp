@@ -139,6 +139,7 @@ bool emit_migrate_pages_query_mode = false;
 bool emit_move_pages_query_mode = false;
 bool emit_mbind_query_mode = false;
 bool emit_set_mempolicy_query_mode = false;
+bool emit_set_tid_address_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1853,6 +1854,7 @@ Program parse_main(std::string const& s) {
   emit_move_pages_query_mode=std::regex_search(body,std::regex(R"re(\bmove_pages_query\s*\(\s*\)\s*;)re"));
   emit_mbind_query_mode=std::regex_search(body,std::regex(R"re(\bmbind_query\s*\(\s*\)\s*;)re"));
   emit_set_mempolicy_query_mode=std::regex_search(body,std::regex(R"re(\bset_mempolicy_query\s*\(\s*\)\s*;)re"));
+  emit_set_tid_address_query_mode=std::regex_search(body,std::regex(R"re(\bset_tid_address_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -2894,6 +2896,15 @@ void emit_set_mempolicy_query(Program const&) {
     <<".Lset_mempolicy_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_set_tid_address_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $218, %eax\n  xor %edi, %edi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Ltid_address_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Ltid_address_done\n"
+    <<".Ltid_address_fail:\n  mov $1, %edi\n"
+    <<".Ltid_address_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -3284,6 +3295,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_move_pages_query_mode) { csubset::emit_move_pages_query(program); return 0; }
     if(csubset::emit_mbind_query_mode) { csubset::emit_mbind_query(program); return 0; }
     if(csubset::emit_set_mempolicy_query_mode) { csubset::emit_set_mempolicy_query(program); return 0; }
+    if(csubset::emit_set_tid_address_query_mode) { csubset::emit_set_tid_address_query(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }

@@ -362,6 +362,7 @@ expect_status fixtures/migrate_pages_query.c 1
 expect_status fixtures/move_pages_query.c 0
 expect_status fixtures/mbind_query.c 0
 expect_status fixtures/set_mempolicy_query.c 0
+expect_status fixtures/set_tid_address_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
