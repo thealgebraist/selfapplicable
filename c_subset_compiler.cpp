@@ -850,6 +850,16 @@ Program parse_main(std::string const& s) {
     while((nl=value.find("\\b"))!=std::string::npos) value.replace(nl,2,"\b");
     while((nl=value.find("\\f"))!=std::string::npos) value.replace(nl,2,"\f");
     while((nl=value.find("\\v"))!=std::string::npos) value.replace(nl,2,"\v");
+    for(std::size_t pos=0; (pos=value.find("\\x",pos))!=std::string::npos;) {
+      std::size_t count=0;
+      while(pos+2+count<value.size() && count<2 &&
+            ((value[pos+2+count]>='0' && value[pos+2+count]<='9') ||
+             (value[pos+2+count]>='a' && value[pos+2+count]<='f') ||
+             (value[pos+2+count]>='A' && value[pos+2+count]<='F'))) ++count;
+      if(count==0) throw std::runtime_error("hex string escape requires digits");
+      auto hex=std::stoi(value.substr(pos+2,count),nullptr,16);
+      value.replace(pos,2+count,std::string(1,static_cast<char>(hex)));
+    }
     for(std::size_t pos=0; (pos=value.find('\\',pos))!=std::string::npos;) {
       if(pos+3<value.size() && value[pos+1]>='0' && value[pos+1]<='7' &&
          value[pos+2]>='0' && value[pos+2]<='7' && value[pos+3]>='0' && value[pos+3]<='7') {
