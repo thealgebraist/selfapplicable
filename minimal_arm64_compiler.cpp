@@ -19,6 +19,11 @@ struct Term {
   Node node;
 };
 
+// Staged syntax is data.  The compiler deliberately crosses this boundary
+// before lowering, so the same normalizer can normalize source programs and
+// future quoted compiler passes.
+struct Code { Term *syntax; };
+
 struct Parser {
   std::string input;
   std::size_t pos = 0;
@@ -73,6 +78,17 @@ Term *normalize(const Term *term) {
   return normalize(std::get<Bool>(condition->node).value ? i.then_branch : i.else_branch);
 }
 
+Code quote(Term *term) { return Code{term}; }
+Term *unquote(const Code &code) { return code.syntax; }
+Code normalize_code(const Code &code) { return quote(normalize(unquote(code))); }
+
+// Self-application is staged: quote the input, normalize the quoted code, and
+// unquote only the resulting code value.  This is the executable analogue of
+// stage_normalise0 in minimal_total_lang.v.
+Term *self_apply_normalizer(Term *term) {
+  return unquote(normalize_code(quote(term)));
+}
+
 std::uint64_t result(const Term *term) {
   if (const auto *n = std::get_if<Nat>(&term->node)) return n->value;
   return std::get<Bool>(term->node).value ? 1 : 0;
@@ -96,9 +112,13 @@ void emit(std::ostream &out, std::uint64_t value) {
 int main(int argc, char **argv) {
   try {
     std::ostringstream source;
-    if (argc == 2) { std::ifstream file(argv[1]); if (!file) throw std::runtime_error("cannot open input"); source << file.rdbuf(); }
+    const bool direct = argc == 3 && std::string(argv[1]) == "--direct";
+    const char *path = direct ? argv[2] : (argc == 2 ? argv[1] : nullptr);
+    if (path) { std::ifstream file(path); if (!file) throw std::runtime_error("cannot open input"); source << file.rdbuf(); }
     else { std::string line; while (std::getline(std::cin, line)) source << line << '\n'; }
-    mini::Parser parser(source.str()); const auto *normalized = mini::normalize(parser.parse());
+    mini::Parser parser(source.str());
+    auto *source_term = parser.parse();
+    const auto *normalized = direct ? mini::normalize(source_term) : mini::self_apply_normalizer(source_term);
     mini::emit(std::cout, mini::result(normalized));
     return 0;
   } catch (const std::exception &error) { std::cerr << "minimal-arm64: " << error.what() << "\n"; return 2; }

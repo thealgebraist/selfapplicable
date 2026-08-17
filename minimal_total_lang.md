@@ -52,6 +52,13 @@ in `x0` and exits through syscall 93. `test_minimal_arm64.sh` checks the emitted
 instruction contract and assembles the result with `aarch64-linux-gnu-as` when
 that cross-toolchain is installed.
 
+The lowering path is staged: it quotes the parsed term as `Code`, applies the
+normalizer to that code value, and unquotes only the normalized result. Thus
+the compiler uses the same explicit code boundary as the formal kernel rather
+than having a separate ad-hoc constant-folding phase. A future compiler pass
+can be represented by the same `Code` interface and subjected to the same
+normalization step.
+
 ```sh
 printf '%s\n' '(add (nat 2) (if true (nat 3) (nat 4)))' \
   | ./minimal_arm64_compiler-ci
