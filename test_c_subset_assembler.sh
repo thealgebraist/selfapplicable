@@ -404,6 +404,7 @@ expect_status fixtures/getsid_query.c 1
 expect_status fixtures/getpgrp_query.c 0
 expect_status fixtures/fanotify_mark_query.c 1
 expect_status fixtures/unshare_query.c 0
+expect_status fixtures/setresuid_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
