@@ -214,6 +214,8 @@ A restricted post-test loop is supported as `do { write(...); i++; } while
 the mandatory first iteration; `do_write.c` covers this form.
 The post-test bound may be inclusive (`i <= N`), covered by
 `do_write_inclusive.c`.
+`do_write_inclusive_zero.c` confirms that an inclusive zero bound still
+executes the mandatory first iteration exactly once.
 Inclusive post-test loops also accept adjacent binary fragments, covered by
 `do_write_inclusive_adjacent_binary.c`.
 Three adjacent fragments in an inclusive post-test body are covered by
