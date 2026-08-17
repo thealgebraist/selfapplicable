@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path; unsigned long long size_bytes=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -1495,6 +1495,8 @@ Program parse_main(std::string const& s) {
   std::smatch d; if(std::regex_search(body,d,dir)) { p.listdir=true; p.directory=d[1].str(); }
   static const std::regex filtered_dir(R"re(finddir\s*\(\s*"([^"]*)"\s*,\s*"([^"]*)"\s*\)\s*;)re");
   if(std::regex_search(body,d,filtered_dir)) { p.listdir=true; p.directory=d[1].str(); p.filter=d[2].str(); }
+  static const std::regex cat_file(R"re(cat\s*\(\s*"([^"]*)"\s*\)\s*;)re");
+  if(std::regex_search(body,d,cat_file)) { p.cat=true; p.cat_path=d[1].str(); }
   static const std::regex exists(R"re(if\s*\(\s*exists\s*\(\s*"([^"]*)"\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
   if(std::regex_search(body,d,exists)) { p.exists=true; p.exists_path=d[1].str(); p.then_status=std::stoi(d[2]); p.else_status=std::stoi(d[3]); }
   static const std::regex isdir(R"re(if\s*\(\s*isdir\s*\(\s*"([^"]*)"\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -1582,6 +1584,11 @@ void emit_exists(Program const& p) {
            <<"  mov $332, %eax\n  mov $-100, %edi\n  lea exists_path(%rip), %rsi\n  xor %edx, %edx\n  mov $2047, %r10d\n  lea exists_buf(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lexists_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lexists_done\n.Lexists_no:\n  mov $"<<p.else_status<<", %edi\n.Lexists_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nexists_path:\n  .asciz \""<<p.exists_path<<"\"\n.bss\n.align 8\nexists_buf:\n  .skip 256\n";
 }
 
+void emit_cat(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $257, %eax\n  mov $-100, %edi\n  lea cat_path(%rip), %rsi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n  test %eax, %eax\n  js .Lcat_done\n  mov %eax, %r12d\n.Lcat_read:\n  mov $0, %eax\n  mov %r12d, %edi\n  lea cat_buf(%rip), %rsi\n  mov $8192, %edx\n  syscall\n  test %eax, %eax\n  jle .Lcat_close\n  mov %eax, %r13d\n  mov $1, %eax\n  mov $1, %edi\n  lea cat_buf(%rip), %rsi\n  mov %r13d, %edx\n  syscall\n  jmp .Lcat_read\n.Lcat_close:\n  mov $3, %eax\n  mov %r12d, %edi\n  syscall\n.Lcat_done:\n  xor %edi, %edi\n  mov $60, %eax\n  syscall\n.section .rodata\ncat_path:\n  .asciz \""<<p.cat_path<<"\"\n.bss\n.align 8\ncat_buf:\n  .skip 8192\n";
+}
+
 void emit_isdir(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
            <<"  mov $332, %eax\n  mov $-100, %edi\n  lea isdir_path(%rip), %rsi\n  xor %edx, %edx\n  mov $2047, %r10d\n  lea isdir_buf(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lisdir_no\n  movzwl 28(%r8), %eax\n  and $61440, %eax\n  cmp $16384, %eax\n  jne .Lisdir_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lisdir_done\n.Lisdir_no:\n  mov $"<<p.else_status<<", %edi\n.Lisdir_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nisdir_path:\n  .asciz \""<<p.directory_path<<"\"\n.bss\n.align 8\nisdir_buf:\n  .skip 256\n";
@@ -1607,6 +1614,7 @@ int main(int argc,char **argv) {
     if(program.is_directory) { csubset::emit_isdir(program); return 0; }
     if(program.is_regular) { csubset::emit_isreg(program); return 0; }
     if(program.size_gt) { csubset::emit_sizegt(program); return 0; }
+    if(program.cat) { csubset::emit_cat(program); return 0; }
     if(program.filter.size()) { csubset::emit_filtered_directory(program); return 0; }
     std::cout<<".text\n.globl _start\n_start:\n";
     if(!program.output.empty()) std::cout

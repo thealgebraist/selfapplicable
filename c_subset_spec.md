@@ -423,6 +423,13 @@ This lowers to `openat`, `getdents64`, Linux `dirent64` record-length/name
 decoding, and one `write` per entry. It is the backend boundary used by the
 reduced `ls` fixture; recursive `find` traversal is not yet implemented.
 
+The `cat` primitive copies a named file to standard output using only
+`openat`, `read`, `write`, and `close` syscalls:
+
+```c
+cat("fixtures/cat_payload.txt");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
