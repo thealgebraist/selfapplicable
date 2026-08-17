@@ -217,6 +217,7 @@ expect_status fixtures/getppid_live.c 0
 expect_status fixtures/setpriority_self.c 0
 expect_status fixtures/isroot_nonroot.c 1
 expect_status fixtures/gettid_live.c 0
+expect_status fixtures/isgroup0_nonroot.c 1
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
