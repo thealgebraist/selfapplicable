@@ -537,6 +537,27 @@ Proof.
       * now apply cstore_update_preserves_type.
 Qed.
 
+Lemma typed_assignment_semantic_agreement : forall M Γ σ a e v,
+  cmconfig_typed Γ (CMAssign a e, σ) ->
+  cexpr_big M σ e v ->
+  cval_typed v (Γ a) ->
+  cmstmt_big M σ (CMAssign a e) None (cstore_update σ a v) /\
+  cmstmt_step_star M (CMAssign a e, σ)
+    (CMSkip, cstore_update σ a v) /\
+  cmconfig_typed Γ (CMSkip, cstore_update σ a v).
+Proof.
+  intros M Γ σ a e v Hconfig He Hv.
+  pose proof (typed_assignment_config_big M Γ σ a e v Hconfig He Hv)
+    as [Hbig Htyped].
+  pose proof (typed_assignment_config_step_star M Γ σ a e v Hconfig He Hv)
+    as [Hstar Htyped']. 
+  split.
+  - exact Hbig.
+  - split.
+    + exact Hstar.
+    + exact Htyped.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
