@@ -190,6 +190,7 @@ bool emit_munlock_query_mode = false;
 bool emit_madvise_query_mode = false;
 bool emit_mprotect_query_mode = false;
 bool emit_mremap_query_mode = false;
+bool emit_mincore_query_mode = false;
 bool emit_clone3_query_mode = false;
 bool emit_userfaultfd_query_mode = false;
 bool emit_kcmp_query_mode = false;
@@ -2070,6 +2071,7 @@ Program parse_main(std::string const& s) {
   emit_madvise_query_mode=std::regex_search(body,std::regex(R"re(\bmadvise_query\s*\(\s*\)\s*;)re"));
   emit_mprotect_query_mode=std::regex_search(body,std::regex(R"re(\bmprotect_query\s*\(\s*\)\s*;)re"));
   emit_mremap_query_mode=std::regex_search(body,std::regex(R"re(\bmremap_query\s*\(\s*\)\s*;)re"));
+  emit_mincore_query_mode=std::regex_search(body,std::regex(R"re(\bmincore_query\s*\(\s*\)\s*;)re"));
   emit_clone3_query_mode=std::regex_search(body,std::regex(R"re(\bclone3_query\s*\(\s*\)\s*;)re"));
   emit_userfaultfd_query_mode=std::regex_search(body,std::regex(R"re(\buserfaultfd_query\s*\(\s*\)\s*;)re"));
   emit_kcmp_query_mode=std::regex_search(body,std::regex(R"re(\bkcmp_query\s*\(\s*\)\s*;)re"));
@@ -4697,6 +4699,15 @@ void emit_mremap_query(Program const&) {
     <<"  mov $60, %eax\n  syscall\n";
 }
 
+void emit_mincore_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $27, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lmincore_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lmincore_done\n"
+    <<".Lmincore_fail:\n  mov $1, %edi\n.Lmincore_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -5152,6 +5163,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_madvise_query_mode) { csubset::emit_madvise_query(program); return 0; }
     if(csubset::emit_mprotect_query_mode) { csubset::emit_mprotect_query(program); return 0; }
     if(csubset::emit_mremap_query_mode) { csubset::emit_mremap_query(program); return 0; }
+    if(csubset::emit_mincore_query_mode) { csubset::emit_mincore_query(program); return 0; }
     if(csubset::emit_process_vm_writev_query_mode) { csubset::emit_process_vm_writev_query(program); return 0; }
     if(csubset::emit_clone3_query_mode) { csubset::emit_clone3_query(program); return 0; }
     if(csubset::emit_userfaultfd_query_mode) { csubset::emit_userfaultfd_query(program); return 0; }

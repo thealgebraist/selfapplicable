@@ -412,6 +412,7 @@ expect_status fixtures/munlock_query.c 0
 expect_status fixtures/madvise_query.c 0
 expect_status fixtures/mprotect_query.c 0
 expect_status fixtures/mremap_query.c 1
+expect_status fixtures/mincore_query.c 0
 expect_status fixtures/process_vm_writev_query.c 0
 expect_status fixtures/clone3_query.c 1
 expect_status fixtures/userfaultfd_query.c 1
