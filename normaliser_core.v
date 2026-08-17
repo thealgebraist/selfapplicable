@@ -374,6 +374,41 @@ Fixpoint nctx_compose (C D : nctx) : nctx :=
   | NCUnquote C' => NCUnquote (nctx_compose C' D)
   end.
 
+Inductive nctx_flat : nctx -> Prop :=
+| NCFHole : nctx_flat NCHole
+| NCFAppLeft : forall C a, nctx_flat C -> nctx_flat (NCAppLeft C a)
+| NCFAppRight : forall f C, nctx_flat C -> nctx_flat (NCAppRight f C)
+| NCFQuote : forall C, nctx_flat C -> nctx_flat (NCQuote C)
+| NCFUnquote : forall C, nctx_flat C -> nctx_flat (NCUnquote C).
+
+Fixpoint nctx_subst_flat (depth : nat) (s : nterm) (C : nctx) : nctx :=
+  match C with
+  | NCHole => NCHole
+  | NCAppLeft C' a => NCAppLeft (nctx_subst_flat depth s C') (nsubst depth s a)
+  | NCAppRight f C' => NCAppRight (nsubst depth s f) (nctx_subst_flat depth s C')
+  | NCLam C' => NCLam (nctx_subst_flat (S depth) s C')
+  | NCQuote C' => NCQuote (nctx_subst_flat depth s C')
+  | NCUnquote C' => NCUnquote (nctx_subst_flat depth s C')
+  end.
+
+Lemma nsubst_flat_plug : forall depth s C t,
+  nctx_flat C ->
+  nsubst depth s (nplug C t) =
+  nplug (nctx_subst_flat depth s C) (nsubst depth s t).
+Proof.
+  intros depth s C t Hflat.
+  induction Hflat; simpl.
+  - reflexivity.
+  - rewrite IHHflat.
+    reflexivity.
+  - rewrite IHHflat.
+    reflexivity.
+  - rewrite IHHflat.
+    reflexivity.
+  - rewrite IHHflat.
+    reflexivity.
+Qed.
+
 Lemma nplug_compose : forall C D t,
   nplug C (nplug D t) = nplug (nctx_compose C D) t.
 Proof.
