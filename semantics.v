@@ -645,6 +645,32 @@ Proof.
     + exact Htyped.
 Qed.
 
+Lemma typed_while_zero_unfold : forall M Γ σ e st,
+  cmstmt_typed Γ (CMWhile e st) CVoid ->
+  cexpr_big M σ e (CVInt 0) ->
+  cstore_typed Γ σ ->
+  cmstmt_step M (CMWhile e st, σ)
+    (CMIf e (CMSeq st (CMWhile e st)) CMSkip, σ) /\
+  cmconfig_typed Γ
+    (CMIf e (CMSeq st (CMWhile e st)) CMSkip, σ).
+Proof.
+  intros M Γ σ e st Hwhile He Hσ.
+  inversion Hwhile; subst.
+  split.
+  - now apply CMSWhile.
+  - exists (CMIf e (CMSeq st (CMWhile e st)) CMSkip), σ, CVoid.
+    split.
+    + reflexivity.
+    + split.
+      * constructor.
+        -- exact H0.
+        -- constructor.
+           ++ exact H1.
+           ++ constructor.
+        -- constructor.
+      * exact Hσ.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
