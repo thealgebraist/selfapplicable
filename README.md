@@ -25,3 +25,11 @@ dependent codomain instantiation. Quoted syntax is inert, and the staged entry
 point executes a quoted normalizer only through the explicit `unquote_code`
 boundary. The executable also checks eta-long reification of an open neutral
 function.
+
+Semantic sources and checks
+
+`semantics.v` contains the Coq relations for the dependent core and the
+small C expression bridge. `semantics.ott` is the corresponding Ott source.
+Run `./check_semantics.sh` when `coqc` and/or `ott` are installed; each
+available checker is run independently and unavailable tools are reported as
+skipped.
