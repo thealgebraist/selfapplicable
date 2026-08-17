@@ -224,6 +224,8 @@ Five adjacent fragments in an inclusive post-test body are covered by
 `do_write_inclusive_five.c`.
 Inclusive post-test bodies may contain two independently checked writes,
 covered by `do_write_inclusive_two_body_writes.c`.
+Three independently checked writes in an inclusive post-test body are covered
+by `do_write_inclusive_three_body_writes.c`.
 `do_write_zero.c` verifies that the first iteration remains present even with
 a zero bound.
 Adjacent binary fragments are supported in the post-test body by
