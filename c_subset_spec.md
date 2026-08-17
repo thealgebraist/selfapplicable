@@ -179,6 +179,7 @@ numeric values.
 The source enum-switch path invokes this same validator before lowering.
 The semantic core also has a distinct `char` type with one-byte layout; it is
 not definitionally equal to `int`, and `allocate(char)` yields `char *`.
+The source frontend lowers `sizeof(char)` to 1.
 Constant bitwise and shift return expressions are lowered to their computed
 integer exit statuses; `bitwise_return.c` and `shift_return.c` cover these
 assembler paths.

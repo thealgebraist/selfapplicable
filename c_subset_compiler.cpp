@@ -711,6 +711,7 @@ Program parse_main(std::string const& s) {
       // by the freestanding ABI stub until the typed constant layer is added.
       static const std::regex pointer_sizeof_return(R"(return\s+sizeof\s*\(\s*int\s*\*\s*\)\s*;)");
       static const std::regex int_sizeof_return(R"(return\s+sizeof\s*\(\s*int\s*\)\s*;)");
+      static const std::regex char_sizeof_return(R"(return\s+sizeof\s*\(\s*char\s*\)\s*;)");
       static const std::regex enum_sizeof_return(R"(return\s+sizeof\s*\(\s*enum\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*;)");
       static const std::regex bitwise_return(R"(return\s+([0-9]+)\s*([&|^%/]|<<|>>)\s*([0-9]+)\s*;)");
       static const std::regex comparison_return(R"(return\s+([0-9]+)\s*(==|!=|<=|>=|<|>)\s*([0-9]+)\s*;)");
@@ -731,6 +732,8 @@ Program parse_main(std::string const& s) {
         p.else_status=8;
       } else if(std::regex_search(body,array_match,int_sizeof_return)) {
         p.else_status=4;
+      } else if(std::regex_search(body,array_match,char_sizeof_return)) {
+        p.else_status=1;
       } else if(std::regex_search(body,array_match,enum_sizeof_return)) {
         std::regex declaration("enum\\s+"+array_match[1].str()+"\\s*\\{");
         if(!std::regex_search(s,declaration)) throw std::runtime_error("sizeof undeclared enum");
