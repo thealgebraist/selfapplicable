@@ -102,6 +102,7 @@ Adjacent string literals in one `write` argument are likewise concatenated
 after decoding and length validation; `write_adjacent.c` and
 `write_adjacent_three.c`, `write_adjacent_four.c`, and
 `write_adjacent_five.c` cover two- through five-fragment forms.
+`write_adjacent_nul.c` verifies NUL preservation across adjacent fragments.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
