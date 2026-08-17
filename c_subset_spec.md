@@ -118,6 +118,8 @@ fragments.
 `write_adjacent_mixed_form_hex.c` combines form-feed and hexadecimal fragments.
 `write_adjacent_mixed_vertical_hex.c` combines vertical-tab and hexadecimal
 fragments.
+`write_adjacent_mixed_apostrophe_hex.c` combines apostrophe and hexadecimal
+fragments.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
