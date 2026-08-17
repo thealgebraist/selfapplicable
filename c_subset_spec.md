@@ -218,6 +218,8 @@ The unbraced form also accepts inclusive bounds, covered by
 `do_write_unbraced_inclusive.c`.
 The unbraced form accepts adjacent binary fragments as covered by
 `do_write_unbraced_adjacent_binary.c`.
+Three adjacent fragments in the strict unbraced form are covered by
+`do_write_unbraced_three_adjacent_binary.c`.
 Inclusive bounds compose with this unbraced adjacent form, covered by
 `do_write_unbraced_inclusive_adjacent_binary.c`.
 Three adjacent fragments are also accepted in the unbraced inclusive form,
