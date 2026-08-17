@@ -423,6 +423,7 @@ expect_status fixtures/setsid_query.c 0
 expect_status fixtures/umask_query.c 0
 expect_status fixtures/getcwd_query.c 0
 expect_status fixtures/chdir_query.c 0
+expect_status fixtures/fchdir_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
