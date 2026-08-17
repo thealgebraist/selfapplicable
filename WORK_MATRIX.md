@@ -29,7 +29,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Binder-sensitive substitution equations | [x] | CI run `32042163802` proves lambda-bound and lambda-outer substitution equations |
 | Core language | Structural substitution equations | [x] | CI run `32042396965` proves application, quote, and unquote substitution lemmas |
 | Core language | Beta witnesses in multi-step closure | [x] | CI run `32042515552` proves `beta_identity_star` and `beta_outer_variable_star` |
-| Core language | Combined application closure compatibility | [ ] | Added `nred_star_app_both`; await CI confirmation |
+| Core language | Combined application closure compatibility | [x] | CI run `32042623643` proves `nred_star_app_both` |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
