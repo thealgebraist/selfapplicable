@@ -384,6 +384,7 @@ expect_status fixtures/statfs_query.c 0
 expect_status fixtures/fstatfs_query.c 0
 expect_status fixtures/pselect6_query.c 0
 expect_status fixtures/ppoll_query.c 0
+expect_status fixtures/select_query.c 0
 expect_status fixtures/process_vm_writev_query.c 0
 expect_status fixtures/clone3_query.c 1
 expect_status fixtures/userfaultfd_query.c 1
