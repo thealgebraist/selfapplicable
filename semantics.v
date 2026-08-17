@@ -207,6 +207,9 @@ Inductive cmstmt_typed : ctype_ctx -> cmstmt -> cty -> Prop :=
     cexpr_typed_in Γ e CInt ->
     cmstmt_typed Γ body CVoid ->
     cmstmt_typed Γ (CMWhile e body) CVoid
+| CMSTCall : forall Γ body τ,
+    cmstmt_typed Γ body τ ->
+    cmstmt_typed Γ (CMCall body) τ
 | CMSTReturn : forall Γ e τ,
     cexpr_typed_in Γ e τ ->
     cmstmt_typed Γ (CMReturn e) τ.
