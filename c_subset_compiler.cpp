@@ -98,6 +98,7 @@ bool emit_eventfd_write_mode = false;
 bool emit_memfd_secret_query_mode = false;
 bool emit_rseq_query_mode = false;
 bool emit_futex_waitv_query_mode = false;
+bool emit_futex_query_mode = false;
 bool emit_futex_wake_query_mode = false;
 bool emit_process_mrelease_query_mode = false;
 bool emit_cachestat_query_mode = false;
@@ -2042,6 +2043,7 @@ Program parse_main(std::string const& s) {
   emit_memfd_secret_query_mode=std::regex_search(body,std::regex(R"re(\bmemfd_secret_query\s*\(\s*\)\s*;)re"));
   emit_rseq_query_mode=std::regex_search(body,std::regex(R"re(\brseq_query\s*\(\s*\)\s*;)re"));
   emit_futex_waitv_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_waitv_query\s*\(\s*\)\s*;)re"));
+  emit_futex_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_query\s*\(\s*\)\s*;)re"));
   emit_futex_wake_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_wake_query\s*\(\s*\)\s*;)re"));
   emit_process_mrelease_query_mode=std::regex_search(body,std::regex(R"re(\bprocess_mrelease_query\s*\(\s*\)\s*;)re"));
   emit_cachestat_query_mode=std::regex_search(body,std::regex(R"re(\bcachestat_query\s*\(\s*\)\s*;)re"));
@@ -2982,6 +2984,15 @@ void emit_futex_waitv_query(Program const&) {
     <<"  xor %edi, %edi\n  jmp .Lfutex_waitv_done\n"
     <<".Lfutex_waitv_fail:\n  mov $1, %edi\n"
     <<".Lfutex_waitv_done:\n  mov $60, %eax\n  syscall\n";
+}
+
+void emit_futex_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $202, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  xor %r8d, %r8d\n  xor %r9d, %r9d\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lfutex_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lfutex_done\n"
+    <<".Lfutex_fail:\n  mov $1, %edi\n.Lfutex_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
 }
 
 void emit_futex_wake_query(Program const&) {
@@ -5776,6 +5787,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_memfd_secret_query_mode) { csubset::emit_memfd_secret_query(program); return 0; }
     if(csubset::emit_rseq_query_mode) { csubset::emit_rseq_query(program); return 0; }
     if(csubset::emit_futex_waitv_query_mode) { csubset::emit_futex_waitv_query(program); return 0; }
+    if(csubset::emit_futex_query_mode) { csubset::emit_futex_query(program); return 0; }
     if(csubset::emit_futex_wake_query_mode) { csubset::emit_futex_wake_query(program); return 0; }
     if(csubset::emit_process_mrelease_query_mode) { csubset::emit_process_mrelease_query(program); return 0; }
     if(csubset::emit_cachestat_query_mode) { csubset::emit_cachestat_query(program); return 0; }

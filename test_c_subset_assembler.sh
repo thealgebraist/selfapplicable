@@ -321,6 +321,7 @@ expect_status fixtures/eventfd_write_query.c 0
 expect_status fixtures/memfd_secret_query.c 0
 expect_status fixtures/rseq_query.c 1
 expect_status fixtures/futex_waitv_query.c 1
+expect_status fixtures/futex_query.c 1
 expect_status fixtures/futex_wake_query.c 0
 expect_status fixtures/process_mrelease_query.c 1
 expect_status fixtures/cachestat_query.c 1
