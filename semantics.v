@@ -516,6 +516,27 @@ Proof.
   - exact Htyped.
 Qed.
 
+Lemma typed_assignment_config_big : forall M Γ σ a e v,
+  cmconfig_typed Γ (CMAssign a e, σ) ->
+  cexpr_big M σ e v ->
+  cval_typed v (Γ a) ->
+  cmstmt_big M σ (CMAssign a e) None (cstore_update σ a v) /\
+  cmconfig_typed Γ (CMSkip, cstore_update σ a v).
+Proof.
+  intros M Γ σ a e v Hconfig He Hv.
+  destruct Hconfig as [s [σ' [τ [Heq [Hs Hσ]]]]].
+  simpl in Heq. inversion Heq; subst s σ'.
+  inversion Hs; subst τ.
+  split.
+  - now apply CMBAssign.
+  - exists CMSkip, (cstore_update σ a v), CVoid.
+    split.
+    + reflexivity.
+    + split.
+      * constructor.
+      * now apply cstore_update_preserves_type.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.

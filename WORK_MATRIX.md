@@ -77,6 +77,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Typed assignment configuration step | [x] | CI run `32046091960` proves `cmconfig_typed` and `typed_assignment_config_step` |
 | Semantics | Typed assignment multi-step result | [x] | CI run `32046289014` proves `typed_assignment_config_step_star` |
 | Semantics | Typed terminal skip configuration | [x] | CI run `32046525816` proves `typed_skip_config` |
+| Semantics | Typed assignment big-step result | [ ] | Added `typed_assignment_config_big`; await CI confirmation |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
