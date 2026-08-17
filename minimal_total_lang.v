@@ -5,7 +5,7 @@
     evaluator call structurally total; it is intended as the first kernel from
     which larger C fragments can be encoded and tested.
 *)
-From Coq Require Import Arith.Arith.
+From Coq Require Import Arith.Arith Lists.List.
 Import ListNotations.
 
 Inductive Nat0 : Type :=
