@@ -214,6 +214,8 @@ A restricted post-test loop is supported as `do { write(...); i++; } while
 the mandatory first iteration; `do_write.c` covers this form.
 `do_write_zero.c` verifies that the first iteration remains present even with
 a zero bound.
+Adjacent binary fragments are supported in the post-test body by
+`do_write_adjacent_binary.c`.
 
 A bounded `while` form is also supported when its counter is initialized to
 zero and compared against a literal:
