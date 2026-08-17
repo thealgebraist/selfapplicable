@@ -315,6 +315,7 @@ bool emit_rt_tgsigqueueinfo_query_mode = false;
 bool emit_set_robust_list_query_mode = false;
 bool emit_rt_sigprocmask_query_mode = false;
 bool emit_rt_sigaction_query_mode = false;
+bool emit_rt_sigsuspend_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -2205,6 +2206,7 @@ Program parse_main(std::string const& s) {
   emit_set_robust_list_query_mode=std::regex_search(body,std::regex(R"re(\bset_robust_list_query\s*\(\s*\)\s*;)re"));
   emit_rt_sigprocmask_query_mode=std::regex_search(body,std::regex(R"re(\brt_sigprocmask_query\s*\(\s*\)\s*;)re"));
   emit_rt_sigaction_query_mode=std::regex_search(body,std::regex(R"re(\brt_sigaction_query\s*\(\s*\)\s*;)re"));
+  emit_rt_sigsuspend_query_mode=std::regex_search(body,std::regex(R"re(\brt_sigsuspend_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -4164,6 +4166,15 @@ void emit_rt_sigaction_query(Program const&) {
     <<"  mov $60, %eax\n  syscall\n";
 }
 
+void emit_rt_sigsuspend_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $130, %eax\n  xor %edi, %edi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lrt_sigsuspend_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lrt_sigsuspend_done\n"
+    <<".Lrt_sigsuspend_fail:\n  mov $1, %edi\n.Lrt_sigsuspend_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
 void emit_getrandom_query(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $318, %eax\n  lea getrandom_buffer(%rip), %rdi\n  mov $16, %esi\n  xor %edx, %edx\n  syscall\n"
@@ -5149,6 +5160,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_set_robust_list_query_mode) { csubset::emit_set_robust_list_query(program); return 0; }
     if(csubset::emit_rt_sigprocmask_query_mode) { csubset::emit_rt_sigprocmask_query(program); return 0; }
     if(csubset::emit_rt_sigaction_query_mode) { csubset::emit_rt_sigaction_query(program); return 0; }
+    if(csubset::emit_rt_sigsuspend_query_mode) { csubset::emit_rt_sigsuspend_query(program); return 0; }
     if(csubset::emit_epoll_wait_mode) { csubset::emit_epoll_wait(program); return 0; }
     if(csubset::emit_futex_wait_mode) { csubset::emit_futex_wait(program); return 0; }
     if(csubset::emit_timerfd_gettime_mode) { csubset::emit_timerfd_gettime(program); return 0; }
