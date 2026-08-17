@@ -33,3 +33,13 @@ small C expression bridge. `semantics.ott` is the corresponding Ott source.
 Run `./check_semantics.sh` when `coqc` and/or `ott` are installed; each
 available checker is run independently and unavailable tools are reported as
 skipped.
+
+Create a reproducible source bundle with:
+
+```sh
+./make_release_bundle.sh
+```
+
+The bundle includes `MANIFEST.sha256`; the archive itself gets a companion
+SHA-256 file. Target validation remains assembler-only (`as --64` followed by
+`ld`).

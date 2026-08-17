@@ -46,11 +46,11 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | CLI compatibility | Complete `echo` compatibility | [ ] | Expand quoting/options and shell behavior |
 | Publication | Git repository push | [x] | `origin/main` is updated continuously |
 | Publication | Cloudflared artifact endpoint | [x] | Endpoint checked with HTTP 200 after recent pushes |
-| Publication | Reproducible release artifact bundle | [ ] | Define bundle contents and publish checksum/manifest |
+| Publication | Reproducible release artifact bundle | [x] | `make_release_bundle.sh` creates a source archive, manifest, and archive checksum |
 
 ## Immediate next work
 
 - [ ] Complete the full regression run after the latest loop and switch additions.
 - [ ] Refactor switch and loop lowering into general AST nodes.
 - [ ] Add the Coq and Ott specifications and connect them to generated test traces.
-- [ ] Produce a reproducible artifact bundle with checksums through Cloudflared.
+- [x] Produce a reproducible artifact bundle with checksums through Cloudflared.
