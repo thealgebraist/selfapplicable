@@ -841,6 +841,23 @@ Proof.
   - exact Htyped.
 Qed.
 
+Lemma typed_call_big_step_agreement : forall M Γ σ body τ r σ',
+  cmstmt_typed Γ (CMCall body) τ ->
+  cstore_typed Γ σ ->
+  cmstmt_big M σ body r σ' ->
+  cmconfig_typed Γ (body, σ') ->
+  cmstmt_big M σ (CMCall body) r σ' /\
+  cmstmt_step_star M (CMCall body, σ) (body, σ) /\
+  cmconfig_typed Γ (body, σ').
+Proof.
+  intros M Γ σ body τ r σ' Hcall Hσ Hbody Htyped.
+  pose proof (typed_call_big M Γ σ body τ r σ' Hcall Hbody Htyped)
+    as [Hbig Hfinal].
+  pose proof (typed_call_unfold_star M Γ σ body τ Hcall Hσ)
+    as [Hstar _].
+  repeat split; assumption.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
