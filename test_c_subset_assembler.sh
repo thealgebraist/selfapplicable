@@ -504,6 +504,7 @@ expect_status fixtures/quotactl_query.c 1
 expect_status fixtures/waitid_query.c 1
 expect_status fixtures/wait4_query.c 1
 expect_status fixtures/capget_query.c 1
+expect_status fixtures/umount2_query.c 1
 expect_status fixtures/landlock_add_rule_query.c 1
 expect_status fixtures/landlock_restrict_self_query.c 1
 expect_status fixtures/keyctl_query.c 1
