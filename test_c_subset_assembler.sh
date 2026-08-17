@@ -162,6 +162,7 @@ expect_bytes() {
   actual=$("$tmp/$stem" | od -An -tx1 | tr -d ' \n')
   test "$actual" = "$expected" || { echo "FAIL: $source: byte mismatch" >&2; exit 1; }
 }
+expect_bytes fixtures/loop_write_high_byte.c "ffff"
 expect_bytes fixtures/write_carriage_return.c "410d42"
 expect_bytes fixtures/loop_write_carriage_return.c "410d42410d42"
 expect_bytes fixtures/loop_write_control_escapes.c "07080c0b07080c0b"
