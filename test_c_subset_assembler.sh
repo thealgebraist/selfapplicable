@@ -279,6 +279,7 @@ expect_status fixtures/getxattr_tmp.c 1
 expect_status fixtures/fgetxattr_stdout.c 1
 expect_status fixtures/openat2_tmp.c 0
 expect_status fixtures/close_range_test.c 0
+expect_status fixtures/membarrier_query.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
