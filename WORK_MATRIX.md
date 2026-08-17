@@ -89,7 +89,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Typed switch-case agreement | [x] | CI run `32048651571` proves `typed_switch_case_semantic_agreement` |
 | Semantics | Typed switch-default agreement | [x] | CI run `32049112931` proves `typed_switch_default_semantic_agreement` |
 | Semantics | Typed call unfolding | [x] | CI run `32049283090` proves `typed_call_unfold` |
-| Semantics | Typed call big-step propagation | [ ] | Added `typed_call_big`; await CI confirmation |
+| Semantics | Typed call big-step propagation | [x] | CI run `32049423509` proves `typed_call_big` |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
