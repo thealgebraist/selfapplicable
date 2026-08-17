@@ -249,6 +249,8 @@ Inclusive payload lengths remain checked; malformed metadata is rejected by
 `loop_write_inclusive_bad_length.c`.
 Non-literal or otherwise unbounded `while` conditions are rejected explicitly;
 `while_write_unbounded.c` covers that boundary.
+The same rule applies to `for` bounds; `loop_write_unbounded.c` verifies that
+non-literal bounds are rejected.
 Braced inclusive `for` bodies are covered by
 `loop_write_inclusive_braced.c`.
 This also composes with braced bodies and explicit `i++`, as shown by
