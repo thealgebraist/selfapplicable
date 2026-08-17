@@ -27,6 +27,8 @@ unsigned long long sched_getparam_pid_value = 0;
 bool emit_sched_get_priority_max_mode = false;
 unsigned long long sched_get_priority_policy_value = 0;
 bool emit_sched_get_priority_min_mode = false;
+bool emit_sched_rr_get_interval_mode = false;
+unsigned long long sched_rr_pid_value = 0;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1621,6 +1623,8 @@ Program parse_main(std::string const& s) {
   std::smatch priority_max_match;
   if(std::regex_search(body,priority_max_match,std::regex(R"re(sched_get_priority_max\s*\(\s*([0-9]+)\s*\)\s*;)re"))) { emit_sched_get_priority_max_mode=true; sched_get_priority_policy_value=std::stoull(priority_max_match[1]); }
   emit_sched_get_priority_min_mode=std::regex_search(body,std::regex(R"re(sched_get_priority_min\s*\(\s*([0-9]+)\s*\)\s*;)re"));
+  std::smatch rr_match;
+  if(std::regex_search(body,rr_match,std::regex(R"re(sched_rr_get_interval\s*\(\s*([0-9]+)\s*\)\s*;)re"))) { emit_sched_rr_get_interval_mode=true; sched_rr_pid_value=std::stoull(rr_match[1]); }
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -1956,6 +1960,11 @@ void emit_sched_get_priority_min(Program const&) {
     <<"  mov $147, %eax\n  mov $"<<sched_get_priority_policy_value<<", %edi\n  syscall\n  test %eax, %eax\n  js .Lsched_priority_min_fail\n  xor %edi, %edi\n  jmp .Lsched_priority_min_done\n.Lsched_priority_min_fail:\n  mov $1, %edi\n.Lsched_priority_min_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_sched_rr_get_interval(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $148, %eax\n  mov $"<<sched_rr_pid_value<<", %edi\n  lea sched_rr_timespec(%rip), %rsi\n  syscall\n  test %eax, %eax\n  js .Lsched_rr_fail\n  xor %edi, %edi\n  jmp .Lsched_rr_done\n.Lsched_rr_fail:\n  mov $1, %edi\n.Lsched_rr_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nsched_rr_timespec:\n  .skip 16\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2202,6 +2211,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_sched_getparam_mode) { csubset::emit_sched_getparam(program); return 0; }
     if(csubset::emit_sched_get_priority_max_mode) { csubset::emit_sched_get_priority_max(program); return 0; }
     if(csubset::emit_sched_get_priority_min_mode) { csubset::emit_sched_get_priority_min(program); return 0; }
+    if(csubset::emit_sched_rr_get_interval_mode) { csubset::emit_sched_rr_get_interval(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
