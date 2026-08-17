@@ -153,6 +153,7 @@ bool emit_process_vm_readv_query_mode = false;
 bool emit_process_vm_writev_query_mode = false;
 bool emit_getrandom_query_mode = false;
 bool emit_epoll_pwait2_query_mode = false;
+bool emit_getpid_query_mode = false;
 bool emit_sched_yield_query_mode = false;
 bool emit_nanosleep_query_mode = false;
 bool emit_clock_nanosleep_query_mode = false;
@@ -2091,6 +2092,7 @@ Program parse_main(std::string const& s) {
   emit_process_vm_writev_query_mode=std::regex_search(body,std::regex(R"re(\bprocess_vm_writev_query\s*\(\s*\)\s*;)re"));
   emit_getrandom_query_mode=std::regex_search(body,std::regex(R"re(\bgetrandom_query\s*\(\s*\)\s*;)re"));
   emit_epoll_pwait2_query_mode=std::regex_search(body,std::regex(R"re(\bepoll_pwait2_query\s*\(\s*\)\s*;)re"));
+  emit_getpid_query_mode=std::regex_search(body,std::regex(R"re(\bgetpid_query\s*\(\s*\)\s*;)re"));
   emit_sched_yield_query_mode=std::regex_search(body,std::regex(R"re(\bsched_yield_query\s*\(\s*\)\s*;)re"));
   emit_nanosleep_query_mode=std::regex_search(body,std::regex(R"re(\bnanosleep_query\s*\(\s*\)\s*;)re"));
   emit_clock_nanosleep_query_mode=std::regex_search(body,std::regex(R"re(\bclock_nanosleep_query\s*\(\s*\)\s*;)re"));
@@ -4692,6 +4694,15 @@ void emit_epoll_pwait2_query(Program const&) {
     <<".Lepoll_pwait2_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_getpid_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $39, %eax\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lgetpid_query_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lgetpid_query_done\n"
+    <<".Lgetpid_query_fail:\n  mov $1, %edi\n"
+    <<".Lgetpid_query_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_sched_yield_query(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $24, %eax\n  syscall\n"
@@ -5763,6 +5774,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_process_vm_readv_query_mode) { csubset::emit_process_vm_readv_query(program); return 0; }
     if(csubset::emit_getrandom_query_mode) { csubset::emit_getrandom_query(program); return 0; }
     if(csubset::emit_epoll_pwait2_query_mode) { csubset::emit_epoll_pwait2_query(program); return 0; }
+    if(csubset::emit_getpid_query_mode) { csubset::emit_getpid_query(program); return 0; }
     if(csubset::emit_sched_yield_query_mode) { csubset::emit_sched_yield_query(program); return 0; }
     if(csubset::emit_nanosleep_query_mode) { csubset::emit_nanosleep_query(program); return 0; }
     if(csubset::emit_clock_nanosleep_query_mode) { csubset::emit_clock_nanosleep_query(program); return 0; }
