@@ -409,6 +409,27 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma nctx_flat_compose : forall C D,
+  nctx_flat C -> nctx_flat D ->
+  nctx_flat (nctx_compose C D).
+Proof.
+  intros C D HC HD.
+  induction HC; simpl.
+  - exact HD.
+  - constructor.
+    apply IHHC.
+    exact HD.
+  - constructor.
+    apply IHHC.
+    exact HD.
+  - constructor.
+    apply IHHC.
+    exact HD.
+  - constructor.
+    apply IHHC.
+    exact HD.
+Qed.
+
 Lemma nplug_compose : forall C D t,
   nplug C (nplug D t) = nplug (nctx_compose C D) t.
 Proof.
