@@ -293,6 +293,7 @@ expect_status fixtures/readahead_stdout.c 1
 expect_status fixtures/futex_wake_probe.c 0
 expect_status fixtures/epoll_wait_query.c 0
 expect_status fixtures/futex_wait_probe.c 1
+expect_status fixtures/timerfd_gettime_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
