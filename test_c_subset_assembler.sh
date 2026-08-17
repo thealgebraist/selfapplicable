@@ -248,5 +248,6 @@ expect_reject fixtures/loop_write_bad_octal.c
 expect_reject fixtures/write_adjacent_bad_hex.c
 expect_reject fixtures/write_adjacent_bad_octal.c
 expect_reject fixtures/write_adjacent_bad_escape.c
+expect_reject fixtures/loop_write_adjacent_bad_escape.c
 
 echo "assembler regression: PASS"
