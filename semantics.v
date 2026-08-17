@@ -27,7 +27,7 @@ Inductive eval : env -> term -> value -> Prop :=
 | ELam : forall ρ b, eval ρ (TLam b) (VLam ρ b)
 | EQuote : forall ρ t, eval ρ (TQuote t) (VSyntax t)
 | EAppLam : forall ρ ρ' b a v w,
-    eval ρ (TLam b) (VLam ρ' b) -> eval ρ a v -> eval (v :: ρ') b = w ->
+    eval ρ (TLam b) (VLam ρ' b) -> eval ρ a v -> eval (v :: ρ') b w ->
     eval ρ (TApp (TLam b) a) w
 | EAppNeutral : forall ρ f a vf va,
     eval ρ f (VNeutral vf) -> eval ρ a va ->
