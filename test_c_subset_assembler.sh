@@ -317,6 +317,7 @@ expect_status fixtures/select_empty_query.c 0
 expect_status fixtures/pselect6_empty_query.c 0
 expect_status fixtures/io_uring_register_query.c 0
 expect_status fixtures/eventfd_read_query.c 0
+expect_status fixtures/eventfd_write_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
