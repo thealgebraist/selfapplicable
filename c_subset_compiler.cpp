@@ -742,7 +742,7 @@ Program parse_main(std::string const& s) {
         else if(op=="|") p.else_status=left|right;
         else if(op=="^") p.else_status=left^right;
         else if(op=="<<") p.else_status=left<<right;
-        else if(op=="%") p.else_status=left%right;
+        else if(op=="%") { if(right==0) throw std::runtime_error("modulo by zero"); p.else_status=left%right; }
         else if(op=="/") { if(right==0) throw std::runtime_error("division by zero"); p.else_status=left/right; }
         else p.else_status=left>>right;
       } else if(std::regex_search(body,array_match,comparison_return)) {

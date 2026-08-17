@@ -316,6 +316,7 @@ the current expression checker represents their result as `int`.
 The typed operator vocabulary additionally includes bitwise `&`, `|`, `^`
 and shifts `<<`, `>>`, all requiring integer operands and producing `int`.
 Integer remainder `%` is also typed and constant-lowered.
+Constant modulo by zero is rejected before host evaluation.
 Integer division `/` is typed and constant-lowered; a constant zero divisor
 is rejected before assembly.
 The comparison operators `>`, `<=`, `>=`, and `!=` are also typed and
