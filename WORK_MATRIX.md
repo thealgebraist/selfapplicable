@@ -25,7 +25,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Closure compatibility under lambda binders | [x] | CI run `32040705678` proves `NRLamBody` and `nred_star_lam` |
 | Core language | De Bruijn beta substitution in Coq reduction | [x] | CI run `32040793617` compiles `nshift`, `nsubst0`, and substitution-producing `NRBeta` |
 | Core language | Coq beta substitution sanity lemmas | [x] | CI run `32040998545` proves `nsubst0_var0`, `nsubst0_var_succ`, and `beta_identity` |
-| Core language | Outer-variable beta substitution witness | [ ] | Added `beta_outer_variable` to exercise binder index adjustment; await CI confirmation |
+| Core language | Outer-variable beta substitution witness | [x] | CI run `32041092698` proves `beta_outer_variable` with binder index adjustment |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
