@@ -44,6 +44,16 @@ The bundle includes `MANIFEST.sha256`; the archive itself gets a companion
 SHA-256 file. Target validation remains assembler-only (`as --64` followed by
 `ld`).
 
+Minimal functional scope
+
+The minimal usable deliverable is the dependent NbE core together with the
+assembler-only x86-64 C-subset path. It is exercised by the complete
+`test_c_subset_assembler.sh` fixture suite and the CI workflow. Full formal
+completion still requires replacing the two admitted Coq theorems in
+`semantics.v` and checking generated artifacts from `semantics.ott`; a general
+C parser and complete shell-command compatibility are broader follow-on
+projects.
+
 Verify both layers with:
 
 ```sh

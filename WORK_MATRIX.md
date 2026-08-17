@@ -61,7 +61,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Testing | Per-target timeout in status tests | [x] | `test_c_subset_assembler.sh` |
 | Testing | Timeout coverage for output/reject helpers | [x] | `test_c_subset_assembler.sh` |
 | Testing | Continuous assembler-only CI gate | [x] | GitHub Actions run `32036698013` passed |
-| Testing | Full regression run under current host load | [ ] | Run to completion; prior runs exposed stale failures/hangs |
+| Testing | Full regression run under current host load | [x] | Local `./test_c_subset_assembler.sh` completed with `C subset + dependent NbE: PASS` |
 | Semantics | Coq big-step semantics | [ ] | Formalize and check the current C-subset/NbE correspondence |
 | Semantics | Coq small-step semantics | [ ] | Add preservation/progress proofs for the C subset |
 | Semantics | Coq semantic source compiles | [x] | CI run `32037863355` installs Coq and compiles `semantics.v` |
@@ -115,7 +115,18 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 
 ## Immediate next work
 
-- [ ] Complete the full regression run after the latest loop and switch additions.
-- [ ] Refactor switch and loop lowering into general AST nodes.
-- [ ] Add the Coq and Ott specifications and connect them to generated test traces.
+- [ ] Replace the two remaining admitted Coq theorems with checked proofs.
+- [ ] Install Ott in CI and generate/check artifacts from `semantics.ott`.
+- [ ] If broader C support is required, replace regex-shaped parsing with general AST nodes.
 - [x] Produce a reproducible artifact bundle with checksums through Cloudflared.
+
+## Minimal functional finish line
+
+The current minimal functional implementation is the assembler-only x86-64
+pipeline plus the dependent NbE core: it builds, rejects malformed fixtures,
+assembles and links without GCC, runs the full fixture regression, and checks
+the available Coq sources. The remaining unchecked rows are formal-completeness
+or scope-expansion work. They should not be conflated with a broken runtime:
+the two admitted Coq theorems and Ott generation are required for a fully
+formalized release, while a general C parser and full CLI compatibility are
+separate expansion projects.
