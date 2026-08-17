@@ -56,6 +56,7 @@ Definition normalise (t : term) (n : term) : Prop :=
 
 Inductive cty : Type :=
 | CInt | CVoid | CPtr (τ : cty) | CArray (τ : cty) | CStruct (name : string)
+| CEnum (name : string)
 | CFun (args : list cty) (result : cty).
 Inductive cop : Type := CVar : string -> cop | CIntLit : nat -> cop
 | CAdd : cop -> cop -> cop | CDeref : cop -> cop
@@ -82,7 +83,8 @@ Inductive cstep : cop -> cop -> Prop :=
    compiler's pointer and struct lowering. *)
 Inductive cval : Type :=
 | CVInt : nat -> cval
-| CVPtr : nat -> cval.
+| CVPtr : nat -> cval
+| CVEnum : string -> nat -> cval.
 
 Definition cmemory := nat -> option cval.
 Definition cstore := nat -> cval.
@@ -99,7 +101,8 @@ Inductive cexpr : Type :=
 
 Inductive cval_typed : cval -> cty -> Prop :=
 | CVTInt : forall n, cval_typed (CVInt n) CInt
-| CVTPtr : forall a τ, cval_typed (CVPtr a) (CPtr τ).
+| CVTPtr : forall a τ, cval_typed (CVPtr a) (CPtr τ)
+| CVTEnum : forall name value, cval_typed (CVEnum name value) (CEnum name).
 
 Inductive cexpr_typed : cexpr -> cty -> Prop :=
 | CXTVal : forall v τ, cval_typed v τ -> cexpr_typed (CXVal v) τ
