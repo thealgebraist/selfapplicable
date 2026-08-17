@@ -151,6 +151,7 @@ bool emit_fremovexattr_query_mode = false;
 bool emit_setxattr_query_mode = false;
 bool emit_lsetxattr_query_mode = false;
 bool emit_fchown_query_mode = false;
+bool emit_chown_query_mode = false;
 bool emit_clone3_query_mode = false;
 bool emit_userfaultfd_query_mode = false;
 bool emit_kcmp_query_mode = false;
@@ -1992,6 +1993,7 @@ Program parse_main(std::string const& s) {
   emit_setxattr_query_mode=std::regex_search(body,std::regex(R"re(\bsetxattr_query\s*\(\s*\)\s*;)re"));
   emit_lsetxattr_query_mode=std::regex_search(body,std::regex(R"re(\blsetxattr_query\s*\(\s*\)\s*;)re"));
   emit_fchown_query_mode=std::regex_search(body,std::regex(R"re(\bfchown_query\s*\(\s*\)\s*;)re"));
+  emit_chown_query_mode=std::regex_search(body,std::regex(R"re(\bchown_query\s*\(\s*\)\s*;)re"));
   emit_clone3_query_mode=std::regex_search(body,std::regex(R"re(\bclone3_query\s*\(\s*\)\s*;)re"));
   emit_userfaultfd_query_mode=std::regex_search(body,std::regex(R"re(\buserfaultfd_query\s*\(\s*\)\s*;)re"));
   emit_kcmp_query_mode=std::regex_search(body,std::regex(R"re(\bkcmp_query\s*\(\s*\)\s*;)re"));
@@ -4256,6 +4258,15 @@ void emit_fchown_query(Program const&) {
     <<".Lfchown_fail:\n  mov $1, %edi\n.Lfchown_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_chown_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $92, %eax\n  lea chown_path(%rip), %rdi\n  mov $-1, %esi\n  mov $-1, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lchown_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lchown_done\n"
+    <<".Lchown_fail:\n  mov $1, %edi\n.Lchown_done:\n  mov $60, %eax\n  syscall\n"
+    <<".section .rodata\nchown_path:\n  .asciz \"/selfapp-no-such-path\"\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -4672,6 +4683,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_setxattr_query_mode) { csubset::emit_setxattr_query(program); return 0; }
     if(csubset::emit_lsetxattr_query_mode) { csubset::emit_lsetxattr_query(program); return 0; }
     if(csubset::emit_fchown_query_mode) { csubset::emit_fchown_query(program); return 0; }
+    if(csubset::emit_chown_query_mode) { csubset::emit_chown_query(program); return 0; }
     if(csubset::emit_process_vm_writev_query_mode) { csubset::emit_process_vm_writev_query(program); return 0; }
     if(csubset::emit_clone3_query_mode) { csubset::emit_clone3_query(program); return 0; }
     if(csubset::emit_userfaultfd_query_mode) { csubset::emit_userfaultfd_query(program); return 0; }

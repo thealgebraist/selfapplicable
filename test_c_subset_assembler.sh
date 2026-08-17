@@ -373,6 +373,7 @@ expect_status fixtures/fremovexattr_query.c 1
 expect_status fixtures/setxattr_query.c 1
 expect_status fixtures/lsetxattr_query.c 1
 expect_status fixtures/fchown_query.c 0
+expect_status fixtures/chown_query.c 1
 expect_status fixtures/process_vm_writev_query.c 0
 expect_status fixtures/clone3_query.c 1
 expect_status fixtures/userfaultfd_query.c 1
