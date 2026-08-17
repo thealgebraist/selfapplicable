@@ -522,6 +522,7 @@ expect_status fixtures/mmap_query.c 1
 expect_status fixtures/munmap_query.c 1
 expect_status fixtures/memfd_create_query.c 0
 expect_status fixtures/brk_query.c 0
+expect_status fixtures/remap_file_pages_query.c 1
 expect_status fixtures/fstatat_query.c 1
 expect_status fixtures/mknodat_query.c 1
 expect_status fixtures/utimensat_query.c 1
