@@ -185,6 +185,8 @@ loop case.
 `loop_write_binary_trailing_empty.c` adds a trailing empty binary fragment.
 `loop_write_binary_four.c` adds a trailing empty fragment to that binary case.
 `loop_write_binary_four_nonempty.c` adds ordinary leading bytes to the loop.
+`loop_write_binary_four_full.c` places ordinary bytes around both binary
+fragments in the loop.
 `loop_write_adjacent_four.c` extends it to four fragments.
 `loop_write_adjacent_five.c` extends it to five fragments.
 
