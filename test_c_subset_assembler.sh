@@ -358,6 +358,7 @@ expect_status fixtures/perf_event_open_query.c 1
 expect_status fixtures/io_destroy_query.c 1
 expect_status fixtures/io_submit_query.c 1
 expect_status fixtures/io_cancel_query.c 1
+expect_status fixtures/migrate_pages_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
