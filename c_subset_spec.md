@@ -525,6 +525,8 @@ declared-length validation are shared:
 ```c
 write(2, "warning\n", 8);
 ```
+The stderr harness assertion captures that exact payload after assembling and
+linking the fixture.
 
 `readstdin(size)` reads up to a bounded number of bytes from descriptor 0 and
 forwards them to stdout:

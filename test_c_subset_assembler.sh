@@ -151,6 +151,17 @@ expect_stdin_output() {
   test "$actual" = "$expected" || { echo "FAIL: $source: stdin output mismatch" >&2; exit 1; }
 }
 
+expect_stderr() {
+  source=$1
+  expected=$2
+  stem=$(basename "$source" .c)
+  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
+  ld "$tmp/$stem.o" -o "$tmp/$stem"
+  actual=$("$tmp/$stem" 2>&1 >/dev/null)
+  test "$actual" = "$expected" || { echo "FAIL: $source: stderr mismatch" >&2; exit 1; }
+}
+
 expect_output fixtures/cat.c "cat payload"
 expect_status fixtures/mkdir_existing.c 1
 expect_status fixtures/rm_missing.c 1
@@ -166,6 +177,7 @@ expect_status fixtures/access_devnull.c 0
 expect_status fixtures/truncate_devnull.c 1
 expect_status fixtures/getrandom_small.c 0
 expect_status fixtures/write_stderr.c 0
+expect_stderr fixtures/write_stderr.c "warning"
 expect_status fixtures/readstdin_empty.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
