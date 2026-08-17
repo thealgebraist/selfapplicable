@@ -233,6 +233,8 @@ Braced while bodies may contain two checked literal `write` statements; their
 concatenated payload is repeated by `while_write_two_body_writes.c`.
 The same composition works with inclusive bounds, covered by
 `while_write_inclusive_two_body_writes.c`.
+Three separate checked writes, including an embedded NUL, are covered by
+`while_write_three_body_writes.c`.
 Braced loops may include the explicit `i++` update, covered by
 `while_write_explicit_increment.c`; the backend checks and supplies the same
 single counter update.
