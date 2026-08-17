@@ -341,6 +341,7 @@ expect_status fixtures/fspick_query.c 1
 expect_status fixtures/move_mount_query.c 1
 expect_status fixtures/mount_setattr_query.c 1
 expect_status fixtures/process_madvise_query.c 1
+expect_status fixtures/process_vm_readv_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
