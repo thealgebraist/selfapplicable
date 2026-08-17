@@ -345,6 +345,7 @@ expect_status fixtures/futex_lock_pi2_query.c 0
 expect_status fixtures/clock_settime_query.c 1
 expect_status fixtures/settimeofday_query.c 1
 expect_status fixtures/semget_query.c 1
+expect_status fixtures/msgget_query.c 1
 expect_status fixtures/lsm_list_modules_query.c 1
 expect_status fixtures/lsm_set_self_attr_query.c 1
 expect_status fixtures/open_tree_query.c 1
