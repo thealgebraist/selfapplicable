@@ -416,6 +416,24 @@ Inductive cmstmt_step : cmemory -> cmconfig -> cmconfig -> Prop :=
 | CMSReturnValue : forall M σ v,
     cmstmt_step M (CMReturn (CXVal v), σ) (CMSkip, σ).
 
+Inductive cmstmt_step_star : cmemory -> cmconfig -> cmconfig -> Prop :=
+| CMSRRefl : forall M c, cmstmt_step_star M c c
+| CMSRNext : forall M c1 c2 c3,
+    cmstmt_step M c1 c2 ->
+    cmstmt_step_star M c2 c3 ->
+    cmstmt_step_star M c1 c3.
+
+Lemma cmstmt_step_star_trans : forall M c1 c2 c3,
+  cmstmt_step_star M c1 c2 ->
+  cmstmt_step_star M c2 c3 ->
+  cmstmt_step_star M c1 c3.
+Proof.
+  intros M c1 c2 c3 H12 H23.
+  induction H12.
+  - exact H23.
+  - eapply CMSRNext; eauto.
+Qed.
+
 Lemma small_step_assignment_preserves_store_type : forall M Γ σ a e v,
   cstore_typed Γ σ ->
   cexpr_big M σ e v ->
