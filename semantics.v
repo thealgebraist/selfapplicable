@@ -54,7 +54,8 @@ Inductive quote_value : value -> term -> Prop :=
 Definition normalise (t : term) (n : term) : Prop :=
   exists v, eval [] t v /\ quote_value v n.
 
-Inductive cty : Type := CInt | CVoid | CPtr (τ : cty) | CStruct (name : string).
+Inductive cty : Type :=
+| CInt | CVoid | CPtr (τ : cty) | CArray (τ : cty) | CStruct (name : string).
 Inductive cop : Type := CVar : string -> cop | CIntLit : nat -> cop
 | CAdd : cop -> cop -> cop | CDeref : cop -> cop
 | CAddr : cop -> cop | CCall : string -> list cop -> cop.
@@ -91,6 +92,7 @@ Inductive cexpr : Type :=
 | CXLoad : cexpr -> cexpr
 | CXAddr : nat -> cexpr
 | CXField : cexpr -> string -> cexpr
+| CXIndex : cexpr -> cexpr -> cexpr
 | CXAdd : cexpr -> cexpr -> cexpr.
 
 Inductive cval_typed : cval -> cty -> Prop :=
@@ -122,6 +124,10 @@ Inductive cexpr_typed_in : ctype_ctx -> cexpr -> cty -> Prop :=
     cexpr_typed_in Γ e (CStruct name) ->
     fields name = Some τ ->
     cexpr_typed_in Γ (CXField e name) τ
+| CXTCSIndex : forall Γ base index τ,
+    cexpr_typed_in Γ base (CArray τ) ->
+    cexpr_typed_in Γ index CInt ->
+    cexpr_typed_in Γ (CXIndex base index) τ
 | CXTCSAdd : forall Γ e1 e2,
     cexpr_typed_in Γ e1 CInt -> cexpr_typed_in Γ e2 CInt ->
     cexpr_typed_in Γ (CXAdd e1 e2) CInt.
