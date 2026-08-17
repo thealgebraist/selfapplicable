@@ -74,6 +74,47 @@ Inductive cstep : cop -> cop -> Prop :=
 | CSAddR : forall a b b', cstep b b' -> cstep (CAdd a b) (CAdd a b')
 | CSAdd : forall x y, cstep (CAdd (CIntLit x) (CIntLit y)) (CIntLit (x+y)).
 
+(* A typed memory layer for the C fragment.  The earlier [cop]/[ceval]
+   relation is intentionally retained as the small arithmetic boundary used
+   by existing examples; these definitions are the extension point for the
+   compiler's pointer and struct lowering. *)
+Inductive cval : Type :=
+| CVInt : nat -> cval
+| CVPtr : nat -> cval.
+
+Definition cmemory := nat -> option cval.
+Definition cstore := nat -> cval.
+
+Inductive cexpr : Type :=
+| CXVal : cval -> cexpr
+| CXLoad : cexpr -> cexpr
+| CXAddr : nat -> cexpr
+| CXAdd : cexpr -> cexpr -> cexpr.
+
+Inductive cexpr_big : cmemory -> cstore -> cexpr -> cval -> Prop :=
+| CXBVal : forall M σ v, cexpr_big M σ (CXVal v) v
+| CXBAddr : forall M σ a, cexpr_big M σ (CXAddr a) (CVPtr a)
+| CXBLoad : forall M σ p a v,
+    cexpr_big M σ p (CVPtr a) -> M a = Some v ->
+    cexpr_big M σ (CXLoad p) v
+| CXBAdd : forall M σ e1 e2 n1 n2,
+    cexpr_big M σ e1 (CVInt n1) ->
+    cexpr_big M σ e2 (CVInt n2) ->
+    cexpr_big M σ (CXAdd e1 e2) (CVInt (n1+n2)).
+
+Inductive cexpr_step : cmemory -> cexpr -> cexpr -> Prop :=
+| CXSLoad : forall M p p', cexpr_step M p p' ->
+    cexpr_step M (CXLoad p) (CXLoad p')
+| CXSLoadValue : forall M a v, M a = Some v ->
+    cexpr_step M (CXLoad (CXVal (CVPtr a))) (CXVal v)
+| CXSAddL : forall M x x' y,
+    cexpr_step M x x' -> cexpr_step M (CXAdd x y) (CXAdd x' y)
+| CXSAddR : forall M x y y',
+    cexpr_step M y y' -> cexpr_step M (CXAdd x y) (CXAdd x y')
+| CXSAdd : forall M x y,
+    cexpr_step M (CXAdd (CXVal (CVInt x)) (CXVal (CVInt y)))
+      (CXVal (CVInt (x+y))).
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof.
