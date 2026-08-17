@@ -302,6 +302,7 @@ bool emit_pwritev_query_mode = false;
 bool emit_fchownat_query_mode = false;
 bool emit_get_kernel_syms_query_mode = false;
 bool emit_eventfd2_query_mode = false;
+bool emit_dup3_query_mode = false;
 bool emit_readlinkat_query_mode = false;
 bool emit_renameat2_query_mode = false;
 bool emit_symlinkat_query_mode = false;
@@ -2276,6 +2277,7 @@ Program parse_main(std::string const& s) {
   emit_fchownat_query_mode=std::regex_search(body,std::regex(R"re(\bfchownat_query\s*\(\s*\)\s*;)re"));
   emit_get_kernel_syms_query_mode=std::regex_search(body,std::regex(R"re(\bget_kernel_syms_query\s*\(\s*\)\s*;)re"));
   emit_eventfd2_query_mode=std::regex_search(body,std::regex(R"re(\beventfd2_query\s*\(\s*\)\s*;)re"));
+  emit_dup3_query_mode=std::regex_search(body,std::regex(R"re(\bdup3_query\s*\(\s*\)\s*;)re"));
   emit_readlinkat_query_mode=std::regex_search(body,std::regex(R"re(\breadlinkat_query\s*\(\s*\)\s*;)re"));
   emit_renameat2_query_mode=std::regex_search(body,std::regex(R"re(\brenameat2_query\s*\(\s*\)\s*;)re"));
   emit_symlinkat_query_mode=std::regex_search(body,std::regex(R"re(\bsymlinkat_query\s*\(\s*\)\s*;)re"));
@@ -4095,6 +4097,15 @@ void emit_eventfd2_query(Program const&) {
     <<"  test %eax, %eax\n  js .Leventfd2_fail\n"
     <<"  mov %eax, %edi\n  mov $3, %eax\n  syscall\n  xor %edi, %edi\n  jmp .Leventfd2_done\n"
     <<".Leventfd2_fail:\n  mov $1, %edi\n.Leventfd2_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_dup3_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $292, %eax\n  mov $-1, %edi\n  mov $100, %esi\n  xor %edx, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Ldup3_fail\n"
+    <<"  mov %eax, %edi\n  mov $3, %eax\n  syscall\n  xor %edi, %edi\n  jmp .Ldup3_done\n"
+    <<".Ldup3_fail:\n  mov $1, %edi\n.Ldup3_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
 }
 
@@ -6300,6 +6311,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_fchownat_query_mode) { csubset::emit_fchownat_query(program); return 0; }
     if(csubset::emit_get_kernel_syms_query_mode) { csubset::emit_get_kernel_syms_query(program); return 0; }
     if(csubset::emit_eventfd2_query_mode) { csubset::emit_eventfd2_query(program); return 0; }
+    if(csubset::emit_dup3_query_mode) { csubset::emit_dup3_query(program); return 0; }
     if(csubset::emit_fstatat_query_mode) { csubset::emit_fstatat_query(program); return 0; }
     if(csubset::emit_mknodat_query_mode) { csubset::emit_mknodat_query(program); return 0; }
     if(csubset::emit_utimensat_query_mode) { csubset::emit_utimensat_query(program); return 0; }

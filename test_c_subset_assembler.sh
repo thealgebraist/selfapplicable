@@ -515,6 +515,7 @@ expect_status fixtures/newfstatat_query.c 1
 expect_status fixtures/fchownat_query.c 1
 expect_status fixtures/get_kernel_syms_query.c 1
 expect_status fixtures/eventfd2_query.c 0
+expect_status fixtures/dup3_query.c 1
 expect_status fixtures/fstatat_query.c 1
 expect_status fixtures/mknodat_query.c 1
 expect_status fixtures/utimensat_query.c 1
