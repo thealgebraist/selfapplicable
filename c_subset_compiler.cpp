@@ -84,6 +84,7 @@ bool emit_fcntl_pipe_size_mode = false;
 bool emit_ioctl_fionread_mode = false;
 bool emit_ioctl_fionbio_mode = false;
 bool emit_fcntl_getfd_mode = false;
+bool emit_fcntl_getfl_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1743,6 +1744,7 @@ Program parse_main(std::string const& s) {
   emit_ioctl_fionread_mode=std::regex_search(body,std::regex(R"re(\bioctl_pipe_fionread_query\s*\(\s*\)\s*;)re"));
   emit_ioctl_fionbio_mode=std::regex_search(body,std::regex(R"re(\bioctl_pipe_fionbio_query\s*\(\s*\)\s*;)re"));
   emit_fcntl_getfd_mode=std::regex_search(body,std::regex(R"re(\bfcntl_getfd_stdout\s*\(\s*\)\s*;)re"));
+  emit_fcntl_getfl_mode=std::regex_search(body,std::regex(R"re(\bfcntl_getfl_stdout\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -2332,6 +2334,11 @@ void emit_fcntl_getfd(Program const&) {
     <<"  mov $72, %eax\n  mov $1, %edi\n  mov $1, %esi\n  syscall\n  test %eax, %eax\n  js .Lfgetfd_fail\n  xor %edi, %edi\n  jmp .Lfgetfd_done\n.Lfgetfd_fail:\n  mov $1, %edi\n.Lfgetfd_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_fcntl_getfl(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $72, %eax\n  mov $1, %edi\n  mov $3, %esi\n  syscall\n  test %eax, %eax\n  js .Lfgetfl_fail\n  xor %edi, %edi\n  jmp .Lfgetfl_done\n.Lfgetfl_fail:\n  mov $1, %edi\n.Lfgetfl_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -2667,6 +2674,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_ioctl_fionread_mode) { csubset::emit_ioctl_fionread(program); return 0; }
     if(csubset::emit_ioctl_fionbio_mode) { csubset::emit_ioctl_fionbio(program); return 0; }
     if(csubset::emit_fcntl_getfd_mode) { csubset::emit_fcntl_getfd(program); return 0; }
+    if(csubset::emit_fcntl_getfl_mode) { csubset::emit_fcntl_getfl(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
