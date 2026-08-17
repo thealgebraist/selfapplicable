@@ -197,6 +197,7 @@ Each escape has an individual assembler regression fixture.
 Two-digit hexadecimal escapes such as `\x41` are also decoded.
 Three-digit octal escapes such as `\101` are decoded as well.
 Malformed hexadecimal and octal character escapes are rejected.
+Multi-byte character literals are rejected as well.
 Constant bitwise and shift return expressions are lowered to their computed
 integer exit statuses; `bitwise_return.c` and `shift_return.c` cover these
 assembler paths.
