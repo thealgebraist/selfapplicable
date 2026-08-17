@@ -207,6 +207,20 @@ Proof.
   - reflexivity.
 Qed.
 
+Definition cstore_typed (Γ : ctype_ctx) (σ : cstore) : Prop :=
+  forall a, cval_typed (σ a) (Γ a).
+
+Lemma cstore_update_preserves_type : forall Γ σ a v,
+  cstore_typed Γ σ -> cval_typed v (Γ a) ->
+  cstore_typed Γ (cstore_update σ a v).
+Proof.
+  intros Γ σ a v Hσ Hv b.
+  unfold cstore_update.
+  destruct (Nat.eqb a b) eqn:E.
+  - now apply Nat.eqb_eq in E; subst.
+  - apply Hσ.
+Qed.
+
 Inductive cmstmt : Type :=
 | CMSkip : cmstmt
 | CMAssign : nat -> cexpr -> cmstmt
