@@ -27,7 +27,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Coq beta substitution sanity lemmas | [x] | CI run `32040998545` proves `nsubst0_var0`, `nsubst0_var_succ`, and `beta_identity` |
 | Core language | Outer-variable beta substitution witness | [x] | CI run `32041092698` proves `beta_outer_variable` with binder index adjustment |
 | Core language | Binder-sensitive substitution equations | [x] | CI run `32042163802` proves lambda-bound and lambda-outer substitution equations |
-| Core language | Structural substitution equations | [ ] | Added application, quote, and unquote substitution lemmas; await CI confirmation |
+| Core language | Structural substitution equations | [x] | CI run `32042396965` proves application, quote, and unquote substitution lemmas |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
