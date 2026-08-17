@@ -292,6 +292,7 @@ bool emit_newfstatat_query_mode = false;
 bool emit_fstatat_query_mode = false;
 bool emit_mknodat_query_mode = false;
 bool emit_utimensat_query_mode = false;
+bool emit_futimesat_query_mode = false;
 bool emit_fchownat_query_mode = false;
 bool emit_readlinkat_query_mode = false;
 bool emit_renameat2_query_mode = false;
@@ -2257,6 +2258,7 @@ Program parse_main(std::string const& s) {
   emit_fstatat_query_mode=std::regex_search(body,std::regex(R"re(\bfstatat_query\s*\(\s*\)\s*;)re"));
   emit_mknodat_query_mode=std::regex_search(body,std::regex(R"re(\bmknodat_query\s*\(\s*\)\s*;)re"));
   emit_utimensat_query_mode=std::regex_search(body,std::regex(R"re(\butimensat_query\s*\(\s*\)\s*;)re"));
+  emit_futimesat_query_mode=std::regex_search(body,std::regex(R"re(\bfutimesat_query\s*\(\s*\)\s*;)re"));
   emit_fchownat_query_mode=std::regex_search(body,std::regex(R"re(\bfchownat_query\s*\(\s*\)\s*;)re"));
   emit_readlinkat_query_mode=std::regex_search(body,std::regex(R"re(\breadlinkat_query\s*\(\s*\)\s*;)re"));
   emit_renameat2_query_mode=std::regex_search(body,std::regex(R"re(\brenameat2_query\s*\(\s*\)\s*;)re"));
@@ -4122,6 +4124,15 @@ void emit_utimensat_query(Program const&) {
     <<"  test %eax, %eax\n  js .Lutimensat_fail\n"
     <<"  xor %edi, %edi\n  jmp .Lutimensat_done\n"
     <<".Lutimensat_fail:\n  mov $1, %edi\n.Lutimensat_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_futimesat_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $261, %eax\n  mov $-100, %edi\n  xor %rsi, %rsi\n  xor %rdx, %rdx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lfutimesat_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lfutimesat_done\n"
+    <<".Lfutimesat_fail:\n  mov $1, %edi\n.Lfutimesat_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
 }
 
@@ -6202,6 +6213,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_fstatat_query_mode) { csubset::emit_fstatat_query(program); return 0; }
     if(csubset::emit_mknodat_query_mode) { csubset::emit_mknodat_query(program); return 0; }
     if(csubset::emit_utimensat_query_mode) { csubset::emit_utimensat_query(program); return 0; }
+    if(csubset::emit_futimesat_query_mode) { csubset::emit_futimesat_query(program); return 0; }
     if(csubset::emit_readlinkat_query_mode) { csubset::emit_readlinkat_query(program); return 0; }
     if(csubset::emit_renameat2_query_mode) { csubset::emit_renameat2_query(program); return 0; }
     if(csubset::emit_symlinkat_query_mode) { csubset::emit_symlinkat_query(program); return 0; }

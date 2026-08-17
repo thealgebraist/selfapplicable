@@ -516,6 +516,7 @@ expect_status fixtures/fchownat_query.c 1
 expect_status fixtures/fstatat_query.c 1
 expect_status fixtures/mknodat_query.c 1
 expect_status fixtures/utimensat_query.c 1
+expect_status fixtures/futimesat_query.c 1
 expect_status fixtures/readlinkat_query.c 1
 expect_status fixtures/renameat2_query.c 1
 expect_status fixtures/symlinkat_query.c 1
