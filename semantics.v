@@ -448,6 +448,20 @@ Inductive cmstmt_step_star : cmemory -> cmconfig -> cmconfig -> Prop :=
     cmstmt_step_star M c2 c3 ->
     cmstmt_step_star M c1 c3.
 
+Lemma cexpr_step_star_refl : forall M σ e,
+  cexpr_step_star M σ e e.
+Proof.
+  intros M σ e.
+  constructor.
+Qed.
+
+Lemma cmstmt_step_star_refl : forall M c,
+  cmstmt_step_star M c c.
+Proof.
+  intros M c.
+  constructor.
+Qed.
+
 Lemma cmstmt_step_star_trans : forall M c1 c2 c3,
   cmstmt_step_star M c1 c2 ->
   cmstmt_step_star M c2 c3 ->

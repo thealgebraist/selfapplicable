@@ -74,6 +74,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | C-expression reduction closure transitivity | [x] | CI run `32045490645` proves `cexpr_step_star_trans` |
 | Semantics | C-statement reduction closure transitivity | [x] | CI run `32045634651` proves `cmstmt_step_star_trans` |
 | Semantics | One-step to multi-step reduction embeddings | [x] | CI run `32045916242` proves `cexpr_step_to_star` and `cmstmt_step_to_star` |
+| Semantics | Reflexive C reduction closures | [ ] | Added `cexpr_step_star_refl` and `cmstmt_step_star_refl`; await CI confirmation |
 | Semantics | Typed assignment configuration step | [x] | CI run `32046091960` proves `cmconfig_typed` and `typed_assignment_config_step` |
 | Semantics | Typed assignment multi-step result | [x] | CI run `32046289014` proves `typed_assignment_config_step_star` |
 | Semantics | Typed terminal skip configuration | [x] | CI run `32046525816` proves `typed_skip_config` |
