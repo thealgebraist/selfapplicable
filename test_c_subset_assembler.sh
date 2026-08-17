@@ -139,6 +139,7 @@ expect_output() {
   test "$actual" = "$expected" || { echo "FAIL: $source: output mismatch" >&2; exit 1; }
 }
 expect_output fixtures/write_escape.c "A	B"
+expect_output fixtures/loop_write_escape.c "x	x	"
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c
