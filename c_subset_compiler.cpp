@@ -967,6 +967,13 @@ Program parse_main(std::string const& s) {
     if(std::stoi(w[2])!=(int)a.size() || std::stoi(w[4])!=(int)b.size() || std::stoi(w[6])!=(int)c.size()) throw std::runtime_error("loop write length mismatch");
     p.loop_count=std::stoi(w[7]); p.loop_present=true; p.loop_do=true; p.loop_inclusive=true; p.loop_output=a+b+c; p.output.clear();
   }
+  static const std::regex do_inclusive_four_body_writes(
+    R"re(int\s+i\s*=\s*0\s*;\s*do\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*while\s*\(\s*i\s*<=\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,do_inclusive_four_body_writes)) {
+    auto a=decode_write(w[1].str()), b=decode_write(w[3].str()), c=decode_write(w[5].str()), d=decode_write(w[7].str());
+    if(std::stoi(w[2])!=(int)a.size() || std::stoi(w[4])!=(int)b.size() || std::stoi(w[6])!=(int)c.size() || std::stoi(w[8])!=(int)d.size()) throw std::runtime_error("loop write length mismatch");
+    p.loop_count=std::stoi(w[9]); p.loop_present=true; p.loop_do=true; p.loop_inclusive=true; p.loop_output=a+b+c+d; p.output.clear();
+  }
   static const std::regex do_three_body_writes(
     R"re(int\s+i\s*=\s*0\s*;\s*do\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*while\s*\(\s*i\s*<\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,do_three_body_writes)) {
