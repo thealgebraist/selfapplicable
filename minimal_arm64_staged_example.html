@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A staged normalizer compiling an ADT program to ARM64</title>
+<style>
+:root{color-scheme:light;--ink:#17212b;--muted:#526170;--line:#d7dee6;--paper:#fff;--wash:#f4f7fa;--accent:#075985}
+*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:980px;margin:0 auto;padding:48px 24px 80px}article{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:42px 52px;box-shadow:0 8px 30px #17324d12}
+h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;letter-spacing:-.04em;margin:.1em 0 .35em}h2{margin-top:2.3em;padding-top:.6em;border-top:1px solid var(--line);font-size:1.55rem}h3{margin-top:1.8em;color:var(--accent)}
+p,li{max-width:78ch}.lede{color:var(--muted);font-size:1.12rem}.tag{display:inline-block;color:var(--accent);background:#e0f2fe;border-radius:999px;padding:.2rem .65rem;font-size:.82rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+pre{overflow:auto;background:#101923;color:#e7edf3;border-radius:10px;padding:18px 20px;line-height:1.5;font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}code{background:#eef3f7;border-radius:4px;padding:.08em .3em;font:.92em ui-monospace,SFMono-Regular,Menlo,monospace}pre code{background:none;padding:0}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:24px 0}.step{border:1px solid #b8d8e9;background:#f0f9ff;border-radius:9px;padding:14px;font-weight:650}.step small{display:block;color:var(--muted);font-weight:400;margin-top:4px}
+.callout{border-left:4px solid #0284c7;background:#f0f9ff;padding:12px 18px;margin:20px 0}table{border-collapse:collapse;width:100%;margin:18px 0}th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}th{background:#edf4f8}.fine{color:var(--muted);font-size:.92rem}
+@media(max-width:700px){article{padding:28px 22px}.flow{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body><main><article>
+<span class="tag">Worked example · minimal ADT → AArch64</span>
+<h1>One program, four representations</h1>
+<p class="lede">This example shows where self-applicability helps: the compiler does not invent a separate constant-folding optimizer. It quotes the source term, applies the same normalizer to the quoted representation, reifies the result, and lowers only the canonical result to ARM64.</p>
+
+<div class="flow">
+<div class="step">Source syntax<small>S-expression data</small></div>
+<div class="step">Quoted code<small>inert Code</small></div>
+<div class="step">Normalized code<small>canonical ADT value</small></div>
+<div class="step">ARM64<small>machine-facing projection</small></div>
+</div>
+
+<h2>1. The source program</h2>
+<p>The language has inductive natural numbers and booleans, plus constructors for addition and conditional choice. This closed term deliberately contains two branches that can be discarded only after the condition is normalized:</p>
+<pre><code>(if
+  (if false true false)
+  (add (nat 17) (add (nat 5) (nat 3)))
+  (add (nat 100) (add (nat 200) (nat 0))))</code></pre>
+<p>Its outer condition is itself an if. The true branch computes 25; the false branch computes 300. The inner condition chooses false, so the result is 300.</p>
+
+<h2>2. The typed ADT view</h2>
+<p>In the formal kernel, the relevant constructors are indexed by their result type:</p>
+<pre><code>Nat0 ::= Z0 | S0 Nat0
+Bool0 ::= False0 | True0
+
+Tm0 A ::= NatLit0 Nat0                  : Tm0 NatTy0
+        | BoolLit0 Bool0                : Tm0 BoolTy0
+        | Add0 (Tm0 NatTy0) (Tm0 NatTy0): Tm0 NatTy0
+        | If0 (Tm0 BoolTy0) (Tm0 A) (Tm0 A): Tm0 A</code></pre>
+<p>An Add0 cannot receive a boolean, and both branches of If0 must have the same result type. The C++ front end mirrors these constructors dynamically and rejects malformed constructor applications when the evaluator cannot obtain the required indexed value.</p>
+
+<h2>3. The explicit staging projection</h2>
+<p>The compiler uses four projections. Quotation makes syntax inert; normalization consumes syntax data and produces syntax data; unquotation is the only boundary at which the compiler retrieves the normalized term for lowering.</p>
+<table><thead><tr><th>Projection</th><th>Meaning</th><th>Role here</th></tr></thead><tbody>
+<tr><td>quote : Term → Code</td><td>Turn a term into syntax data.</td><td>Prevents source syntax from executing implicitly.</td></tr>
+<tr><td>normalize_code : Code → Code</td><td>Normalize the syntax carried by a code value.</td><td>Performs branch selection and addition reduction.</td></tr>
+<tr><td>normalize_code²</td><td>Apply the same projection again.</td><td>Checks the canonical/idempotent normal form.</td></tr>
+<tr><td>unquote : Code → Term</td><td>Recover staged syntax explicitly.</td><td>Feeds only canonical syntax to the ARM64 emitter.</td></tr>
+</tbody></table>
+<pre><code>Term* self_apply_normalizer(Term* source) {
+  Code once  = normalize_code(quote(source));
+  Code twice = normalize_code(normalize_code(once));
+  return unquote(twice);
+}</code></pre>
+<div class="callout"><strong>What is self-applicable here?</strong> The normalizer is used as a first-class staged code transformation: its input and output are both code values, and its output can pass through the same normalizer again. The second pass is not a second hand-written optimizer; it is the same normalization projection.</div>
+
+<h2>4. Reduction trace</h2>
+<h3>4.1 Normalize the condition</h3>
+<pre><code>normalize (if false true false)
+→ if (normalize false) (normalize true) (normalize false)
+→ if false true false
+→ false</code></pre>
+<p>The outer conditional therefore selects its else branch. The true branch is not lowered and does not need code-generation rules for its intermediate additions.</p>
+<h3>4.2 Normalize the selected branch</h3>
+<pre><code>normalize (add (nat 100) (add (nat 200) (nat 0)))
+→ add (nat 100) (nat 200)
+→ nat 300</code></pre>
+<h3>4.3 Canonicality check</h3>
+<pre><code>normalize_code (quote (nat 300))
+→ quote (nat 300)
+
+normalize_code (normalize_code (quote source))
+= normalize_code (quote (nat 300))
+= quote (nat 300)</code></pre>
+<p>This is the practical payoff of the normalizer boundary: the backend sees one canonical constructor, not a family of source-shaped cases.</p>
+
+<h2>5. The generated ARM64</h2>
+<p>The result projection maps a natural value to its Linux process exit status. The compiler emits:</p>
+<pre><code>.text
+.global _start
+.type _start, %function
+_start:
+    mov x0, #300
+    mov x8, #93
+    svc #0
+.size _start, .-_start</code></pre>
+<p>x0 carries the normalized result and syscall 93 is Linux AArch64 exit. If an AArch64 cross assembler is installed, the regression script assembles this text with aarch64-linux-gnu-as. On the host, the test still checks the exact ARM64 instruction contract.</p>
+
+<h2>6. What became simpler?</h2>
+<ul><li><strong>Branch pruning:</strong> no separate control-flow constant folder is needed for this pure language.</li>
+<li><strong>Arithmetic folding:</strong> the normalizer recursively reduces nested additions before code generation.</li>
+<li><strong>Canonical input to lowering:</strong> the emitter handles a literal value instead of every possible source tree.</li>
+<li><strong>Pass composition:</strong> future typed compiler passes can use the same Code → Code projection.</li>
+<li><strong>Regression criterion:</strong> direct normalization, staged normalization, and repeated staged normalization must agree.</li></ul>
+<p class="fine">This is intentionally a closed, pure example. Variables, functions, memory, effects, and recursion require additional typed projections and cannot be smuggled into this kernel merely by quoting them.</p>
+
+<h2>7. Reproduce it</h2>
+<pre><code>make check-minimal-arm64
+
+printf '%s\n' '(if (if false true false) (add (nat 17) (add (nat 5) (nat 3))) (add (nat 100) (add (nat 200) (nat 0))))' \
+  | ./minimal_arm64_compiler-ci</code></pre>
+<p>Source implementation: minimal_arm64_compiler.cpp. Formal minimal kernel: minimal_total_lang.v. The staged compiler test compares direct and staged output and checks repeated normalization.</p>
+</article></main></body></html>
