@@ -703,6 +703,26 @@ Proof.
       * exact Hσ.
 Qed.
 
+Lemma typed_switch_case_semantic_agreement : forall M Γ σ e cases default n body r σ',
+  cmswitch_typed Γ e cases default ->
+  cexpr_big M σ e (CVInt n) ->
+  ccase_selected n cases body ->
+  cmstmt_big M σ body r σ' ->
+  cmconfig_typed Γ (body, σ') ->
+  cmstmt_big M σ (CMSwitch e cases default) r σ' /\
+  cmstmt_step_star M (CMSwitch e cases default, σ) (body, σ) /\
+  cmconfig_typed Γ (body, σ').
+Proof.
+  intros M Γ σ e cases default n body r σ' Hswitch He Hselected
+    Hbody Htyped.
+  split.
+  - now apply CMBSwitchCase.
+  - split.
+    + apply cmstmt_step_to_star.
+      now apply CMSSwitchCase.
+    + exact Htyped.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
