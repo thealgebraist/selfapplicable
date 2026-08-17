@@ -209,6 +209,10 @@ for (int i = 0; i < 3; i++) write(1, "x\\n", 2);
 The loop counter is lowered to a register that survives Linux `syscall`
 clobbers.
 
+A restricted post-test loop is supported as `do { write(...); i++; } while
+(i < N);`. The backend emits the body before testing the bound, preserving
+the mandatory first iteration; `do_write.c` covers this form.
+
 A bounded `while` form is also supported when its counter is initialized to
 zero and compared against a literal:
 

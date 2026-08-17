@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path; unsigned long long size_bytes=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -876,6 +876,13 @@ Program parse_main(std::string const& s) {
     return value;
   };
   std::smatch w;
+  static const std::regex do_write_loop(
+    R"re(int\s+i\s*=\s*0\s*;\s*do\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*while\s*\(\s*i\s*<\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,do_write_loop)) {
+    p.loop_count=std::stoi(w[3]); p.loop_present=true; p.loop_do=true; p.loop_output=decode_write(w[1].str());
+    if(std::stoi(w[2])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
   static const std::regex five_adjacent_write(
     R"re(write\s*\(\s*1\s*,\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,five_adjacent_write)) {
@@ -1333,10 +1340,14 @@ int main(int argc,char **argv) {
     std::cout<<".text\n.globl _start\n_start:\n";
     if(!program.output.empty()) std::cout
              <<"  mov $1, %eax\n  mov $1, %edi\n  lea message(%rip), %rsi\n  mov $"<<program.output.size()<<", %edx\n  syscall\n";
-    if(program.loop_count>0 || program.loop_present) std::cout
-             <<"  xor %r12d, %r12d\n.Lfor:\n  cmp $"<<program.loop_count<<", %r12d\n  "<<(program.loop_inclusive ? "jg" : "jge")<<" .Lfor_done\n"
-             <<"  mov $1, %eax\n  mov $1, %edi\n  lea loop_message(%rip), %rsi\n  mov $"<<program.loop_output.size()<<", %edx\n  syscall\n"
-             <<"  inc %r12d\n  jmp .Lfor\n.Lfor_done:\n";
+    if(program.loop_count>0 || program.loop_present) {
+      if(program.loop_do) std::cout
+        <<"  xor %r12d, %r12d\n.Lfor:\n  mov $1, %eax\n  mov $1, %edi\n  lea loop_message(%rip), %rsi\n  mov $"<<program.loop_output.size()<<", %edx\n  syscall\n  inc %r12d\n  cmp $"<<program.loop_count<<", %r12d\n  jge .Lfor_done\n  jmp .Lfor\n.Lfor_done:\n";
+      else std::cout
+        <<"  xor %r12d, %r12d\n.Lfor:\n  cmp $"<<program.loop_count<<", %r12d\n  "<<(program.loop_inclusive ? "jg" : "jge")<<" .Lfor_done\n"
+        <<"  mov $1, %eax\n  mov $1, %edi\n  lea loop_message(%rip), %rsi\n  mov $"<<program.loop_output.size()<<", %edx\n  syscall\n"
+        <<"  inc %r12d\n  jmp .Lfor\n.Lfor_done:\n";
+    }
     if(program.argv1) std::cout
              <<"  mov (%rsp), %rdi\n  cmp $2, %rdi\n  jl .Largv_done\n"
              <<"  mov 16(%rsp), %rsi\n  xor %edx, %edx\n.Lstrlen:\n"

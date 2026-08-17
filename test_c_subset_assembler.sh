@@ -277,6 +277,7 @@ expect_bytes fixtures/while_write_inclusive_four_body_writes.c "4142004341420043
 expect_bytes fixtures/while_write_inclusive_five_body_writes.c "414200ff43414200ff43"
 expect_output fixtures/while_write_explicit_increment.c "RRR"
 expect_output fixtures/while_write_inclusive.c "III"
+expect_output fixtures/do_write.c "DD"
 expect_bytes fixtures/while_write_inclusive_three.c "4100ff4100ff"
 expect_bytes fixtures/while_write_inclusive_four.c "414200ff414200ff"
 expect_bytes fixtures/while_write_inclusive_five.c "414200ff43414200ff43"
