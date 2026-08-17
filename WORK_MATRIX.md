@@ -22,7 +22,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Explicit typed staged-normalization result contract | [x] | CI run `32040430580` compiles `staged_normalise_result` and its typing/reachability projections |
 | Core language | Closure compatibility under quote/unquote | [x] | CI run `32040514525` proves `nred_star_quote` and `nred_star_unquote` |
 | Core language | Closure compatibility under application | [x] | CI run `32040605802` proves `nred_star_app_left` and `nred_star_app_right` |
-| Core language | Closure compatibility under lambda binders | [ ] | Added `NRLamBody` and `nred_star_lam`; await CI confirmation |
+| Core language | Closure compatibility under lambda binders | [x] | CI run `32040705678` proves `NRLamBody` and `nred_star_lam` |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
