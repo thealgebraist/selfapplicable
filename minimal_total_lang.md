@@ -69,3 +69,7 @@ printf '%s\n' '(add (nat 2) (if true (nat 3) (nat 4)))' \
 This backend intentionally compiles only closed, pure ADT terms. Variables,
 functions, memory, and effects remain future extensions with separate typing
 and lowering proofs.
+
+The backend also has an independent `minimal-arm64` CI workflow, so its
+verification does not depend on package installation in the larger Coq/C-subset
+workflow.

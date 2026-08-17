@@ -1,0 +1,15 @@
+name: minimal-arm64
+
+on:
+  push:
+    branches: [main, 'research/**']
+  pull_request:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and test staged minimal compiler
+        run: make check-minimal-arm64
