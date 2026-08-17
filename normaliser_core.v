@@ -50,6 +50,8 @@ Definition nsubst0 (replacement : nterm) (t : nterm) : nterm :=
 Lemma nshift_zero_at : forall cutoff t,
   nshift 0 cutoff t = t.
 Proof.
+  intros cutoff t.
+  revert cutoff.
   induction t as [k | body IH | f IHf a IHa | code IH | code IH];
     intros cutoff;
     simpl.
