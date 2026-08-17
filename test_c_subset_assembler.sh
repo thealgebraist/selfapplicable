@@ -152,6 +152,7 @@ expect_status fixtures/rename_root.c 1
 expect_status fixtures/chmod_devnull.c 1
 expect_status fixtures/access_devnull.c 0
 expect_status fixtures/truncate_devnull.c 1
+expect_status fixtures/getrandom_small.c 0
 expect_output fixtures/write_escape.c "A	B"
 expect_output fixtures/loop_write_escape.c "x	x	"
 expect_output fixtures/loop_write_hex.c "AA"

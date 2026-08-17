@@ -512,6 +512,13 @@ access("/dev/null", 0);
 truncate("/dev/null", 0);
 ```
 
+`getrandom(size)` obtains up to 4096 bytes from Linux `getrandom` and writes
+the returned bytes to standard output:
+
+```c
+getrandom(16);
+```
+
 The same one-level primitive is exposed as:
 
 ```c
