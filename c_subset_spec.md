@@ -531,6 +531,8 @@ Adjacent stderr fragments are concatenated and checked independently by
 `write_stderr_adjacent.c`.
 Three-fragment stderr concatenation is covered by
 `write_stderr_three_adjacent.c`.
+Four-fragment stderr concatenation is covered by
+`write_stderr_four_adjacent.c`.
 
 `readstdin(size)` reads up to a bounded number of bytes from descriptor 0 and
 forwards them to stdout:
