@@ -488,6 +488,22 @@ Proof.
     + now apply cstore_update_preserves_type.
 Qed.
 
+Lemma typed_assignment_config_step_star : forall M Γ σ a e v,
+  cmconfig_typed Γ (CMAssign a e, σ) ->
+  cexpr_big M σ e v ->
+  cval_typed v (Γ a) ->
+  cmstmt_step_star M (CMAssign a e, σ)
+    (CMSkip, cstore_update σ a v) /\
+  cmconfig_typed Γ (CMSkip, cstore_update σ a v).
+Proof.
+  intros M Γ σ a e v Hconfig He Hv.
+  pose proof (typed_assignment_config_step M Γ σ a e v Hconfig He Hv)
+    as [Hstep Htyped].
+  split.
+  - now apply cmstmt_step_to_star.
+  - exact Htyped.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
