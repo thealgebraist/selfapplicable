@@ -1144,6 +1144,9 @@ Program parse_main(std::string const& s) {
   static const std::regex any_for(R"(\bfor\s*\([^;]+;\s*i\s*<=?\s*([^;]+);\s*i\+\+\s*\))");
   std::smatch for_match;
   if(std::regex_search(body,for_match,any_for) && !std::regex_match(for_match[1].str(),std::regex(R"(\s*[0-9]+\s*)"))) throw std::runtime_error("unsupported for bound");
+  static const std::regex nonzero_for_init(R"(\bfor\s*\(\s*int\s+i\s*=\s*([^;]+);)");
+  std::smatch init_match;
+  if(std::regex_search(body,init_match,nonzero_for_init) && !std::regex_match(init_match[1].str(),std::regex(R"(\s*0\s*)"))) throw std::runtime_error("unsupported for initializer");
   if(p.loop_count==0 && std::regex_search(body, std::regex(R"(\b(?:for|while)\s*\()"))) p.loop_present=true;
   return p;
 }

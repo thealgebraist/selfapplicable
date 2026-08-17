@@ -287,6 +287,7 @@ expect_reject fixtures/loop_write_bad_octal.c
 expect_reject fixtures/loop_write_inclusive_bad_length.c
 expect_reject fixtures/while_write_unbounded.c
 expect_reject fixtures/loop_write_unbounded.c
+expect_reject fixtures/loop_write_nonzero_init.c
 expect_reject fixtures/write_adjacent_bad_hex.c
 expect_reject fixtures/write_adjacent_bad_hex_digits.c
 expect_reject fixtures/write_adjacent_bad_octal_digits.c
