@@ -21,3 +21,7 @@ printf '%s\n' '(let (nat 40) (let (nat 2) (add (var 0) (var 1))))' > "$tmpdir/le
 "$compiler" "$tmpdir/let.min" > "$tmpdir/let.s"
 grep -q '^    mov x0, #42$' "$tmpdir/let.s"
 echo 'minimal ARM64 let/de Bruijn: ok'
+printf '%s\n' '(let (nat 6) (let (nat 7) (if (eq (var 0) (nat 7)) (mul (var 0) (var 1)) (nat 0))))' > "$tmpdir/guarded-mul.min"
+"$compiler" "$tmpdir/guarded-mul.min" > "$tmpdir/guarded-mul.s"
+grep -q '^    mov x0, #42$' "$tmpdir/guarded-mul.s"
+echo 'minimal ARM64 guarded multiplication: ok'

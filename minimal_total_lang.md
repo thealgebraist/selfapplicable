@@ -45,7 +45,7 @@ The CI workflow compiles this file alongside the existing core and C semantics.
 ## ARM64 compiler
 
 `minimal_arm64_compiler.cpp` is the first executable backend for this language.
-It accepts the constructors `nat`, `true`, `false`, `var`, `let`, `add`, and `if` in a small
+It accepts the constructors `nat`, `true`, `false`, `var`, `let`, `add`, `mul`, `eq`, and `if` in a small
 S-expression syntax. It normalizes the ADT term before emitting AArch64 Linux
 assembly. The generated `_start` places the normalized natural/boolean result
 in `x0` and exits through syscall 93. `test_minimal_arm64.sh` checks the emitted
@@ -71,6 +71,12 @@ the newest binding, and a `let` extends the environment before normalizing its
 body. The regression program binds 40 and then 2, reduces `var 0 + var 1`, and
 emits exit value 42. Functions, memory, and effects remain future extensions
 with separate typing and lowering proofs.
+
+The next regression adds `mul` and natural `eq`: two nested bindings hold 6 and
+7, an equality guard selects the multiplication branch, and the staged backend
+still emits 42. This demonstrates that enlarging the source language does not
+require enlarging the ARM64 emitter for every source form; normalization reduces
+the new forms before lowering.
 
 The backend also has an independent `minimal-arm64` CI workflow, so its
 verification does not depend on package installation in the larger Coq/C-subset

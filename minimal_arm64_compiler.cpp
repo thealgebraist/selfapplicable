@@ -15,10 +15,12 @@ struct Nat { std::uint64_t value; };
 struct Bool { bool value; };
 struct Var { std::size_t index; };
 struct Add { struct Term *left; struct Term *right; };
+struct Mul { struct Term *left; struct Term *right; };
+struct Eq { struct Term *left; struct Term *right; };
 struct If { struct Term *condition; struct Term *then_branch; struct Term *else_branch; };
 struct Let { struct Term *value; struct Term *body; };
 struct Term {
-  using Node = std::variant<Nat, Bool, Var, Add, If, Let>;
+  using Node = std::variant<Nat, Bool, Var, Add, Mul, Eq, If, Let>;
   Node node;
 };
 
@@ -56,6 +58,8 @@ struct Parser {
       else if (tag == "false") result = new Term{Bool{false}};
       else if (tag == "var") result = new Term{Var{index()}};
       else if (tag == "add") result = new Term{Add{term(), term()}};
+      else if (tag == "mul") result = new Term{Mul{term(), term()}};
+      else if (tag == "eq") result = new Term{Eq{term(), term()}};
       else if (tag == "if") result = new Term{If{term(), term(), term()}};
       else if (tag == "let") result = new Term{Let{term(), term()}};
       else throw std::runtime_error("unknown constructor: " + tag);
@@ -84,6 +88,15 @@ Term *normalize_in(const Term *term, const Env &env) {
     auto *left = normalize_in(a->left, env); auto *right = normalize_in(a->right, env);
     const auto l = std::get<Nat>(left->node).value, r = std::get<Nat>(right->node).value;
     return new Term{Nat{l + r}};
+  }
+  if (const auto *m = std::get_if<Mul>(&term->node)) {
+    auto *left = normalize_in(m->left, env); auto *right = normalize_in(m->right, env);
+    const auto l = std::get<Nat>(left->node).value, r = std::get<Nat>(right->node).value;
+    return new Term{Nat{l * r}};
+  }
+  if (const auto *e = std::get_if<Eq>(&term->node)) {
+    auto *left = normalize_in(e->left, env); auto *right = normalize_in(e->right, env);
+    return new Term{Bool{std::get<Nat>(left->node).value == std::get<Nat>(right->node).value}};
   }
   if (const auto *i = std::get_if<If>(&term->node)) {
     auto *condition = normalize_in(i->condition, env);
