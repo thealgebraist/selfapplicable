@@ -542,6 +542,7 @@ expect_status fixtures/rt_sigsuspend_query.c 1
 expect_status fixtures/restart_syscall_query.c 1
 expect_status fixtures/arch_prctl_query.c 1
 expect_status fixtures/modify_ldt_query.c 0
+expect_status fixtures/io_pgetevents_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
