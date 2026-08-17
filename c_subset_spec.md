@@ -171,6 +171,7 @@ adjacent fragments.
 `loop_write_adjacent_control.c` covers adjacent control-byte fragments.
 `loop_write_adjacent_three.c` extends that coverage to three fragments.
 `loop_write_empty_fragments.c` verifies empty outer fragments in loops.
+`loop_write_empty_nul.c` verifies an empty fragment before a NUL byte.
 `loop_write_adjacent_four.c` extends it to four fragments.
 `loop_write_adjacent_five.c` extends it to five fragments.
 
