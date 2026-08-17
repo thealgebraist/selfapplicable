@@ -1,6 +1,8 @@
 (** A small, independently compilable specification of the typed staging
     boundary used by the executable normaliser. *)
 
+From Coq Require Import Lists.List.
+
 Inductive nty : Type :=
 | NType : nat -> nty
 | NFun : nty -> nty -> nty
