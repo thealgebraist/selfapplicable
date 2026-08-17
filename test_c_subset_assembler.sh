@@ -358,6 +358,7 @@ expect_status fixtures/msgrcv_query.c 1
 expect_status fixtures/msgctl_query.c 1
 expect_status fixtures/mq_open_query.c 1
 expect_status fixtures/mq_unlink_query.c 1
+expect_status fixtures/mq_timedsend_query.c 1
 expect_status fixtures/lsm_list_modules_query.c 1
 expect_status fixtures/lsm_set_self_attr_query.c 1
 expect_status fixtures/open_tree_query.c 1
