@@ -8,6 +8,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Predicative universes and staged quotation | [x] | `normaliser.cpp`, staged examples |
 | Core language | Bidirectional checking and conversion | [x] | `normaliser.cpp` and checker tests |
 | Core language | Inductive/ADT-oriented integer examples | [x] | Existing dependent-core examples |
+| Core language | Coq staged normalizer specification compiles | [x] | CI run `32038168585` compiles `normaliser_core.v` |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
