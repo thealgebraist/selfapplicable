@@ -703,6 +703,26 @@ Proof.
       * exact Hσ.
 Qed.
 
+Lemma typed_while_zero_semantic_agreement : forall M Γ σ e st,
+  cmstmt_typed Γ (CMWhile e st) CVoid ->
+  cexpr_big M σ e (CVInt 0) ->
+  cstore_typed Γ σ ->
+  cmstmt_big M σ (CMWhile e st) None σ /\
+  cmstmt_step_star M (CMWhile e st, σ)
+    (CMIf e (CMSeq st (CMWhile e st)) CMSkip, σ) /\
+  cmconfig_typed Γ
+    (CMIf e (CMSeq st (CMWhile e st)) CMSkip, σ).
+Proof.
+  intros M Γ σ e st Hwhile He Hσ.
+  pose proof (typed_while_zero_unfold M Γ σ e st Hwhile He Hσ)
+    as [Hunfold Htyped].
+  split.
+  - now apply CMBWhileZero.
+  - split.
+    + now apply cmstmt_step_to_star.
+    + exact Htyped.
+Qed.
+
 Lemma typed_switch_case_semantic_agreement : forall M Γ σ e cases default n body r σ',
   cmswitch_typed Γ e cases default ->
   cexpr_big M σ e (CVInt n) ->
