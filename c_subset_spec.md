@@ -532,6 +532,8 @@ forwards them to stdout:
 ```c
 readstdin(4096);
 ```
+The `readstdin_four.c` fixture verifies exact four-byte forwarding through the
+assembler-only path.
 
 The same one-level primitive is exposed as:
 

@@ -139,6 +139,18 @@ expect_output() {
   test "$actual" = "$expected" || { echo "FAIL: $source: output mismatch" >&2; exit 1; }
 }
 
+expect_stdin_output() {
+  source=$1
+  input=$2
+  expected=$3
+  stem=$(basename "$source" .c)
+  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
+  ld "$tmp/$stem.o" -o "$tmp/$stem"
+  actual=$(printf '%s' "$input" | "$tmp/$stem")
+  test "$actual" = "$expected" || { echo "FAIL: $source: stdin output mismatch" >&2; exit 1; }
+}
+
 expect_output fixtures/cat.c "cat payload"
 expect_status fixtures/mkdir_existing.c 1
 expect_status fixtures/rm_missing.c 1
@@ -155,6 +167,7 @@ expect_status fixtures/truncate_devnull.c 1
 expect_status fixtures/getrandom_small.c 0
 expect_status fixtures/write_stderr.c 0
 expect_status fixtures/readstdin_empty.c 0
+expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_output fixtures/write_escape.c "A	B"
 expect_output fixtures/loop_write_escape.c "x	x	"
 expect_output fixtures/loop_write_hex.c "AA"
