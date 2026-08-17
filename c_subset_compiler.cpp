@@ -1877,7 +1877,7 @@ void emit_writefd(Program const& p) {
 
 void emit_readfd(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
-    <<"  xor %eax, %eax\n  mov $"<<p.readfd_fd<<", %edi\n  lea readfd_buf(%rip), %rsi\n  mov $"<<p.readfd_len<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lreadfd_fail\n  jz .Lreadfd_done\n  mov %eax, %edx\n  mov $1, %eax\n  mov $1, %edi\n  lea readfd_buf(%rip), %rsi\n  syscall\n  cmp %edx, %eax\n  jne .Lreadfd_fail\n.Lreadfd_done:\n  xor %edi, %edi\n  jmp .Lreadfd_exit\n.Lreadfd_fail:\n  mov $1, %edi\n.Lreadfd_exit:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nreadfd_buf:\n  .skip 4096\n";
+    <<"  mov $"<<p.readfd_len<<", %r12\n.Lreadfd_read:\n  test %r12, %r12\n  jz .Lreadfd_done\n  xor %eax, %eax\n  mov $"<<p.readfd_fd<<", %edi\n  lea readfd_buf(%rip), %rsi\n  mov %r12, %rdx\n  syscall\n  test %eax, %eax\n  js .Lreadfd_fail\n  jz .Lreadfd_done\n  mov %eax, %r13d\n  xor %r14d, %r14d\n.Lreadfd_write:\n  cmp %r13d, %r14d\n  jge .Lreadfd_consume\n  mov $1, %eax\n  mov $1, %edi\n  lea readfd_buf(%rip), %rsi\n  add %r14, %rsi\n  mov %r13d, %edx\n  sub %r14d, %edx\n  syscall\n  test %eax, %eax\n  jle .Lreadfd_fail\n  add %eax, %r14d\n  jmp .Lreadfd_write\n.Lreadfd_consume:\n  sub %r13, %r12\n  jmp .Lreadfd_read\n.Lreadfd_done:\n  xor %edi, %edi\n  jmp .Lreadfd_exit\n.Lreadfd_fail:\n  mov $1, %edi\n.Lreadfd_exit:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nreadfd_buf:\n  .skip 4096\n";
 }
 
 void emit_poll(Program const& p) {
