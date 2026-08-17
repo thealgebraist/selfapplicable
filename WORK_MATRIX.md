@@ -23,6 +23,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Closure compatibility under quote/unquote | [x] | CI run `32040514525` proves `nred_star_quote` and `nred_star_unquote` |
 | Core language | Closure compatibility under application | [x] | CI run `32040605802` proves `nred_star_app_left` and `nred_star_app_right` |
 | Core language | Closure compatibility under lambda binders | [x] | CI run `32040705678` proves `NRLamBody` and `nred_star_lam` |
+| Core language | De Bruijn beta substitution in Coq reduction | [ ] | Added `nshift`, `nsubst0`, and substitution-producing `NRBeta`; await CI confirmation |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |

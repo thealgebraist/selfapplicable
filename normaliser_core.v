@@ -23,11 +23,30 @@ Inductive nterm : Type :=
 | NQuote : nterm -> nterm
 | NUnquote : nterm -> nterm.
 
+Fixpoint nshift (d cutoff : nat) (t : nterm) : nterm :=
+  match t with
+  | NVar k => if cutoff <=? k then NVar (d + k) else NVar k
+  | NLam body => NLam (nshift d (S cutoff) body)
+  | NApp f a => NApp (nshift d cutoff f) (nshift d cutoff a)
+  | NQuote code => NQuote (nshift d cutoff code)
+  | NUnquote code => NUnquote (nshift d cutoff code)
+  end.
+
+Fixpoint nsubst0 (replacement : nterm) (t : nterm) : nterm :=
+  match t with
+  | NVar 0 => replacement
+  | NVar (S k) => NVar k
+  | NLam body => NLam (nsubst0 (nshift 1 0 replacement) body)
+  | NApp f a => NApp (nsubst0 replacement f) (nsubst0 replacement a)
+  | NQuote code => NQuote (nsubst0 replacement code)
+  | NUnquote code => NUnquote (nsubst0 replacement code)
+  end.
+
 (* The staged computational boundary.  Quotation is inert data; only an
    unquote of an immediately available quotation crosses the boundary. *)
 Inductive nred : nterm -> nterm -> Prop :=
 | NRBeta : forall body arg,
-    nred (NApp (NLam body) arg) body
+    nred (NApp (NLam body) arg) (nsubst0 arg body)
 | NRQuoteUnquote : forall t,
     nred (NUnquote (NQuote t)) t
 | NRAppLeft : forall f f' a,
