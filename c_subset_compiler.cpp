@@ -229,6 +229,7 @@ bool emit_bpf_query_mode = false;
 bool emit_seccomp_query_mode = false;
 bool emit_fanotify_init_query_mode = false;
 bool emit_name_to_handle_at_query_mode = false;
+bool emit_sync_file_range_query_mode = false;
 bool emit_lookup_dcookie_query_mode = false;
 bool emit_setns_query_mode = false;
 bool emit_open_by_handle_at_query_mode = false;
@@ -2159,6 +2160,7 @@ Program parse_main(std::string const& s) {
   emit_seccomp_query_mode=std::regex_search(body,std::regex(R"re(\bseccomp_query\s*\(\s*\)\s*;)re"));
   emit_fanotify_init_query_mode=std::regex_search(body,std::regex(R"re(\bfanotify_init_query\s*\(\s*\)\s*;)re"));
   emit_name_to_handle_at_query_mode=std::regex_search(body,std::regex(R"re(\bname_to_handle_at_query\s*\(\s*\)\s*;)re"));
+  emit_sync_file_range_query_mode=std::regex_search(body,std::regex(R"re(\bsync_file_range_query\s*\(\s*\)\s*;)re"));
   emit_lookup_dcookie_query_mode=std::regex_search(body,std::regex(R"re(\blookup_dcookie_query\s*\(\s*\)\s*;)re"));
   emit_setns_query_mode=std::regex_search(body,std::regex(R"re(\bsetns_query\s*\(\s*\)\s*;)re"));
   emit_open_by_handle_at_query_mode=std::regex_search(body,std::regex(R"re(\bopen_by_handle_at_query\s*\(\s*\)\s*;)re"));
@@ -3496,6 +3498,15 @@ void emit_name_to_handle_at_query(Program const&) {
     <<"  xor %edi, %edi\n  jmp .Lname_handle_done\n"
     <<".Lname_handle_fail:\n  mov $1, %edi\n"
     <<".Lname_handle_done:\n  mov $60, %eax\n  syscall\n";
+}
+
+void emit_sync_file_range_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $277, %eax\n  mov $1, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lsync_file_range_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lsync_file_range_done\n"
+    <<".Lsync_file_range_fail:\n  mov $1, %edi\n.Lsync_file_range_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
 }
 
 void emit_lookup_dcookie_query(Program const&) {
@@ -5762,6 +5773,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_seccomp_query_mode) { csubset::emit_seccomp_query(program); return 0; }
     if(csubset::emit_fanotify_init_query_mode) { csubset::emit_fanotify_init_query(program); return 0; }
     if(csubset::emit_name_to_handle_at_query_mode) { csubset::emit_name_to_handle_at_query(program); return 0; }
+    if(csubset::emit_sync_file_range_query_mode) { csubset::emit_sync_file_range_query(program); return 0; }
     if(csubset::emit_lookup_dcookie_query_mode) { csubset::emit_lookup_dcookie_query(program); return 0; }
     if(csubset::emit_setns_query_mode) { csubset::emit_setns_query(program); return 0; }
     if(csubset::emit_open_by_handle_at_query_mode) { csubset::emit_open_by_handle_at_query(program); return 0; }
