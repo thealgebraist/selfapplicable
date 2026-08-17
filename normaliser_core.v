@@ -36,6 +36,8 @@ Inductive nred : nterm -> nterm -> Prop :=
     nred a a' -> nred (NApp f a) (NApp f a')
 | NRQuoteBody : forall t t',
     nred t t' -> nred (NQuote t) (NQuote t')
+| NRLamBody : forall t t',
+    nred t t' -> nred (NLam t) (NLam t')
 | NRUnquote : forall c c',
     nred c c' -> nred (NUnquote c) (NUnquote c').
 
@@ -147,6 +149,18 @@ Proof.
   - apply nred_star_refl.
   - eapply NRSNext.
     + apply NRAppRight.
+      exact Hstep.
+    + exact IH.
+Qed.
+
+Lemma nred_star_lam : forall t u,
+  nred_star t u -> nred_star (NLam t) (NLam u).
+Proof.
+  intros t u H.
+  induction H as [t | t u v Hstep Htail IH].
+  - apply nred_star_refl.
+  - eapply NRSNext.
+    + apply NRLamBody.
       exact Hstep.
     + exact IH.
 Qed.
