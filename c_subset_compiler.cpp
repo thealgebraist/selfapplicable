@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path, fdatasync_path, writefd_text, stat_path, lstat_path; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0, alarm_seconds=0, clock_id=0, rusage_who=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0, fcntl_fd=0, fcntl_cmd=0, fcntl_arg=0, setpgid_pid=0, setpgid_pgid=0, priority_which=0, priority_who=0, priority_value=0, nice_increment=0, writefd_fd=0, writefd_len=0, readfd_fd=0, readfd_len=0, poll_fd=0, poll_events=0, poll_timeout=0, fstat_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, fdatasync=false, umask=false, fcntl=false, setpgid=false, yield=false, getpid=false, getppid=false, setpriority=false, isroot=false, gettid=false, isgroup0=false, nice=false, writefd=false, readfd=false, poll=false, alarm=false, clock_gettime=false, gettimeofday=false, times=false, getrusage=false, sysinfo=false, uname=false, getdomainname=false, fstat=false, stat=false, lstat=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path, fdatasync_path, writefd_text, stat_path, lstat_path; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0, alarm_seconds=0, clock_id=0, rusage_who=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0, fcntl_fd=0, fcntl_cmd=0, fcntl_arg=0, setpgid_pid=0, setpgid_pgid=0, priority_which=0, priority_who=0, priority_value=0, nice_increment=0, writefd_fd=0, writefd_len=0, readfd_fd=0, readfd_len=0, poll_fd=0, poll_events=0, poll_timeout=0, fstat_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, fdatasync=false, umask=false, fcntl=false, setpgid=false, yield=false, getpid=false, getppid=false, setpriority=false, isroot=false, gettid=false, isgroup0=false, ise_group0=false, nice=false, writefd=false, readfd=false, poll=false, alarm=false, clock_gettime=false, gettimeofday=false, times=false, getrusage=false, sysinfo=false, uname=false, getdomainname=false, fstat=false, stat=false, lstat=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -1598,6 +1598,8 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,tid_test)) { p.gettid=true; p.then_status=std::stoi(d[1]); p.else_status=std::stoi(d[2]); }
   static const std::regex group_test(R"re(if\s*\(\s*isgroup0\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
   if(std::regex_search(body,d,group_test)) { p.isgroup0=true; p.then_status=std::stoi(d[1]); p.else_status=std::stoi(d[2]); }
+  static const std::regex egroup_test(R"re(if\s*\(\s*ise_group0\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
+  if(std::regex_search(body,d,egroup_test)) { p.ise_group0=true; p.then_status=std::stoi(d[1]); p.else_status=std::stoi(d[2]); }
   static const std::regex nice_call(R"re(nice\s*\(\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,nice_call)) { p.nice=true; p.nice_increment=std::stoul(d[1]); if(p.nice_increment>19) throw std::runtime_error("nice increment too large"); }
   static const std::regex writefd_call(R"re(writefd\s*\(\s*([0-9]+)\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
@@ -1869,6 +1871,11 @@ void emit_isgroup0(Program const& p) {
     <<"  mov $104, %eax\n  syscall\n  test %eax, %eax\n  jnz .Lisgroup0_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lisgroup0_done\n.Lisgroup0_no:\n  mov $"<<p.else_status<<", %edi\n.Lisgroup0_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_ise_group0(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $108, %eax\n  syscall\n  test %eax, %eax\n  jnz .Lisegroup0_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lisegroup0_done\n.Lisegroup0_no:\n  mov $"<<p.else_status<<", %edi\n.Lisegroup0_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_nice(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $34, %eax\n  mov $"<<p.nice_increment<<", %edi\n  syscall\n  test %eax, %eax\n  js .Lnice_fail\n  xor %edi, %edi\n  jmp .Lnice_done\n.Lnice_fail:\n  mov $1, %edi\n.Lnice_done:\n  mov $60, %eax\n  syscall\n";
@@ -2016,6 +2023,7 @@ int main(int argc,char **argv) {
     if(program.isroot) { csubset::emit_isroot(program); return 0; }
     if(program.gettid) { csubset::emit_gettid(program); return 0; }
     if(program.isgroup0) { csubset::emit_isgroup0(program); return 0; }
+    if(program.ise_group0) { csubset::emit_ise_group0(program); return 0; }
     if(program.nice) { csubset::emit_nice(program); return 0; }
     if(program.writefd) { csubset::emit_writefd(program); return 0; }
     if(program.readfd) { csubset::emit_readfd(program); return 0; }
