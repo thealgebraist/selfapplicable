@@ -151,7 +151,7 @@ Inductive ccall_typed : ctype_ctx -> cexpr -> list cexpr -> cty -> Prop :=
     ccall_typed Γ f args result.
 
 Lemma cargs_typed_arity : forall Γ es τs,
-  cargs_typed Γ es τs -> length es = length τs.
+  cargs_typed Γ es τs -> List.length es = List.length τs.
 Proof.
   intros Γ es τs H.
   induction H; simpl; auto.
