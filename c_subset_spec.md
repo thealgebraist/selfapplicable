@@ -185,6 +185,7 @@ Character pointers retain the ordinary eight-byte pointer layout;
 Single-byte character literals such as `'A'` lower to their unsigned byte
 value.
 Common escapes `\n`, `\t`, `\\`, and `\'` are decoded in character literals.
+Each escape has an individual assembler regression fixture.
 Constant bitwise and shift return expressions are lowered to their computed
 integer exit statuses; `bitwise_return.c` and `shift_return.c` cover these
 assembler paths.
