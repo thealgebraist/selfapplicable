@@ -223,6 +223,9 @@ Adjacent literal fragments, including embedded binary bytes, use the same
 rules; `while_write_adjacent_binary.c` covers that case.
 The loop body may also be enclosed in braces, as in
 `while_write_braced.c`.
+Braced loops may include the explicit `i++` update, covered by
+`while_write_explicit_increment.c`; the backend checks and supplies the same
+single counter update.
 
 The first filesystem primitive is the `pwd` pattern:
 
