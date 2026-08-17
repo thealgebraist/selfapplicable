@@ -194,6 +194,26 @@ Proof.
   all: inversion Hbig; subst; eauto using cexpr_big.
 Qed.
 
+Inductive cexpr_step_star : cmemory -> cstore -> cexpr -> cexpr -> Prop :=
+| CXRSRefl : forall M σ e, cexpr_step_star M σ e e
+| CXRSNext : forall M σ e e' e'',
+    cexpr_step M σ e e' ->
+    cexpr_step_star M σ e' e'' ->
+    cexpr_step_star M σ e e''.
+
+Lemma cexpr_step_star_preserves_big : forall M σ e e' v,
+  cexpr_step_star M σ e e' ->
+  cexpr_big M σ e' v ->
+  cexpr_big M σ e v.
+Proof.
+  intros M σ e e' v Hstar.
+  induction Hstar; intros Hbig.
+  - exact Hbig.
+  - eapply cexpr_step_preserves_big.
+    + exact H.
+    + apply IHHstar. exact Hbig.
+Qed.
+
 Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
   fun a' => if Nat.eqb a a' then v else σ a'.
 
