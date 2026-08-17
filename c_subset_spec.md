@@ -499,6 +499,13 @@ rename("/tmp/old", "/tmp/new");
 chmod("/dev/null", 438);
 ```
 
+`access("path", mode)` forwards a numeric access mask to Linux `access` and
+returns 0 for success or 1 for failure:
+
+```c
+access("/dev/null", 0);
+```
+
 The same one-level primitive is exposed as:
 
 ```c
