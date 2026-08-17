@@ -322,6 +322,20 @@ Proof.
     + exact IH.
 Qed.
 
+Lemma nred_star_lam_app : forall body body' a a',
+  nred_star body body' ->
+  nred_star a a' ->
+  nred_star (NApp (NLam body) a) (NApp (NLam body') a').
+Proof.
+  intros body body' a a' Hbody Ha.
+  apply nred_star_trans with (u := NApp (NLam body') a).
+  - apply nred_star_app_left.
+    apply nred_star_lam.
+    exact Hbody.
+  - apply nred_star_app_right.
+    exact Ha.
+Qed.
+
 Inductive ntyped : list nty -> nterm -> nty -> Prop :=
 | NTVar : forall Γ n A,
     nth_error Γ n = Some A -> ntyped Γ (NVar n) A
