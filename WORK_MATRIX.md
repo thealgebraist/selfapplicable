@@ -36,6 +36,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Coq big-step semantics | [ ] | Formalize and check the current C-subset/NbE correspondence |
 | Semantics | Coq small-step semantics | [ ] | Add preservation/progress proofs for the C subset |
 | Semantics | Coq semantic source compiles | [x] | CI run `32037863355` installs Coq and compiles `semantics.v` |
+| Semantics | C store update lemmas | [x] | CI run `32038550737` proves same-slot and distinct-slot update properties |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
 | Compiler | General C parser beyond recognized fixture shapes | [ ] | Replace regex-shaped parsing with a real parser/AST pipeline |
