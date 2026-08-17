@@ -218,6 +218,8 @@ Adjacent binary fragments are supported in the post-test body by
 `do_write_adjacent_binary.c`.
 Three adjacent fragments in a post-test body are covered by
 `do_write_three.c`.
+Four adjacent fragments in a post-test body are covered by
+`do_write_four.c`.
 
 A bounded `while` form is also supported when its counter is initialized to
 zero and compared against a literal:

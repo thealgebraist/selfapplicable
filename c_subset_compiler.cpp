@@ -897,6 +897,13 @@ Program parse_main(std::string const& s) {
     if(std::stoi(w[4])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
     p.output.clear();
   }
+  static const std::regex do_four_adjacent_write_loop(
+    R"re(int\s+i\s*=\s*0\s*;\s*do\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*while\s*\(\s*i\s*<\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,do_four_adjacent_write_loop)) {
+    p.loop_count=std::stoi(w[6]); p.loop_present=true; p.loop_do=true; p.loop_output=decode_write(w[1].str())+decode_write(w[2].str())+decode_write(w[3].str())+decode_write(w[4].str());
+    if(std::stoi(w[5])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
   static const std::regex five_adjacent_write(
     R"re(write\s*\(\s*1\s*,\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,five_adjacent_write)) {
