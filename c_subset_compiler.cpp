@@ -1097,6 +1097,8 @@ Program parse_main(std::string const& s) {
     }
     }
     }
+  static const std::regex any_while(R"(\bwhile\s*\()"), supported_while(R"(\bwhile\s*\(\s*i\s*<=?\s*[0-9]+\s*\))");
+  if(std::regex_search(body,any_while) && !std::regex_search(body,supported_while)) throw std::runtime_error("unsupported while condition");
   if(p.loop_count==0 && std::regex_search(body, std::regex(R"(\b(?:for|while)\s*\()"))) p.loop_present=true;
   return p;
 }
