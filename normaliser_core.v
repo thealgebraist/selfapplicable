@@ -131,7 +131,9 @@ Lemma staged_round_trip_preserves_type : forall Γ t A u,
   ntyped Γ u A.
 Proof.
   intros Γ t A u Htyped Hred.
-  inversion Hred; subst.
+  assert (u = t) as Hu.
+  { inversion Hred; reflexivity. }
+  subst u.
   exact Htyped.
 Qed.
 
