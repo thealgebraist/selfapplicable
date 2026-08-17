@@ -32,7 +32,7 @@ Inductive eval : env -> term -> value -> Prop :=
 | EAppNeutral : forall ρ f a vf va,
     eval ρ f (VNeutral vf) -> eval ρ a va ->
     eval ρ (TApp f a) (VNeutral (TApp vf (TQuote (TVar 0))))
-| EUnquote : forall ρ t v, eval ρ t (VSyntax v) -> eval ρ v v ->
+| EUnquote : forall ρ t u v, eval ρ t (VSyntax u) -> eval ρ u v ->
     eval ρ (TUnquote t) v.
 
 Inductive red : term -> term -> Prop :=
