@@ -87,12 +87,14 @@ Definition cstore := nat -> cval.
 
 Inductive cexpr : Type :=
 | CXVal : cval -> cexpr
+| CXSlot : nat -> cexpr
 | CXLoad : cexpr -> cexpr
 | CXAddr : nat -> cexpr
 | CXAdd : cexpr -> cexpr -> cexpr.
 
 Inductive cexpr_big : cmemory -> cstore -> cexpr -> cval -> Prop :=
 | CXBVal : forall M σ v, cexpr_big M σ (CXVal v) v
+| CXBSlot : forall M σ a, cexpr_big M σ (CXSlot a) (σ a)
 | CXBAddr : forall M σ a, cexpr_big M σ (CXAddr a) (CVPtr a)
 | CXBLoad : forall M σ p a v,
     cexpr_big M σ p (CVPtr a) -> M a = Some v ->
@@ -102,17 +104,18 @@ Inductive cexpr_big : cmemory -> cstore -> cexpr -> cval -> Prop :=
     cexpr_big M σ e2 (CVInt n2) ->
     cexpr_big M σ (CXAdd e1 e2) (CVInt (n1+n2)).
 
-Inductive cexpr_step : cmemory -> cexpr -> cexpr -> Prop :=
-| CXSLoad : forall M p p', cexpr_step M p p' ->
-    cexpr_step M (CXLoad p) (CXLoad p')
-| CXSLoadValue : forall M a v, M a = Some v ->
-    cexpr_step M (CXLoad (CXVal (CVPtr a))) (CXVal v)
-| CXSAddL : forall M x x' y,
-    cexpr_step M x x' -> cexpr_step M (CXAdd x y) (CXAdd x' y)
-| CXSAddR : forall M x y y',
-    cexpr_step M y y' -> cexpr_step M (CXAdd x y) (CXAdd x y')
-| CXSAdd : forall M x y,
-    cexpr_step M (CXAdd (CXVal (CVInt x)) (CXVal (CVInt y)))
+Inductive cexpr_step : cmemory -> cstore -> cexpr -> cexpr -> Prop :=
+| CXSSlot : forall M σ a, cexpr_step M σ (CXSlot a) (CXVal (σ a))
+| CXSLoad : forall M σ p p', cexpr_step M σ p p' ->
+    cexpr_step M σ (CXLoad p) (CXLoad p')
+| CXSLoadValue : forall M σ a v, M a = Some v ->
+    cexpr_step M σ (CXLoad (CXVal (CVPtr a))) (CXVal v)
+| CXSAddL : forall M σ x x' y,
+    cexpr_step M σ x x' -> cexpr_step M σ (CXAdd x y) (CXAdd x' y)
+| CXSAddR : forall M σ x y y',
+    cexpr_step M σ y y' -> cexpr_step M σ (CXAdd x y) (CXAdd x y')
+| CXSAdd : forall M σ x y,
+    cexpr_step M σ (CXAdd (CXVal (CVInt x)) (CXVal (CVInt y)))
       (CXVal (CVInt (x+y))).
 
 Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
