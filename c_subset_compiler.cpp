@@ -141,6 +141,7 @@ bool emit_getrlimit_query_mode = false;
 bool emit_getrusage_query_mode = false;
 bool emit_getxattr_query_mode = false;
 bool emit_listxattr_query_mode = false;
+bool emit_removexattr_query_mode = false;
 bool emit_clone3_query_mode = false;
 bool emit_userfaultfd_query_mode = false;
 bool emit_kcmp_query_mode = false;
@@ -1972,6 +1973,7 @@ Program parse_main(std::string const& s) {
   emit_getrusage_query_mode=std::regex_search(body,std::regex(R"re(\bgetrusage_query\s*\(\s*\)\s*;)re"));
   emit_getxattr_query_mode=std::regex_search(body,std::regex(R"re(\bgetxattr_query\s*\(\s*\)\s*;)re"));
   emit_listxattr_query_mode=std::regex_search(body,std::regex(R"re(\blistxattr_query\s*\(\s*\)\s*;)re"));
+  emit_removexattr_query_mode=std::regex_search(body,std::regex(R"re(\bremovexattr_query\s*\(\s*\)\s*;)re"));
   emit_clone3_query_mode=std::regex_search(body,std::regex(R"re(\bclone3_query\s*\(\s*\)\s*;)re"));
   emit_userfaultfd_query_mode=std::regex_search(body,std::regex(R"re(\buserfaultfd_query\s*\(\s*\)\s*;)re"));
   emit_kcmp_query_mode=std::regex_search(body,std::regex(R"re(\bkcmp_query\s*\(\s*\)\s*;)re"));
@@ -4145,6 +4147,15 @@ void emit_listxattr_query(Program const&) {
     <<".bss\n.align 8\nlistxattr_value:\n  .skip 64\n";
 }
 
+void emit_removexattr_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $197, %eax\n  lea removexattr_path(%rip), %rdi\n  lea removexattr_name(%rip), %rsi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lremovexattr_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lremovexattr_done\n"
+    <<".Lremovexattr_fail:\n  mov $1, %edi\n.Lremovexattr_done:\n  mov $60, %eax\n  syscall\n"
+    <<".section .rodata\nremovexattr_path:\n  .asciz \".\"\nremovexattr_name:\n  .asciz \"user.selfapp\"\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -4551,6 +4562,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_getrusage_query_mode) { csubset::emit_getrusage_query(program); return 0; }
     if(csubset::emit_getxattr_query_mode) { csubset::emit_getxattr_query(program); return 0; }
     if(csubset::emit_listxattr_query_mode) { csubset::emit_listxattr_query(program); return 0; }
+    if(csubset::emit_removexattr_query_mode) { csubset::emit_removexattr_query(program); return 0; }
     if(csubset::emit_process_vm_writev_query_mode) { csubset::emit_process_vm_writev_query(program); return 0; }
     if(csubset::emit_clone3_query_mode) { csubset::emit_clone3_query(program); return 0; }
     if(csubset::emit_userfaultfd_query_mode) { csubset::emit_userfaultfd_query(program); return 0; }
