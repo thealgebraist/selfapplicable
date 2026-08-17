@@ -235,6 +235,8 @@ The inclusive counterpart `while_write_inclusive_zero.c` confirms that `i <= 0`
 still executes once.
 The same zero-iteration guarantee applies to bounded `for` loops;
 `loop_write_zero.c` covers that form.
+Bounded `for` loops also accept inclusive bounds (`i <= N`), covered by
+`loop_write_inclusive.c`.
 This also composes with braced bodies and explicit `i++`, as shown by
 `while_write_inclusive_braced.c`.
 
