@@ -74,7 +74,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | C-expression reduction closure transitivity | [x] | CI run `32045490645` proves `cexpr_step_star_trans` |
 | Semantics | C-statement reduction closure transitivity | [x] | CI run `32045634651` proves `cmstmt_step_star_trans` |
 | Semantics | One-step to multi-step reduction embeddings | [x] | CI run `32045916242` proves `cexpr_step_to_star` and `cmstmt_step_to_star` |
-| Semantics | Typed assignment configuration step | [ ] | Added `cmconfig_typed` and `typed_assignment_config_step`; await CI confirmation |
+| Semantics | Typed assignment configuration step | [x] | CI run `32046091960` proves `cmconfig_typed` and `typed_assignment_config_step` |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
