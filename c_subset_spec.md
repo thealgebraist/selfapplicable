@@ -181,6 +181,7 @@ adjacent fragments.
 `loop_write_binary_three.c` combines empty, NUL, and high-byte fragments.
 `loop_write_binary_three_nonempty.c` adds an ordinary leading byte to that
 loop case.
+`loop_write_binary_trailing_empty.c` adds a trailing empty binary fragment.
 `loop_write_binary_four.c` adds a trailing empty fragment to that binary case.
 `loop_write_binary_four_nonempty.c` adds ordinary leading bytes to the loop.
 `loop_write_adjacent_four.c` extends it to four fragments.
