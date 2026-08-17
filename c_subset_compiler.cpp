@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, umask=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -1577,6 +1577,8 @@ Program parse_main(std::string const& s) {
   p.sync=std::regex_search(body,std::regex(R"re(\bsync\s*\(\s*\)\s*;)re"));
   static const std::regex fsync_call(R"re(fsync\s*\(\s*"([^"]*)"\s*\)\s*;)re");
   if(std::regex_search(body,d,fsync_call)) { p.fsync=true; p.fsync_path=d[1].str(); }
+  static const std::regex umask_call(R"re(umask\s*\(\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,d,umask_call)) { p.umask=true; p.umask_mode=std::stoull(d[1]); if(p.umask_mode>0777) throw std::runtime_error("umask out of range"); }
   static const std::regex duplicate_fd(R"re(dup2\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,duplicate_fd)) { p.dup=true; p.dup_old=static_cast<unsigned>(std::stoul(d[1])); p.dup_new=static_cast<unsigned>(std::stoul(d[2])); }
   static const std::regex close_fd_call(R"re(close\s*\(\s*([0-9]+)\s*\)\s*;)re");
@@ -1768,6 +1770,11 @@ void emit_fsync(Program const& p) {
     <<"  mov $257, %eax\n  mov $-100, %edi\n  lea fsync_path(%rip), %rsi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n  test %eax, %eax\n  js .Lfsync_fail\n  mov %eax, %r12d\n  mov $74, %eax\n  mov %r12d, %edi\n  syscall\n  mov $3, %eax\n  mov %r12d, %edi\n  syscall\n  test %eax, %eax\n  js .Lfsync_fail\n  xor %edi, %edi\n  jmp .Lfsync_done\n.Lfsync_fail:\n  mov $1, %edi\n.Lfsync_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nfsync_path:\n  .asciz \""<<p.fsync_path<<"\"\n";
 }
 
+void emit_umask(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $95, %eax\n  mov $"<<p.umask_mode<<", %edi\n  syscall\n  xor %edi, %edi\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_dup(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $33, %eax\n  mov $"<<p.dup_old<<", %edi\n  mov $"<<p.dup_new<<", %esi\n  syscall\n  test %eax, %eax\n  js .Ldup_fail\n  xor %edi, %edi\n  jmp .Ldup_done\n.Ldup_fail:\n  mov $1, %edi\n.Ldup_done:\n  mov $60, %eax\n  syscall\n";
@@ -1827,6 +1834,7 @@ int main(int argc,char **argv) {
     if(program.isatty) { csubset::emit_isatty(program); return 0; }
     if(program.sync) { csubset::emit_sync(program); return 0; }
     if(program.fsync) { csubset::emit_fsync(program); return 0; }
+    if(program.umask) { csubset::emit_umask(program); return 0; }
     if(program.dup) { csubset::emit_dup(program); return 0; }
     if(program.close) { csubset::emit_close(program); return 0; }
     if(program.pipe) { csubset::emit_pipe(program); return 0; }
