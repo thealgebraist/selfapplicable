@@ -133,12 +133,12 @@ Fixpoint lookup1 (Γ : Ctx1) (A : Ty0) (v : Var1 Γ A)
   match v as v' in Var1 Γ' A' return Env1 Γ' -> Val0 A' with
   | Here1 _ _ => fun ρ' =>
       match ρ' with
-      | ENil1 => defaultVal0 A
+      | ENil1 => defaultVal0 _
       | ECons1 _ _ x _ => x
       end
   | There1 _ _ _ v' => fun ρ' =>
       match ρ' as ρ'' in Env1 Γ'' return Val0 A with
-      | ENil1 => defaultVal0 A
+      | ENil1 => defaultVal0 _
       | ECons1 c _ _ ρ''' => lookup1 c A v' ρ'''
       end
   end ρ.
