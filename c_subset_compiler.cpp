@@ -16,6 +16,8 @@ bool emit_getuid_mode = false;
 bool emit_geteuid_mode = false;
 bool emit_getgid_mode = false;
 bool emit_getegid_mode = false;
+bool emit_getpgid_mode = false;
+unsigned long long getpgid_pid_value = 0;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1599,6 +1601,8 @@ Program parse_main(std::string const& s) {
   emit_geteuid_mode=std::regex_search(body,std::regex(R"re(\bgeteuid\s*\(\s*\)\s*;)re"));
   emit_getgid_mode=std::regex_search(body,std::regex(R"re(\bgetgid\s*\(\s*\)\s*;)re"));
   emit_getegid_mode=std::regex_search(body,std::regex(R"re(\bgetegid\s*\(\s*\)\s*;)re"));
+  std::smatch getpgid_match;
+  if(std::regex_search(body,getpgid_match,std::regex(R"re(getpgid\s*\(\s*([0-9]+)\s*\)\s*;)re"))) { emit_getpgid_mode=true; getpgid_pid_value=std::stoull(getpgid_match[1]); }
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -1904,6 +1908,11 @@ void emit_getegid(Program const&) {
     <<"  mov $108, %eax\n  syscall\n  test %eax, %eax\n  js .Lgetegid_fail\n  xor %edi, %edi\n  jmp .Lgetegid_done\n.Lgetegid_fail:\n  mov $1, %edi\n.Lgetegid_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_getpgid(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $121, %eax\n  mov $"<<getpgid_pid_value<<", %edi\n  syscall\n  test %eax, %eax\n  js .Lgetpgid_fail\n  xor %edi, %edi\n  jmp .Lgetpgid_done\n.Lgetpgid_fail:\n  mov $1, %edi\n.Lgetpgid_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2144,6 +2153,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_geteuid_mode) { csubset::emit_geteuid(program); return 0; }
     if(csubset::emit_getgid_mode) { csubset::emit_getgid(program); return 0; }
     if(csubset::emit_getegid_mode) { csubset::emit_getegid(program); return 0; }
+    if(csubset::emit_getpgid_mode) { csubset::emit_getpgid(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
