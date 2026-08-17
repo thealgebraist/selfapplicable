@@ -165,6 +165,7 @@ expect_bytes fixtures/write_question_escape.c "413f42"
 expect_bytes fixtures/write_hex_single.c "41045a"
 expect_bytes fixtures/write_adjacent.c "4142"
 expect_bytes fixtures/write_adjacent_three.c "414243"
+expect_bytes fixtures/write_adjacent_four.c "41424344"
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c

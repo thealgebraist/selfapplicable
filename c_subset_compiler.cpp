@@ -876,9 +876,15 @@ Program parse_main(std::string const& s) {
     return value;
   };
   std::smatch w;
+  static const std::regex four_adjacent_write(
+    R"re(write\s*\(\s*1\s*,\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,four_adjacent_write)) {
+    p.output=decode_write(w[1].str())+decode_write(w[2].str())+decode_write(w[3].str())+decode_write(w[4].str());
+    if(std::stoi(w[5])!=(int)p.output.size()) throw std::runtime_error("write length mismatch");
+  }
   static const std::regex three_adjacent_write(
     R"re(write\s*\(\s*1\s*,\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
-  if(std::regex_search(body,w,three_adjacent_write)) {
+  if(p.output.empty() && std::regex_search(body,w,three_adjacent_write)) {
     p.output=decode_write(w[1].str())+decode_write(w[2].str())+decode_write(w[3].str());
     if(std::stoi(w[4])!=(int)p.output.size()) throw std::runtime_error("write length mismatch");
   }
