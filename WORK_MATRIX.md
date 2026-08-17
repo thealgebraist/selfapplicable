@@ -61,7 +61,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Testing | Per-target timeout in status tests | [x] | `test_c_subset_assembler.sh` |
 | Testing | Timeout coverage for output/reject helpers | [x] | `test_c_subset_assembler.sh` |
 | Testing | Continuous assembler-only CI gate | [x] | GitHub Actions run `32036698013` passed |
-| Testing | Full regression run under current host load | [x] | Local `./test_c_subset_assembler.sh` passes; CI keeps deterministic fixture gates because capability probes vary by runner |
+| Testing | Full regression run under current host load | [x] | Local `./test_c_subset_assembler.sh` passes; deterministic CI gates pass in run `32052301242`, while capability probes vary by runner |
 | Semantics | Coq big-step semantics | [ ] | `small_step_preserves_big_step` and `normaliser_sound` remain admitted |
 | Semantics | Coq small-step semantics | [ ] | Add preservation/progress proofs for the C subset |
 | Semantics | Coq semantic source compiles | [x] | CI run `32037863355` installs Coq and compiles `semantics.v` |
