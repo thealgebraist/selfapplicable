@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, dup=false, close=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, dup=false, close=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -908,6 +908,14 @@ Program parse_main(std::string const& s) {
       p.error_output+=payload;
     }
   }
+  if(body.find("write(1")!=std::string::npos && body.find("write(2")!=std::string::npos) {
+    static const std::regex ordered_write(R"re(write\s*\(\s*([12])\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
+    for(std::sregex_iterator it(body.begin(),body.end(),ordered_write), end; it!=end; ++it) {
+      auto payload=decode_write((*it)[2].str());
+      if(std::stoi((*it)[3])!=(int)payload.size()) throw std::runtime_error("write length mismatch");
+      p.ordered_output.emplace_back(std::stoi((*it)[1]),std::move(payload));
+    }
+  }
   static const std::regex do_write_loop(
     R"re(int\s+i\s*=\s*0\s*;\s*do\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*while\s*\(\s*i\s*<\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,do_write_loop)) {
@@ -1777,9 +1785,11 @@ int main(int argc,char **argv) {
     if(program.close) { csubset::emit_close(program); return 0; }
     if(program.filter.size()) { csubset::emit_filtered_directory(program); return 0; }
     std::cout<<".text\n.globl _start\n_start:\n";
-    if(!program.error_output.empty()) std::cout
+    if(!program.ordered_output.empty()) for(std::size_t i=0;i<program.ordered_output.size();++i) std::cout
+             <<"  mov $1, %eax\n  mov $"<<program.ordered_output[i].first<<", %edi\n  lea ordered_"<<i<<"(%rip), %rsi\n  mov $"<<program.ordered_output[i].second.size()<<", %edx\n  syscall\n";
+    if(program.ordered_output.empty() && !program.error_output.empty()) std::cout
              <<"  mov $1, %eax\n  mov $2, %edi\n  lea error_message(%rip), %rsi\n  mov $"<<program.error_output.size()<<", %edx\n  syscall\n";
-    if(!program.output.empty()) std::cout
+    if(program.ordered_output.empty() && !program.output.empty()) std::cout
              <<"  mov $1, %eax\n  mov $1, %edi\n  lea message(%rip), %rsi\n  mov $"<<program.output.size()<<", %edx\n  syscall\n";
     if(program.loop_count>0 || program.loop_present) {
       if(program.loop_do) std::cout
@@ -1836,6 +1846,14 @@ int main(int argc,char **argv) {
       std::cout<<".section .rodata\nerror_message:\n  .byte ";
       for(std::size_t i=0;i<program.error_output.size();++i) { if(i) std::cout<<", "; std::cout<<(unsigned)(unsigned char)program.error_output[i]; }
       std::cout<<"\n";
+    }
+    if(!program.ordered_output.empty()) {
+      std::cout<<".section .rodata\n";
+      for(std::size_t i=0;i<program.ordered_output.size();++i) {
+        std::cout<<"ordered_"<<i<<":\n  .byte ";
+        for(std::size_t j=0;j<program.ordered_output[i].second.size();++j) { if(j) std::cout<<", "; std::cout<<(unsigned)(unsigned char)program.ordered_output[i].second[j]; }
+        std::cout<<"\n";
+      }
     }
     if(!program.loop_output.empty()) {
       std::cout<<"loop_message:\n  .byte ";
