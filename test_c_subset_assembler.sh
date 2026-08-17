@@ -453,6 +453,7 @@ expect_status fixtures/ftruncate_query.c 1
 expect_status fixtures/fallocate_query.c 1
 expect_status fixtures/sendfile_query.c 1
 expect_status fixtures/copy_file_range_query.c 1
+expect_status fixtures/splice_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
