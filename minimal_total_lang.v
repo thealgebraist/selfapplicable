@@ -35,8 +35,7 @@ Inductive Val0 : Ty0 -> Type :=
 | NatVal0 : Nat0 -> Val0 NatTy0
 | BoolVal0 : Bool0 -> Val0 BoolTy0.
 
-Fixpoint eval0 : forall A, Tm0 A -> Val0 A :=
-  fun A t =>
+Fixpoint eval0 (A : Ty0) (t : Tm0 A) : Val0 A :=
     match t with
     | NatLit0 n => NatVal0 n
     | BoolLit0 b => BoolVal0 b
