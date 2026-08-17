@@ -723,17 +723,16 @@ Proof.
     + exact Htyped.
 Qed.
 
-Lemma typed_switch_default_semantic_agreement : forall M Γ σ e cases default n σ',
+Lemma typed_switch_default_semantic_agreement : forall M Γ σ e cases default n,
   cmswitch_typed Γ e cases default ->
   cexpr_big M σ e (CVInt n) ->
   (forall body, ~ ccase_selected n cases body) ->
-  cmstmt_big M σ default None σ' ->
   cmconfig_typed Γ (default, σ) ->
-  cmstmt_big M σ (CMSwitch e cases default) None σ' /\
+  cmstmt_big M σ (CMSwitch e cases default) None σ /\
   cmstmt_step_star M (CMSwitch e cases default, σ) (default, σ) /\
   cmconfig_typed Γ (default, σ).
 Proof.
-  intros M Γ σ e cases default n σ' Hswitch He Hnone Hdefault Htyped.
+  intros M Γ σ e cases default n Hswitch He Hnone Htyped.
   split.
   - eapply CMBSwitchDefault; eauto.
   - split.
