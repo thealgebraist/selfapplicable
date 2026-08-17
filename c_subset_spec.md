@@ -561,6 +561,8 @@ readstdin(4096);
 ```
 The `readstdin_four.c` fixture verifies exact four-byte forwarding through the
 assembler-only path.
+`readstdin_eof_after_chunk.c` verifies that a short input followed by EOF is
+forwarded without padding or looping indefinitely.
 
 `dup2(old_fd, new_fd)` forwards constant descriptors to Linux `dup2`,
 returning 0 or 1 according to the syscall result:
