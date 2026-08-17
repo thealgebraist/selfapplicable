@@ -50,6 +50,7 @@ bool emit_flistxattr_mode = false;
 bool emit_getxattr_mode = false;
 std::string getxattr_path_value;
 std::string getxattr_name_value;
+bool emit_fgetxattr_mode = false;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1666,6 +1667,8 @@ Program parse_main(std::string const& s) {
   emit_flistxattr_mode=std::regex_search(body,std::regex(R"re(\bflistxattr_stdout\s*\(\s*\)\s*;)re"));
   std::smatch getxattr_match;
   if(std::regex_search(body,getxattr_match,std::regex(R"re(getxattr\s*\(\s*"([^"]*)"\s*,\s*"([^"]*)"\s*\)\s*;)re"))) { emit_getxattr_mode=true; getxattr_path_value=getxattr_match[1].str(); getxattr_name_value=getxattr_match[2].str(); }
+  std::smatch fgetxattr_match;
+  if(std::regex_search(body,fgetxattr_match,std::regex(R"re(fgetxattr_stdout\s*\(\s*"([^"]*)"\s*\)\s*;)re"))) { emit_fgetxattr_mode=true; getxattr_name_value=fgetxattr_match[1].str(); }
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -2092,6 +2095,11 @@ void emit_getxattr(Program const&) {
     <<"  mov $191, %eax\n  lea getxattr_path(%rip), %rdi\n  lea getxattr_name(%rip), %rsi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n  test %eax, %eax\n  js .Lgetxattr_fail\n  xor %edi, %edi\n  jmp .Lgetxattr_done\n.Lgetxattr_fail:\n  mov $1, %edi\n.Lgetxattr_done:\n  mov $60, %eax\n  syscall\n.section .rodata\ngetxattr_path:\n  .asciz \""<<getxattr_path_value<<"\"\ngetxattr_name:\n  .asciz \""<<getxattr_name_value<<"\"\n";
 }
 
+void emit_fgetxattr(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $193, %eax\n  mov $1, %edi\n  lea fgetxattr_name(%rip), %rsi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n  test %eax, %eax\n  js .Lfgetxattr_fail\n  xor %edi, %edi\n  jmp .Lfgetxattr_done\n.Lfgetxattr_fail:\n  mov $1, %edi\n.Lfgetxattr_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nfgetxattr_name:\n  .asciz \""<<getxattr_name_value<<"\"\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2356,6 +2364,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_listxattr_mode) { csubset::emit_listxattr(program); return 0; }
     if(csubset::emit_flistxattr_mode) { csubset::emit_flistxattr(program); return 0; }
     if(csubset::emit_getxattr_mode) { csubset::emit_getxattr(program); return 0; }
+    if(csubset::emit_fgetxattr_mode) { csubset::emit_fgetxattr(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
