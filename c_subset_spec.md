@@ -229,6 +229,8 @@ single counter update.
 The bound may be inclusive (`i <= N`), as tested by
 `while_write_inclusive.c`; inclusive loops use the corresponding signed
 comparison in the generated assembly.
+Zero bounds are preserved as zero-iteration loops rather than being mistaken
+for an absent loop; `while_write_zero.c` covers that edge case.
 This also composes with braced bodies and explicit `i++`, as shown by
 `while_write_inclusive_braced.c`.
 
