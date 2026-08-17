@@ -398,6 +398,7 @@ expect_status fixtures/sched_rr_get_interval_query.c 1
 expect_status fixtures/personality_query.c 0
 expect_status fixtures/prlimit64_query.c 1
 expect_status fixtures/setfsuid_query.c 0
+expect_status fixtures/setfsgid_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
