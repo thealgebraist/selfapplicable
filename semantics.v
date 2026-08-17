@@ -403,8 +403,11 @@ Lemma typed_skip_config : forall Γ σ,
 Proof.
   intros Γ σ Hσ.
   exists CMSkip, σ, CVoid.
-  repeat split; try reflexivity.
-  constructor.
+  split.
+  - reflexivity.
+  - split.
+    + constructor.
+    + exact Hσ.
 Qed.
 
 Inductive cmstmt_step : cmemory -> cmconfig -> cmconfig -> Prop :=
