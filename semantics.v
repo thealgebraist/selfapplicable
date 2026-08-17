@@ -394,6 +394,10 @@ Qed.
 
 Definition cmconfig := (cmstmt * cstore)%type.
 
+Definition cmconfig_typed (Γ : ctype_ctx) (c : cmconfig) : Prop :=
+  exists s σ τ,
+    c = (s, σ) /\ cmstmt_typed Γ s τ /\ cstore_typed Γ σ.
+
 Inductive cmstmt_step : cmemory -> cmconfig -> cmconfig -> Prop :=
 | CMSAssign : forall M σ a e v,
     cexpr_big M σ e v ->
@@ -463,6 +467,25 @@ Proof.
   split.
   - now apply CMSAssign.
   - now apply cstore_update_preserves_type.
+Qed.
+
+Lemma typed_assignment_config_step : forall M Γ σ a e v,
+  cmconfig_typed Γ (CMAssign a e, σ) ->
+  cexpr_big M σ e v ->
+  cval_typed v (Γ a) ->
+  cmstmt_step M (CMAssign a e, σ) (CMSkip, cstore_update σ a v) /\
+  cmconfig_typed Γ (CMSkip, cstore_update σ a v).
+Proof.
+  intros M Γ σ a e v Hconfig He Hv.
+  destruct Hconfig as [s [σ' [τ [Heq [Hs Hσ]]]]].
+  simpl in Heq. inversion Heq; subst s σ'.
+  inversion Hs; subst τ.
+  split.
+  - now apply CMSAssign.
+  - exists CMSkip, (cstore_update σ a v), CVoid.
+    repeat split; try reflexivity.
+    + constructor.
+    + now apply cstore_update_preserves_type.
 Qed.
 
 Theorem small_step_preserves_big_step : forall t u n,
