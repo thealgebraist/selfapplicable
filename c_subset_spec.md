@@ -182,6 +182,8 @@ not definitionally equal to `int`, and `allocate(char)` yields `char *`.
 The source frontend lowers `sizeof(char)` to 1.
 Character pointers retain the ordinary eight-byte pointer layout;
 `sizeof(char *)` lowers to 8.
+Single-byte character literals such as `'A'` lower to their unsigned byte
+value.
 Constant bitwise and shift return expressions are lowered to their computed
 integer exit statuses; `bitwise_return.c` and `shift_return.c` cover these
 assembler paths.
