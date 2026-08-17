@@ -105,6 +105,21 @@ Inductive cexpr_typed : cexpr -> cty -> Prop :=
     cexpr_typed e1 CInt -> cexpr_typed e2 CInt ->
     cexpr_typed (CXAdd e1 e2) CInt.
 
+Definition ctype_ctx := nat -> cty.
+
+Inductive cexpr_typed_in : ctype_ctx -> cexpr -> cty -> Prop :=
+| CXTCVal : forall Γ v τ,
+    cval_typed v τ -> cexpr_typed_in Γ (CXVal v) τ
+| CXTCSst : forall Γ a,
+    cexpr_typed_in Γ (CXSlot a) (Γ a)
+| CXTCSAddr : forall Γ a,
+    cexpr_typed_in Γ (CXAddr a) (CPtr CInt)
+| CXTCSLoad : forall Γ e τ,
+    cexpr_typed_in Γ e (CPtr τ) -> cexpr_typed_in Γ (CXLoad e) τ
+| CXTCSAdd : forall Γ e1 e2,
+    cexpr_typed_in Γ e1 CInt -> cexpr_typed_in Γ e2 CInt ->
+    cexpr_typed_in Γ (CXAdd e1 e2) CInt.
+
 Inductive cexpr_big : cmemory -> cstore -> cexpr -> cval -> Prop :=
 | CXBVal : forall M σ v, cexpr_big M σ (CXVal v) v
 | CXBSlot : forall M σ a, cexpr_big M σ (CXSlot a) (σ a)
