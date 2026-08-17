@@ -2552,7 +2552,18 @@ Program parse_main(std::string const& s) {
   static const std::regex break_loop(
     R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*\{\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*break\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
   std::smatch break_match;
-  if(std::regex_search(body,break_match,break_loop)) {
+  static const std::regex break_continue_loop(
+    R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*\{\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*continue\s*;\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*break\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
+  std::smatch break_continue_match;
+  if(std::regex_search(body,break_continue_match,break_continue_loop)) {
+    loop_continue_at=std::stoi(break_continue_match[2]);
+    loop_break_at=std::stoi(break_continue_match[3]);
+    p.loop_count=std::stoi(break_continue_match[1]); p.loop_present=true;
+    p.loop_output=break_continue_match[4].str();
+    if(std::stoi(break_continue_match[5])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
+  if(loop_break_at < 0 && std::regex_search(body,break_match,break_loop)) {
     loop_break_at=std::stoi(break_match[2]);
     p.loop_count=std::stoi(break_match[1]); p.loop_present=true; p.loop_output=break_match[3].str();
     if(std::stoi(break_match[4])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
@@ -2561,7 +2572,7 @@ Program parse_main(std::string const& s) {
   static const std::regex continue_loop(
     R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*\{\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*continue\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
   std::smatch continue_match;
-  if(std::regex_search(body,continue_match,continue_loop)) {
+  if(loop_continue_at < 0 && std::regex_search(body,continue_match,continue_loop)) {
     loop_continue_at=std::stoi(continue_match[2]);
     p.loop_count=std::stoi(continue_match[1]); p.loop_present=true; p.loop_output=continue_match[3].str();
     if(std::stoi(continue_match[4])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");

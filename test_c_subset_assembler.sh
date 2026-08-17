@@ -198,6 +198,7 @@ expect_combined_output() {
 
 expect_output fixtures/loop_break.c XX
 expect_output fixtures/loop_continue.c XXXX
+expect_output fixtures/loop_break_continue.c XXX
 expect_output fixtures/cat.c "cat payload"
 expect_status fixtures/mkdir_existing.c 1
 expect_status fixtures/rm_missing.c 1
