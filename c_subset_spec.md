@@ -244,6 +244,8 @@ The same check applies to inclusive post-test loops; malformed metadata is
 rejected by `do_write_inclusive_bad_length.c`.
 `do_write_zero.c` verifies that the first iteration remains present even with
 a zero bound.
+Zero-length post-test payloads remain valid; `do_write_empty.c` covers this
+case.
 Adjacent binary fragments are supported in the post-test body by
 `do_write_adjacent_binary.c`.
 Three adjacent fragments in a post-test body are covered by
