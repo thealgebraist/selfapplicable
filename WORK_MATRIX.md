@@ -10,6 +10,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Inductive/ADT-oriented integer examples | [x] | Existing dependent-core examples |
 | Core language | Coq staged normalizer specification compiles | [x] | CI run `32038168585` compiles `normaliser_core.v` |
 | Core language | Coq staged quotation typing lemmas | [x] | CI run `32038300860` proves quote/unquote typing lemmas |
+| Core language | Coq typed application lemma | [x] | CI run `32038978602` proves typed function application |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
@@ -37,6 +38,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Coq small-step semantics | [ ] | Add preservation/progress proofs for the C subset |
 | Semantics | Coq semantic source compiles | [x] | CI run `32037863355` installs Coq and compiles `semantics.v` |
 | Semantics | C store update lemmas | [x] | CI run `32038550737` proves same-slot and distinct-slot update properties |
+| Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
 | Compiler | General C parser beyond recognized fixture shapes | [ ] | Replace regex-shaped parsing with a real parser/AST pipeline |
