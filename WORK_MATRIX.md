@@ -109,6 +109,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Compiler | General C ABI and variadic calls | [ ] | Add ABI lowering and call-frame validation |
 | Compiler | Portable non-x86-64 backends | [ ] | Current target is Linux x86-64 assembly |
 | CLI compatibility | Complete `ls` compatibility | [ ] | Expand options, permissions, symlinks, and formatting |
+| CLI compatibility | `ls` default hidden-entry semantics | [x] | `fixtures/ls.c` regression suppresses `.`, `..`, and `.git`; closes directory fd |
 | CLI compatibility | Complete `find` compatibility | [ ] | Expand predicates, actions, traversal, and expressions |
 | CLI compatibility | Complete `echo` compatibility | [ ] | Expand quoting/options and shell behavior |
 | Publication | Git repository push | [x] | `origin/main` is updated continuously |

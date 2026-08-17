@@ -2636,6 +2636,30 @@ void emit_filtered_directory(Program const& p) {
   std::cout<<"\n.bss\n.align 8\ndir_buf:\n  .skip 8192\n";
 }
 
+void emit_directory(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $257, %eax\n  mov $-100, %edi\n  lea dir_path(%rip), %rsi\n"
+    <<"  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Ldir_fail\n  mov %eax, %r13d\n"
+    <<"  mov $217, %eax\n  mov %r13d, %edi\n  lea dir_buf(%rip), %rsi\n"
+    <<"  mov $8192, %edx\n  syscall\n  test %eax, %eax\n  js .Ldir_close\n"
+    <<"  mov %eax, %r14d\n  xor %r12d, %r12d\n"
+    <<".Ldir_next:\n  cmp %r14d, %r12d\n  jge .Ldir_close\n"
+    <<"  lea dir_buf(%rip), %rsi\n  movzwl 16(%rsi,%r12,1), %ecx\n"
+    <<"  mov %ecx, %r15d\n  test %ecx, %ecx\n  jz .Ldir_close\n"
+    <<"  lea 19(%rsi,%r12,1), %r8\n  cmpb $'.', (%r8)\n  je .Ldir_skip\n"
+    <<"  xor %edx, %edx\n.Ldir_name:\n  cmp %edx, %ecx\n  jle .Ldir_write\n"
+    <<"  cmpb $0, (%r8,%rdx,1)\n  je .Ldir_write\n  inc %edx\n  jmp .Ldir_name\n"
+    <<".Ldir_write:\n  mov $1, %eax\n  mov $1, %edi\n  mov %r8, %rsi\n"
+    <<"  syscall\n  mov $1, %eax\n  mov $1, %edi\n  lea newline(%rip), %rsi\n"
+    <<"  mov $1, %edx\n  syscall\n"
+    <<".Ldir_skip:\n  add %r15d, %r12d\n  jmp .Ldir_next\n"
+    <<".Ldir_close:\n  mov $3, %eax\n  mov %r13d, %edi\n  syscall\n"
+    <<".Ldir_fail:\n  xor %edi, %edi\n  mov $60, %eax\n  syscall\n"
+    <<".section .rodata\ndir_path:\n  .asciz \""<<p.directory<<"\"\n"
+    <<"newline:\n  .byte 10\n.bss\n.align 8\ndir_buf:\n  .skip 8192\n";
+}
+
 void emit_exists(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
            <<"  mov $332, %eax\n  mov $-100, %edi\n  lea exists_path(%rip), %rsi\n  xor %edx, %edx\n  mov $2047, %r10d\n  lea exists_buf(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lexists_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lexists_done\n.Lexists_no:\n  mov $"<<p.else_status<<", %edi\n.Lexists_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nexists_path:\n  .asciz \""<<p.exists_path<<"\"\n.bss\n.align 8\nexists_buf:\n  .skip 256\n";
@@ -6748,6 +6772,7 @@ int main(int argc,char **argv) {
     if(program.close) { csubset::emit_close(program); return 0; }
     if(program.pipe) { csubset::emit_pipe(program); return 0; }
     if(program.filter.size()) { csubset::emit_filtered_directory(program); return 0; }
+    if(program.listdir) { csubset::emit_directory(program); return 0; }
     std::cout<<".text\n.globl _start\n_start:\n";
     if(!program.ordered_output.empty()) for(std::size_t i=0;i<program.ordered_output.size();++i) std::cout
              <<"  mov $1, %eax\n  mov $"<<program.ordered_output[i].first<<", %edi\n  lea ordered_"<<i<<"(%rip), %rsi\n  mov $"<<program.ordered_output[i].second.size()<<", %edx\n  syscall\n";

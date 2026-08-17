@@ -196,10 +196,29 @@ expect_combined_output() {
   test "$actual" = "$expected" || { echo "FAIL: $source: combined output mismatch" >&2; exit 1; }
 }
 
+expect_no_output_line() {
+  source=$1
+  pattern=$2
+  stem=$(basename "$source" .c)
+  timeout 5 "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
+  ld "$tmp/$stem.o" -o "$tmp/$stem"
+  set +e
+  actual=$(timeout 5 "$tmp/$stem")
+  status=$?
+  set -e
+  test "$status" -ne 124 || { echo "FAIL: $source: target exceeded 5 second timeout" >&2; exit 1; }
+  if printf '%s\n' "$actual" | grep -Eq "$pattern"; then
+    echo "FAIL: $source: unexpected output line matching $pattern" >&2
+    exit 1
+  fi
+}
+
 expect_output fixtures/loop_break.c XX
 expect_output fixtures/loop_continue.c XXXX
 expect_output fixtures/loop_break_continue.c XXX
 expect_output fixtures/loop_break_then_continue.c XX
+expect_no_output_line fixtures/ls.c '^\.$|^\.\.$|^\.git$'
 expect_output fixtures/cat.c "cat payload"
 expect_status fixtures/mkdir_existing.c 1
 expect_status fixtures/rm_missing.c 1
