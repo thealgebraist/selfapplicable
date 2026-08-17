@@ -87,6 +87,8 @@ checking and emission; `write_escape.c` and `write_high_byte.c` verify ordinary
 and high-byte results.
 Malformed hexadecimal escapes are rejected before assembly, covered by
 `write_bad_hex_string.c`.
+Out-of-range octal byte escapes are likewise rejected by
+`write_bad_octal_string.c`.
 `write_backslash.c` verifies literal backslash emission.
 `write_quote.c` verifies an escaped quote in a string literal.
 Consecutive literal writes are collected in source order after independent
