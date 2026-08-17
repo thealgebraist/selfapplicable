@@ -472,6 +472,12 @@ success or failure status:
 symlink("/dev/null", "/tmp/link");
 ```
 
+`link("old", "new")` similarly lowers to Linux hard-link creation:
+
+```c
+link("/dev/null", "/tmp/hard-link");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
