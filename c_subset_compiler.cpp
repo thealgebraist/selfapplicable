@@ -328,6 +328,7 @@ bool emit_sched_setscheduler_query_mode = false;
 bool emit_sethostname_query_mode = false;
 bool emit_setdomainname_query_mode = false;
 bool emit_get_thread_area_query_mode = false;
+bool emit_ustat_query_mode = false;
 bool emit_sched_getscheduler_query_mode = false;
 bool emit_sched_get_priority_max_query_mode = false;
 bool emit_sched_get_priority_min_query_mode = false;
@@ -2318,6 +2319,7 @@ Program parse_main(std::string const& s) {
   emit_sethostname_query_mode=std::regex_search(body,std::regex(R"re(\bsethostname_query\s*\(\s*\)\s*;)re"));
   emit_setdomainname_query_mode=std::regex_search(body,std::regex(R"re(\bsetdomainname_query\s*\(\s*\)\s*;)re"));
   emit_get_thread_area_query_mode=std::regex_search(body,std::regex(R"re(\bget_thread_area_query\s*\(\s*\)\s*;)re"));
+  emit_ustat_query_mode=std::regex_search(body,std::regex(R"re(\bustat_query\s*\(\s*\)\s*;)re"));
   emit_sched_getscheduler_query_mode=std::regex_search(body,std::regex(R"re(\bsched_getscheduler_query\s*\(\s*\)\s*;)re"));
   emit_sched_get_priority_max_query_mode=std::regex_search(body,std::regex(R"re(\bsched_get_priority_max_query\s*\(\s*\)\s*;)re"));
   emit_sched_get_priority_min_query_mode=std::regex_search(body,std::regex(R"re(\bsched_get_priority_min_query\s*\(\s*\)\s*;)re"));
@@ -4437,6 +4439,15 @@ void emit_get_thread_area_query(Program const&) {
     <<"  mov $60, %eax\n  syscall\n";
 }
 
+void emit_ustat_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $136, %eax\n  xor %edi, %edi\n  mov $-1, %rsi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lustat_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lustat_done\n"
+    <<".Lustat_fail:\n  mov $1, %edi\n.Lustat_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
 void emit_sched_getscheduler_query(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $145, %eax\n  mov $-1, %edi\n  syscall\n"
@@ -6519,6 +6530,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_sethostname_query_mode) { csubset::emit_sethostname_query(program); return 0; }
     if(csubset::emit_setdomainname_query_mode) { csubset::emit_setdomainname_query(program); return 0; }
     if(csubset::emit_get_thread_area_query_mode) { csubset::emit_get_thread_area_query(program); return 0; }
+    if(csubset::emit_ustat_query_mode) { csubset::emit_ustat_query(program); return 0; }
     if(csubset::emit_sched_getscheduler_query_mode) { csubset::emit_sched_getscheduler_query(program); return 0; }
     if(csubset::emit_sched_get_priority_max_query_mode) { csubset::emit_sched_get_priority_max_query(program); return 0; }
     if(csubset::emit_sched_get_priority_min_query_mode) { csubset::emit_sched_get_priority_min_query(program); return 0; }
