@@ -125,6 +125,15 @@ Proof.
   - exact H.
 Qed.
 
+Lemma staged_round_trip_preserves_type : forall Γ t A u,
+  ntyped Γ t A ->
+  nred (NUnquote (NQuote t)) u ->
+  ntyped Γ u A.
+Proof.
+  intros Γ t A u Htyped Hred.
+  inversion Hred; subst; assumption.
+Qed.
+
 Lemma neutral_has_quote : forall A k,
   exists t, nquote A (NNNeutral (NNVar k)) t.
 Proof.
