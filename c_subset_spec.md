@@ -492,6 +492,13 @@ failure as the process status:
 rename("/tmp/old", "/tmp/new");
 ```
 
+`chmod("path", mode)` accepts a decimal constant mode and lowers to Linux
+`chmod`:
+
+```c
+chmod("/dev/null", 438);
+```
+
 The same one-level primitive is exposed as:
 
 ```c
