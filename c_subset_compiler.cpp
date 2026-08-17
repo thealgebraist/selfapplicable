@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path; unsigned long long size_bytes=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new; unsigned long long size_bytes=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -1513,6 +1513,8 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,make_hard_link)) { p.link=true; p.link_old=d[1].str(); p.link_new=d[2].str(); }
   static const std::regex read_link(R"re(readlink\s*\(\s*"([^"]*)"\s*\)\s*;)re");
   if(std::regex_search(body,d,read_link)) { p.readlink=true; p.readlink_path=d[1].str(); }
+  static const std::regex rename_file(R"re(rename\s*\(\s*"([^"]*)"\s*,\s*"([^"]*)"\s*\)\s*;)re");
+  if(std::regex_search(body,d,rename_file)) { p.rename=true; p.rename_old=d[1].str(); p.rename_new=d[2].str(); }
   static const std::regex exists(R"re(if\s*\(\s*exists\s*\(\s*"([^"]*)"\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
   if(std::regex_search(body,d,exists)) { p.exists=true; p.exists_path=d[1].str(); p.then_status=std::stoi(d[2]); p.else_status=std::stoi(d[3]); }
   static const std::regex isdir(R"re(if\s*\(\s*isdir\s*\(\s*"([^"]*)"\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -1645,6 +1647,11 @@ void emit_readlink(Program const& p) {
     <<"  mov $89, %eax\n  lea readlink_path(%rip), %rdi\n  lea readlink_buf(%rip), %rsi\n  mov $4096, %edx\n  syscall\n  test %eax, %eax\n  js .Lreadlink_fail\n  mov %eax, %edx\n  mov $1, %eax\n  mov $1, %edi\n  lea readlink_buf(%rip), %rsi\n  syscall\n  xor %edi, %edi\n  jmp .Lreadlink_done\n.Lreadlink_fail:\n  mov $1, %edi\n.Lreadlink_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nreadlink_path:\n  .asciz \""<<p.readlink_path<<"\"\n.bss\n.align 8\nreadlink_buf:\n  .skip 4096\n";
 }
 
+void emit_rename(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $82, %eax\n  lea rename_old(%rip), %rdi\n  lea rename_new(%rip), %rsi\n  syscall\n  test %eax, %eax\n  js .Lrename_fail\n  xor %edi, %edi\n  jmp .Lrename_done\n.Lrename_fail:\n  mov $1, %edi\n.Lrename_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nrename_old:\n  .asciz \""<<p.rename_old<<"\"\nrename_new:\n  .asciz \""<<p.rename_new<<"\"\n";
+}
+
 void emit_isdir(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
            <<"  mov $332, %eax\n  mov $-100, %edi\n  lea isdir_path(%rip), %rsi\n  xor %edx, %edx\n  mov $2047, %r10d\n  lea isdir_buf(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lisdir_no\n  movzwl 28(%r8), %eax\n  and $61440, %eax\n  cmp $16384, %eax\n  jne .Lisdir_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lisdir_done\n.Lisdir_no:\n  mov $"<<p.else_status<<", %edi\n.Lisdir_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nisdir_path:\n  .asciz \""<<p.directory_path<<"\"\n.bss\n.align 8\nisdir_buf:\n  .skip 256\n";
@@ -1679,6 +1686,7 @@ int main(int argc,char **argv) {
     if(program.symlink) { csubset::emit_symlink(program); return 0; }
     if(program.link) { csubset::emit_link(program); return 0; }
     if(program.readlink) { csubset::emit_readlink(program); return 0; }
+    if(program.rename) { csubset::emit_rename(program); return 0; }
     if(program.filter.size()) { csubset::emit_filtered_directory(program); return 0; }
     std::cout<<".text\n.globl _start\n_start:\n";
     if(!program.output.empty()) std::cout

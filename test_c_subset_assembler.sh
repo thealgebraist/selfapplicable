@@ -148,6 +148,7 @@ expect_status fixtures/chdir_root.c 0
 expect_status fixtures/symlink_root.c 1
 expect_status fixtures/link_root.c 1
 expect_status fixtures/readlink_exe.c 0
+expect_status fixtures/rename_root.c 1
 expect_output fixtures/write_escape.c "A	B"
 expect_output fixtures/loop_write_escape.c "x	x	"
 expect_output fixtures/loop_write_hex.c "AA"

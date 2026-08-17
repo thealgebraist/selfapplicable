@@ -485,6 +485,13 @@ writes the returned bytes to standard output:
 readlink("/proc/self/exe");
 ```
 
+`rename("old", "new")` lowers to Linux `rename` and reports success or
+failure as the process status:
+
+```c
+rename("/tmp/old", "/tmp/new");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
