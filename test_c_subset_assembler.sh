@@ -535,6 +535,7 @@ expect_status fixtures/rt_sigpending_query.c 1
 expect_status fixtures/rt_sigtimedwait_query.c 1
 expect_status fixtures/rt_sigqueueinfo_query.c 1
 expect_status fixtures/rt_tgsigqueueinfo_query.c 1
+expect_status fixtures/set_robust_list_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
