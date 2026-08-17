@@ -116,6 +116,7 @@ bool emit_futex_unlock_pi_query_mode = false;
 bool emit_futex_wake_op_query_mode = false;
 bool emit_futex_wait_requeue_pi_query_mode = false;
 bool emit_futex_wait_bitset_query_mode = false;
+bool emit_futex_wake_bitset_query_mode = false;
 bool emit_lsm_list_modules_query_mode = false;
 bool emit_lsm_set_self_attr_query_mode = false;
 bool emit_open_tree_query_mode = false;
@@ -2023,6 +2024,7 @@ Program parse_main(std::string const& s) {
   emit_futex_wake_op_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_wake_op_query\s*\(\s*\)\s*;)re"));
   emit_futex_wait_requeue_pi_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_wait_requeue_pi_query\s*\(\s*\)\s*;)re"));
   emit_futex_wait_bitset_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_wait_bitset_query\s*\(\s*\)\s*;)re"));
+  emit_futex_wake_bitset_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_wake_bitset_query\s*\(\s*\)\s*;)re"));
   emit_lsm_list_modules_query_mode=std::regex_search(body,std::regex(R"re(\blsm_list_modules_query\s*\(\s*\)\s*;)re"));
   emit_lsm_set_self_attr_query_mode=std::regex_search(body,std::regex(R"re(\blsm_set_self_attr_query\s*\(\s*\)\s*;)re"));
   emit_open_tree_query_mode=std::regex_search(body,std::regex(R"re(\bopen_tree_query\s*\(\s*\)\s*;)re"));
@@ -3071,6 +3073,15 @@ void emit_futex_wait_bitset_query(Program const&) {
     <<"  xor %edi, %edi\n  jmp .Lfutex_wait_bitset_done\n"
     <<".Lfutex_wait_bitset_fail:\n  mov $1, %edi\n.Lfutex_wait_bitset_done:\n"
     <<"  mov $60, %eax\n  syscall\n.bss\n.align 4\nfutex_wait_bitset_word:\n  .skip 4\n.align 8\nfutex_wait_bitset_ts:\n  .skip 16\n";
+}
+
+void emit_futex_wake_bitset_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $202, %eax\n  lea futex_wake_bitset_word(%rip), %rdi\n  mov $10, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  mov $-1, %r8d\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lfutex_wake_bitset_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lfutex_wake_bitset_done\n"
+    <<".Lfutex_wake_bitset_fail:\n  mov $1, %edi\n.Lfutex_wake_bitset_done:\n"
+    <<"  mov $60, %eax\n  syscall\n.bss\n.align 4\nfutex_wake_bitset_word:\n  .skip 4\n";
 }
 
 void emit_lsm_list_modules_query(Program const&) {
@@ -5395,6 +5406,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_futex_wake_op_query_mode) { csubset::emit_futex_wake_op_query(program); return 0; }
     if(csubset::emit_futex_wait_requeue_pi_query_mode) { csubset::emit_futex_wait_requeue_pi_query(program); return 0; }
     if(csubset::emit_futex_wait_bitset_query_mode) { csubset::emit_futex_wait_bitset_query(program); return 0; }
+    if(csubset::emit_futex_wake_bitset_query_mode) { csubset::emit_futex_wake_bitset_query(program); return 0; }
     if(csubset::emit_lsm_list_modules_query_mode) { csubset::emit_lsm_list_modules_query(program); return 0; }
     if(csubset::emit_lsm_set_self_attr_query_mode) { csubset::emit_lsm_set_self_attr_query(program); return 0; }
     if(csubset::emit_open_tree_query_mode) { csubset::emit_open_tree_query(program); return 0; }

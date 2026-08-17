@@ -339,6 +339,7 @@ expect_status fixtures/futex_unlock_pi_query.c 1
 expect_status fixtures/futex_wake_op_query.c 1
 expect_status fixtures/futex_wait_requeue_pi_query.c 1
 expect_status fixtures/futex_wait_bitset_query.c 1
+expect_status fixtures/futex_wake_bitset_query.c 1
 expect_status fixtures/lsm_list_modules_query.c 1
 expect_status fixtures/lsm_set_self_attr_query.c 1
 expect_status fixtures/open_tree_query.c 1
