@@ -67,6 +67,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | C store update lemmas | [x] | CI run `32038550737` proves same-slot and distinct-slot update properties |
 | Semantics | Typed store assignment preservation | [x] | CI run `32039096595` proves typed updates preserve `cstore_typed` |
 | Semantics | End-to-end typed assignment theorem | [x] | CI run `32039204250` connects expression evaluation, assignment, and typed store output |
+| Semantics | Small-step typed assignment preservation | [ ] | Added `small_step_assignment_preserves_store_type`; await CI confirmation |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |

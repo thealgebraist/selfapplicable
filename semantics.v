@@ -374,6 +374,19 @@ Inductive cmstmt_step : cmemory -> cmconfig -> cmconfig -> Prop :=
 | CMSReturnValue : forall M σ v,
     cmstmt_step M (CMReturn (CXVal v), σ) (CMSkip, σ).
 
+Lemma small_step_assignment_preserves_store_type : forall M Γ σ a e v,
+  cstore_typed Γ σ ->
+  cexpr_big M σ e v ->
+  cval_typed v (Γ a) ->
+  cmstmt_step M (CMAssign a e, σ) (CMSkip, cstore_update σ a v) /\
+  cstore_typed Γ (cstore_update σ a v).
+Proof.
+  intros M Γ σ a e v Hσ He Hv.
+  split.
+  - now apply CMSAssign.
+  - now apply cstore_update_preserves_type.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
