@@ -48,6 +48,20 @@ Inductive nstage : nterm -> nterm -> Prop :=
 | NSQuoteUnquote : forall t,
     nstage (NUnquote (NQuote t)) t.
 
+Lemma nred_star_refl : forall t, nred_star t t.
+Proof.
+  intros t.
+  constructor.
+Qed.
+
+Lemma nstage_is_nred : forall t u,
+  nstage t u -> nred t u.
+Proof.
+  intros t u H.
+  inversion H; subst.
+  constructor.
+Qed.
+
 Lemma nred_star_trans : forall t u v,
   nred_star t u -> nred_star u v -> nred_star t v.
 Proof.
