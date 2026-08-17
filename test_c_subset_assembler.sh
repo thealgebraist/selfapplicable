@@ -114,6 +114,7 @@ expect_status fixtures/logical_not_return.c 1
 expect_status fixtures/negative_return.c 253
 expect_status fixtures/addition_return.c 7
 expect_status fixtures/subtraction_return.c 5
+expect_status fixtures/multiplication_return.c 12
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c

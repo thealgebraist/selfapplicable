@@ -328,6 +328,7 @@ Constant unary `!` and `-` expressions are lowered as logical-not and
 arithmetic-negation results.
 Constant integer addition and subtraction expressions are lowered directly to
 their computed exit statuses.
+Constant integer multiplication is lowered the same way.
 typed `sizeof` form returns an integer and uses the core's deterministic
 packed layout: `int` is 4 bytes, pointers and function references are 8 bytes,
 and struct size is the sum of its field sizes. This is a deliberate initial
