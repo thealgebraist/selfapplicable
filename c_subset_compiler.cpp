@@ -883,6 +883,13 @@ Program parse_main(std::string const& s) {
     if(std::stoi(w[2])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
     p.output.clear();
   }
+  static const std::regex do_inclusive_write_loop(
+    R"re(int\s+i\s*=\s*0\s*;\s*do\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*while\s*\(\s*i\s*<=\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,do_inclusive_write_loop)) {
+    p.loop_count=std::stoi(w[3]); p.loop_present=true; p.loop_do=true; p.loop_inclusive=true; p.loop_output=decode_write(w[1].str());
+    if(std::stoi(w[2])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
   static const std::regex do_adjacent_write_loop(
     R"re(int\s+i\s*=\s*0\s*;\s*do\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*while\s*\(\s*i\s*<\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,do_adjacent_write_loop)) {
@@ -1398,7 +1405,7 @@ int main(int argc,char **argv) {
              <<"  mov $1, %eax\n  mov $1, %edi\n  lea message(%rip), %rsi\n  mov $"<<program.output.size()<<", %edx\n  syscall\n";
     if(program.loop_count>0 || program.loop_present) {
       if(program.loop_do) std::cout
-        <<"  xor %r12d, %r12d\n.Lfor:\n  mov $1, %eax\n  mov $1, %edi\n  lea loop_message(%rip), %rsi\n  mov $"<<program.loop_output.size()<<", %edx\n  syscall\n  inc %r12d\n  cmp $"<<program.loop_count<<", %r12d\n  jge .Lfor_done\n  jmp .Lfor\n.Lfor_done:\n";
+        <<"  xor %r12d, %r12d\n.Lfor:\n  mov $1, %eax\n  mov $1, %edi\n  lea loop_message(%rip), %rsi\n  mov $"<<program.loop_output.size()<<", %edx\n  syscall\n  inc %r12d\n  cmp $"<<program.loop_count<<", %r12d\n  "<<(program.loop_inclusive ? "jg" : "jge")<<" .Lfor_done\n  jmp .Lfor\n.Lfor_done:\n";
       else std::cout
         <<"  xor %r12d, %r12d\n.Lfor:\n  cmp $"<<program.loop_count<<", %r12d\n  "<<(program.loop_inclusive ? "jg" : "jge")<<" .Lfor_done\n"
         <<"  mov $1, %eax\n  mov $1, %edi\n  lea loop_message(%rip), %rsi\n  mov $"<<program.loop_output.size()<<", %edx\n  syscall\n"
