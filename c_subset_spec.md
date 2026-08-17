@@ -224,6 +224,8 @@ Three adjacent fragments are also accepted in the unbraced inclusive form,
 covered by `do_write_unbraced_inclusive_three_adjacent_binary.c`.
 Four adjacent fragments are covered by
 `do_write_unbraced_inclusive_four_adjacent_binary.c`.
+Five adjacent fragments complete this unbraced inclusive ladder in
+`do_write_unbraced_inclusive_five_adjacent_binary.c`.
 The post-test bound may be inclusive (`i <= N`), covered by
 `do_write_inclusive.c`.
 `do_write_inclusive_zero.c` confirms that an inclusive zero bound still
