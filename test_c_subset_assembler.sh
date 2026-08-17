@@ -232,6 +232,7 @@ expect_status fixtures/uname.c 0
 expect_status fixtures/getdomainname.c 0
 expect_status fixtures/fstat_stdout.c 0
 expect_status fixtures/stat_payload.c 0
+expect_status fixtures/lstat_payload.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
