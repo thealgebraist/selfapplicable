@@ -9,6 +9,7 @@ findutils-src/
 *.out
 *.toc
 /normaliser
+/normaliser-ci
 /normaliser-sanitize
 /normaliser-ubsan
 /normaliser_object

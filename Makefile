@@ -1,15 +1,13 @@
 CXX ?= g++
 CXXFLAGS ?= -std=c++23 -Wall -Wextra -pedantic -O2
 
-.PHONY: all normaliser check-normaliser check-compiler check release
+.PHONY: all check-normaliser check-compiler check release
 
-all: normaliser
+all: check-normaliser
 
-normaliser: normaliser.cpp
-	$(CXX) $(CXXFLAGS) $< -o $@
-
-check-normaliser: normaliser
-	./normaliser
+check-normaliser: normaliser.cpp
+	$(CXX) $(CXXFLAGS) $< -o normaliser-ci
+	./normaliser-ci
 
 check-compiler:
 	./test_c_subset_assembler.sh
