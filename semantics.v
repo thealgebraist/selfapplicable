@@ -179,6 +179,24 @@ Inductive cexpr_step : cmemory -> cstore -> cexpr -> cexpr -> Prop :=
 Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
   fun a' => if Nat.eqb a a' then v else σ a'.
 
+Lemma cstore_update_same : forall σ a v,
+  cstore_update σ a v a = v.
+Proof.
+  intros σ a v.
+  unfold cstore_update.
+  rewrite Nat.eqb_refl.
+  reflexivity.
+Qed.
+
+Lemma cstore_update_other : forall σ a b v,
+  a <> b -> cstore_update σ a v b = σ b.
+Proof.
+  intros σ a b v Hab.
+  unfold cstore_update.
+  rewrite Nat.eqb_neq by exact Hab.
+  reflexivity.
+Qed.
+
 Inductive cmstmt : Type :=
 | CMSkip : cmstmt
 | CMAssign : nat -> cexpr -> cmstmt
