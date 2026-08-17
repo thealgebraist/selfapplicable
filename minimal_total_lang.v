@@ -122,15 +122,23 @@ Inductive Env1 : Ctx1 -> Type :=
 | ENil1 : Env1 []
 | ECons1 : forall Γ A, Val0 A -> Env1 Γ -> Env1 (A :: Γ).
 
+Definition defaultVal0 : forall A, Val0 A :=
+  fun A => match A with
+           | NatTy0 => NatVal0 Z0
+           | BoolTy0 => BoolVal0 False0
+           end.
+
 Fixpoint lookup1 (Γ : Ctx1) (A : Ty0) (v : Var1 Γ A)
     (ρ : Env1 Γ) : Val0 A :=
   match v as v' in Var1 Γ' A' return Env1 Γ' -> Val0 A' with
   | Here1 _ _ => fun ρ' =>
       match ρ' with
+      | ENil1 => defaultVal0 A
       | ECons1 _ _ x _ => x
       end
   | There1 _ _ _ v' => fun ρ' =>
       match ρ' as ρ'' in Env1 Γ'' return Val0 A with
+      | ENil1 => defaultVal0 A
       | ECons1 c _ _ ρ''' => lookup1 c A v' ρ'''
       end
   end ρ.
