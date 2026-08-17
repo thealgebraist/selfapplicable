@@ -89,6 +89,7 @@ bool emit_fcntl_getown_mode = false;
 bool emit_fcntl_getsig_mode = false;
 bool emit_epoll_ctl_mode = false;
 bool emit_epoll_pwait_mode = false;
+bool emit_ppoll_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1753,6 +1754,7 @@ Program parse_main(std::string const& s) {
   emit_fcntl_getsig_mode=std::regex_search(body,std::regex(R"re(\bfcntl_getsig_stdout\s*\(\s*\)\s*;)re"));
   emit_epoll_ctl_mode=std::regex_search(body,std::regex(R"re(\bepoll_ctl_query\s*\(\s*\)\s*;)re"));
   emit_epoll_pwait_mode=std::regex_search(body,std::regex(R"re(\bepoll_pwait_query\s*\(\s*\)\s*;)re"));
+  emit_ppoll_mode=std::regex_search(body,std::regex(R"re(\bppoll_empty_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -2367,6 +2369,11 @@ void emit_epoll_pwait(Program const&) {
     <<"  mov $291, %eax\n  xor %edi, %edi\n  syscall\n  test %eax, %eax\n  js .Lepwait_sig_fail\n  mov %eax, %r12d\n  mov $281, %eax\n  mov %r12d, %edi\n  lea epwait_sig_events(%rip), %rsi\n  mov $1, %edx\n  xor %r10d, %r10d\n  xor %r8d, %r8d\n  xor %r9d, %r9d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Lepwait_sig_fail\n  xor %edi, %edi\n  jmp .Lepwait_sig_done\n.Lepwait_sig_fail:\n  mov $1, %edi\n.Lepwait_sig_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nepwait_sig_events:\n  .skip 16\n";
 }
 
+void emit_ppoll(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $271, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  lea ppoll_timeout(%rip), %rdx\n  xor %r10d, %r10d\n  xor %r8d, %r8d\n  syscall\n  test %eax, %eax\n  js .Lppoll_fail\n  xor %edi, %edi\n  jmp .Lppoll_done\n.Lppoll_fail:\n  mov $1, %edi\n.Lppoll_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nppoll_timeout:\n  .skip 16\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -2707,6 +2714,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_fcntl_getsig_mode) { csubset::emit_fcntl_getsig(program); return 0; }
     if(csubset::emit_epoll_ctl_mode) { csubset::emit_epoll_ctl(program); return 0; }
     if(csubset::emit_epoll_pwait_mode) { csubset::emit_epoll_pwait(program); return 0; }
+    if(csubset::emit_ppoll_mode) { csubset::emit_ppoll(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
