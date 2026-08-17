@@ -506,6 +506,12 @@ returns 0 for success or 1 for failure:
 access("/dev/null", 0);
 ```
 
+`truncate("path", size)` forwards a constant byte size to Linux `truncate`:
+
+```c
+truncate("/dev/null", 0);
+```
+
 The same one-level primitive is exposed as:
 
 ```c
