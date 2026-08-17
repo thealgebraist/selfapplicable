@@ -47,11 +47,28 @@ Fixpoint nsubst (depth : nat) (replacement : nterm) (t : nterm) : nterm :=
 Definition nsubst0 (replacement : nterm) (t : nterm) : nterm :=
   nsubst 0 replacement t.
 
+Lemma nshift_zero_at : forall cutoff t,
+  nshift 0 cutoff t = t.
+Proof.
+  induction t as [k | body IH | f IHf a IHa | code IH | code IH];
+    intros cutoff;
+    simpl.
+  - destruct (cutoff <=? k); simpl; rewrite Nat.add_0_l; reflexivity.
+  - rewrite IH.
+    reflexivity.
+  - rewrite IHf, IHa.
+    reflexivity.
+  - rewrite IH.
+    reflexivity.
+  - rewrite IH.
+    reflexivity.
+Qed.
+
 Lemma nshift_zero : forall t,
   nshift 0 0 t = t.
 Proof.
-  induction t as [k | body IH | f IHf a IHa | code IH | code IH];
-    simpl; try rewrite IH; try rewrite IHf; try rewrite IHa; reflexivity.
+  intros t.
+  apply nshift_zero_at.
 Qed.
 
 Lemma nsubst0_var0 : forall s,
