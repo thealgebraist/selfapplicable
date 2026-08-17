@@ -176,6 +176,7 @@ bool emit_personality_query_mode = false;
 bool emit_prlimit64_query_mode = false;
 bool emit_setfsuid_query_mode = false;
 bool emit_setfsgid_query_mode = false;
+bool emit_getpgid_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1927,6 +1928,7 @@ Program parse_main(std::string const& s) {
   emit_prlimit64_query_mode=std::regex_search(body,std::regex(R"re(\bprlimit64_query\s*\(\s*\)\s*;)re"));
   emit_setfsuid_query_mode=std::regex_search(body,std::regex(R"re(\bsetfsuid_query\s*\(\s*\)\s*;)re"));
   emit_setfsgid_query_mode=std::regex_search(body,std::regex(R"re(\bsetfsgid_query\s*\(\s*\)\s*;)re"));
+  emit_getpgid_query_mode=std::regex_search(body,std::regex(R"re(\bgetpgid_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -3301,6 +3303,15 @@ void emit_setfsgid_query(Program const&) {
     <<".Lsetfsgid_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_getpgid_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $121, %eax\n  mov $-1, %edi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lgetpgid_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lgetpgid_done\n"
+    <<".Lgetpgid_fail:\n  mov $1, %edi\n"
+    <<".Lgetpgid_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -3728,6 +3739,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_prlimit64_query_mode) { csubset::emit_prlimit64_query(program); return 0; }
     if(csubset::emit_setfsuid_query_mode) { csubset::emit_setfsuid_query(program); return 0; }
     if(csubset::emit_setfsgid_query_mode) { csubset::emit_setfsgid_query(program); return 0; }
+    if(csubset::emit_getpgid_query_mode) { csubset::emit_getpgid_query(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
