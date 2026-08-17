@@ -103,6 +103,7 @@ Counted-loop writes use the same decoding path, covered by
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
 `loop_write_adjacent.c` verifies adjacent string fragments inside a counted
 loop.
+`loop_write_adjacent_three.c` extends that coverage to three fragments.
 
 The option guard used by `true(1)` is recognized in this reduced form:
 
