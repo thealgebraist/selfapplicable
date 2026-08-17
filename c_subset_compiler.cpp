@@ -221,6 +221,7 @@ bool emit_syncfs_query_mode = false;
 bool emit_mlock_query_mode = false;
 bool emit_mlockall_query_mode = false;
 bool emit_munlock_query_mode = false;
+bool emit_munlockall_query_mode = false;
 bool emit_madvise_query_mode = false;
 bool emit_mprotect_query_mode = false;
 bool emit_mremap_query_mode = false;
@@ -2162,6 +2163,7 @@ Program parse_main(std::string const& s) {
   emit_mlock_query_mode=std::regex_search(body,std::regex(R"re(\bmlock_query\s*\(\s*\)\s*;)re"));
   emit_mlockall_query_mode=std::regex_search(body,std::regex(R"re(\bmlockall_query\s*\(\s*\)\s*;)re"));
   emit_munlock_query_mode=std::regex_search(body,std::regex(R"re(\bmunlock_query\s*\(\s*\)\s*;)re"));
+  emit_munlockall_query_mode=std::regex_search(body,std::regex(R"re(\bmunlockall_query\s*\(\s*\)\s*;)re"));
   emit_madvise_query_mode=std::regex_search(body,std::regex(R"re(\bmadvise_query\s*\(\s*\)\s*;)re"));
   emit_mprotect_query_mode=std::regex_search(body,std::regex(R"re(\bmprotect_query\s*\(\s*\)\s*;)re"));
   emit_mremap_query_mode=std::regex_search(body,std::regex(R"re(\bmremap_query\s*\(\s*\)\s*;)re"));
@@ -5299,7 +5301,7 @@ void emit_mlock_query(Program const&) {
 
 void emit_mlockall_query(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
-    <<"  mov $152, %eax\n  xor %edi, %edi\n  syscall\n"
+    <<"  mov $151, %eax\n  mov $1, %edi\n  syscall\n"
     <<"  test %eax, %eax\n  js .Lmlockall_fail\n"
     <<"  xor %edi, %edi\n  jmp .Lmlockall_done\n"
     <<".Lmlockall_fail:\n  mov $1, %edi\n.Lmlockall_done:\n"
@@ -5312,6 +5314,15 @@ void emit_munlock_query(Program const&) {
     <<"  test %eax, %eax\n  js .Lmunlock_fail\n"
     <<"  xor %edi, %edi\n  jmp .Lmunlock_done\n"
     <<".Lmunlock_fail:\n  mov $1, %edi\n.Lmunlock_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_munlockall_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $152, %eax\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lmunlockall_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lmunlockall_done\n"
+    <<".Lmunlockall_fail:\n  mov $1, %edi\n.Lmunlockall_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
 }
 
@@ -5865,6 +5876,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_mlock2_query_mode) { csubset::emit_mlock2_query(program); return 0; }
     if(csubset::emit_mlockall_query_mode) { csubset::emit_mlockall_query(program); return 0; }
     if(csubset::emit_munlock_query_mode) { csubset::emit_munlock_query(program); return 0; }
+    if(csubset::emit_munlockall_query_mode) { csubset::emit_munlockall_query(program); return 0; }
     if(csubset::emit_madvise_query_mode) { csubset::emit_madvise_query(program); return 0; }
     if(csubset::emit_mprotect_query_mode) { csubset::emit_mprotect_query(program); return 0; }
     if(csubset::emit_mremap_query_mode) { csubset::emit_mremap_query(program); return 0; }
