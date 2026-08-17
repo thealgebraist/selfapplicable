@@ -118,26 +118,27 @@ Inductive Tm1 : Ctx1 -> Ty0 -> Type :=
 | If1 : forall Γ A, Tm1 Γ BoolTy0 -> Tm1 Γ A -> Tm1 Γ A -> Tm1 Γ A
 | Let1 : forall Γ A B, Tm1 Γ A -> Tm1 (A :: Γ) B -> Tm1 Γ B.
 
-Inductive Env1 : Ctx1 -> Type :=
-| ENil1 : Env1 []
-| ECons1 : forall Γ A, Val0 A -> Env1 Γ -> Env1 (A :: Γ).
-
 Definition defaultVal0 : forall A, Val0 A :=
   fun A => match A with
            | NatTy0 => NatVal0 Z0
            | BoolTy0 => BoolVal0 False0
            end.
 
-Fixpoint lookup1 (Γ : Ctx1) (A : Ty0) (v : Var1 Γ A)
-    (ρ : Env1 Γ) : Val0 A :=
-  match ρ with
-  | ENil1 => defaultVal0 _
-  | ECons1 Γ' B x ρ' =>
-      match v with
-      | Here1 _ _ => x
-      | There1 _ _ _ v' => lookup1 Γ' A v' ρ'
-      end
-  end.
+Definition Env1 (Γ : Ctx1) : Type :=
+  forall A, Var1 Γ A -> Val0 A.
+
+Definition emptyEnv1 : Env1 [] :=
+  fun A v => match v with end.
+
+Definition extendEnv1 : forall Γ A, Val0 A -> Env1 Γ -> Env1 (A :: Γ) :=
+  fun Γ A x ρ B v =>
+    match v with
+    | Here1 _ _ => x
+    | There1 _ _ _ v' => ρ B v'
+    end.
+
+Definition lookup1 (Γ : Ctx1) (A : Ty0) (v : Var1 Γ A)
+    (ρ : Env1 Γ) : Val0 A := ρ A v.
 
 Fixpoint eval1 (Γ : Ctx1) (A : Ty0) (t : Tm1 Γ A)
     (ρ : Env1 Γ) : Val0 A :=
@@ -155,11 +156,11 @@ Fixpoint eval1 (Γ : Ctx1) (A : Ty0) (t : Tm1 Γ A)
       | BoolVal0 False0 => eval1 _ A y ρ
       end
   | Let1 _ A B value body =>
-      eval1 (A :: Γ) B body (ECons1 Γ A (eval1 Γ A value ρ) ρ)
+      eval1 (A :: Γ) B body (extendEnv1 Γ A (eval1 Γ A value ρ) ρ)
   end.
 
 Definition normalise_closed1 (A : Ty0) (t : Tm1 [] A) : Tm0 A :=
-  quote0 A (eval1 [] A t ENil1).
+  quote0 A (eval1 [] A t emptyEnv1).
 
 Example let_add_normalises :
   normalise_closed1 NatTy0
@@ -172,7 +173,7 @@ Example let_add_normalises :
 Proof. reflexivity. Qed.
 
 Lemma lookup1_here : forall A (v : Val0 A) (ρ : Env1 []),
-  lookup1 [A] A (Here1 [] A) (ECons1 [] A v ρ) = v.
+  lookup1 [A] A (Here1 [] A) (extendEnv1 [] A v ρ) = v.
 Proof. intros; reflexivity. Qed.
 
 Theorem total_closed_normaliser1 : forall A (t : Tm1 [] A),
