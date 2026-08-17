@@ -152,6 +152,7 @@ bool emit_process_madvise_query_mode = false;
 bool emit_process_vm_readv_query_mode = false;
 bool emit_process_vm_writev_query_mode = false;
 bool emit_getrandom_query_mode = false;
+bool emit_epoll_pwait2_query_mode = false;
 bool emit_sched_yield_query_mode = false;
 bool emit_nanosleep_query_mode = false;
 bool emit_clock_nanosleep_query_mode = false;
@@ -1234,32 +1235,33 @@ Program parse_main(std::string const& s) {
     return value;
   };
   std::smatch w;
-  static const std::regex error_write(R"re(write\s*\(\s*2\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
-  if(std::regex_search(body,w,error_write)) {
-    p.error_output=decode_write(w[1].str());
-    if(std::stoi(w[2])!=(int)p.error_output.size()) throw std::runtime_error("write length mismatch");
-  }
+  bool adjacent_error_write=false;
+  static const std::regex error_write(R"re(write\s*\(\s*2\s*,\s*"((?:\\.|[^"\\\n])*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   static const std::regex error_adjacent_write(R"re(write\s*\(\s*2\s*,\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,error_adjacent_write)) {
+    adjacent_error_write=true;
     p.error_output=decode_write(w[1].str())+decode_write(w[2].str());
     if(std::stoi(w[3])!=(int)p.error_output.size()) throw std::runtime_error("write length mismatch");
   }
   static const std::regex error_three_adjacent_write(R"re(write\s*\(\s*2\s*,\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,error_three_adjacent_write)) {
+    adjacent_error_write=true;
     p.error_output=decode_write(w[1].str())+decode_write(w[2].str())+decode_write(w[3].str());
     if(std::stoi(w[4])!=(int)p.error_output.size()) throw std::runtime_error("write length mismatch");
   }
   static const std::regex error_four_adjacent_write(R"re(write\s*\(\s*2\s*,\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,error_four_adjacent_write)) {
+    adjacent_error_write=true;
     p.error_output=decode_write(w[1].str())+decode_write(w[2].str())+decode_write(w[3].str())+decode_write(w[4].str());
     if(std::stoi(w[5])!=(int)p.error_output.size()) throw std::runtime_error("write length mismatch");
   }
   static const std::regex error_five_adjacent_write(R"re(write\s*\(\s*2\s*,\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,error_five_adjacent_write)) {
+    adjacent_error_write=true;
     p.error_output=decode_write(w[1].str())+decode_write(w[2].str())+decode_write(w[3].str())+decode_write(w[4].str())+decode_write(w[5].str());
     if(std::stoi(w[6])!=(int)p.error_output.size()) throw std::runtime_error("write length mismatch");
   }
-  if(p.error_output.empty()) {
+  if(!adjacent_error_write) {
     for(std::sregex_iterator it(body.begin(),body.end(),error_write), end; it!=end; ++it) {
       auto payload=decode_write((*it)[1].str());
       if(std::stoi((*it)[2])!=(int)payload.size()) throw std::runtime_error("write length mismatch");
@@ -1268,7 +1270,7 @@ Program parse_main(std::string const& s) {
   }
   static const std::regex has_stdout_write(R"(write\s*\(\s*1\s*,)"), has_stderr_write(R"(write\s*\(\s*2\s*,)");
   if(std::regex_search(body,has_stdout_write) && std::regex_search(body,has_stderr_write)) {
-    static const std::regex ordered_write(R"re(write\s*\(\s*([12])\s*,\s*"([^\n]*)"(?:\s*"([^\n]*)")?(?:\s*"([^\n]*)")?(?:\s*"([^\n]*)")?(?:\s*"([^\n]*)")?\s*,\s*([0-9]+)\s*\)\s*;)re");
+    static const std::regex ordered_write(R"re(write\s*\(\s*([12])\s*,\s*"((?:\\.|[^"\\\n])*)"(?:\s*"((?:\\.|[^"\\\n])*)")?(?:\s*"((?:\\.|[^"\\\n])*)")?(?:\s*"((?:\\.|[^"\\\n])*)")?(?:\s*"((?:\\.|[^"\\\n])*)")?\s*,\s*([0-9]+)\s*\)\s*;)re");
     for(std::sregex_iterator it(body.begin(),body.end(),ordered_write), end; it!=end; ++it) {
       auto payload=decode_write((*it)[2].str());
       if((*it)[3].matched) payload+=decode_write((*it)[3].str());
@@ -2088,6 +2090,7 @@ Program parse_main(std::string const& s) {
   emit_process_vm_readv_query_mode=std::regex_search(body,std::regex(R"re(\bprocess_vm_readv_query\s*\(\s*\)\s*;)re"));
   emit_process_vm_writev_query_mode=std::regex_search(body,std::regex(R"re(\bprocess_vm_writev_query\s*\(\s*\)\s*;)re"));
   emit_getrandom_query_mode=std::regex_search(body,std::regex(R"re(\bgetrandom_query\s*\(\s*\)\s*;)re"));
+  emit_epoll_pwait2_query_mode=std::regex_search(body,std::regex(R"re(\bepoll_pwait2_query\s*\(\s*\)\s*;)re"));
   emit_sched_yield_query_mode=std::regex_search(body,std::regex(R"re(\bsched_yield_query\s*\(\s*\)\s*;)re"));
   emit_nanosleep_query_mode=std::regex_search(body,std::regex(R"re(\bnanosleep_query\s*\(\s*\)\s*;)re"));
   emit_clock_nanosleep_query_mode=std::regex_search(body,std::regex(R"re(\bclock_nanosleep_query\s*\(\s*\)\s*;)re"));
@@ -4680,6 +4683,15 @@ void emit_getrandom_query(Program const&) {
     <<".bss\n.align 8\ngetrandom_buffer:\n  .skip 16\n";
 }
 
+void emit_epoll_pwait2_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $441, %eax\n  mov $-1, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  xor %r8d, %r8d\n  xor %r9d, %r9d\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lepoll_pwait2_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lepoll_pwait2_done\n"
+    <<".Lepoll_pwait2_fail:\n  mov $1, %edi\n"
+    <<".Lepoll_pwait2_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_sched_yield_query(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $24, %eax\n  syscall\n"
@@ -5750,6 +5762,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_process_madvise_query_mode) { csubset::emit_process_madvise_query(program); return 0; }
     if(csubset::emit_process_vm_readv_query_mode) { csubset::emit_process_vm_readv_query(program); return 0; }
     if(csubset::emit_getrandom_query_mode) { csubset::emit_getrandom_query(program); return 0; }
+    if(csubset::emit_epoll_pwait2_query_mode) { csubset::emit_epoll_pwait2_query(program); return 0; }
     if(csubset::emit_sched_yield_query_mode) { csubset::emit_sched_yield_query(program); return 0; }
     if(csubset::emit_nanosleep_query_mode) { csubset::emit_nanosleep_query(program); return 0; }
     if(csubset::emit_clock_nanosleep_query_mode) { csubset::emit_clock_nanosleep_query(program); return 0; }
