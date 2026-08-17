@@ -72,6 +72,7 @@ bool emit_epoll_wait_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
+bool emit_landlock_query_mode = false;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1711,6 +1712,7 @@ Program parse_main(std::string const& s) {
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
+  emit_landlock_query_mode=std::regex_search(body,std::regex(R"re(\blandlock_create_ruleset_query\s*\(\s*\)\s*;)re"));
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -2232,6 +2234,11 @@ void emit_pidfd_getfd(Program const&) {
     <<"  mov $434, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Lpidfd_getfd_fail\n  mov %eax, %r12d\n  mov $438, %eax\n  mov %r12d, %edi\n  mov $1, %esi\n  xor %edx, %edx\n  syscall\n  mov %eax, %r13d\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %r13d, %r13d\n  js .Lpidfd_getfd_fail\n  mov %r13d, %edi\n  mov $3, %eax\n  syscall\n  xor %edi, %edi\n  jmp .Lpidfd_getfd_done\n.Lpidfd_getfd_fail:\n  mov $1, %edi\n.Lpidfd_getfd_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_landlock_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $444, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  mov $1, %edx\n  syscall\n  test %eax, %eax\n  js .Llandlock_fail\n  xor %edi, %edi\n  jmp .Llandlock_done\n.Llandlock_fail:\n  mov $1, %edi\n.Llandlock_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2515,6 +2522,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
+    if(csubset::emit_landlock_query_mode) { csubset::emit_landlock_query(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
