@@ -193,8 +193,11 @@ Lemma cstore_update_other : forall σ a b v,
 Proof.
   intros σ a b v Hab.
   unfold cstore_update.
-  rewrite Nat.eqb_neq by exact Hab.
-  reflexivity.
+  destruct (Nat.eqb a b) eqn:E.
+  - exfalso.
+    apply Hab.
+    now apply Nat.eqb_eq.
+  - reflexivity.
 Qed.
 
 Inductive cmstmt : Type :=
