@@ -192,11 +192,11 @@ Proof.
   induction Hstep; intros Hbig.
   - inversion Hbig; subst. constructor.
   - inversion Hbig; subst.
-    eapply CXBLoad.
-    + apply IHHstep. exact H2.
+    apply (CXBLoad M σ p a v).
+    + apply IHHstep. exact H0.
     + exact H3.
   - inversion Hbig; subst.
-    apply CXBLoad.
+    apply (CXBLoad M σ (CXVal (CVPtr a)) a v).
     + constructor.
     + assumption.
   - inversion Hbig; subst.
