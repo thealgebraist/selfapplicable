@@ -72,7 +72,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | C-expression small-step/big-step bridge | [x] | CI run `32045111676` proves `cexpr_step_preserves_big` |
 | Semantics | C-expression multi-step/big-step bridge | [x] | CI run `32045271877` proves `cexpr_step_star_preserves_big` |
 | Semantics | C-expression reduction closure transitivity | [x] | CI run `32045490645` proves `cexpr_step_star_trans` |
-| Semantics | C-statement reduction closure transitivity | [ ] | Added `cmstmt_step_star_trans`; await CI confirmation |
+| Semantics | C-statement reduction closure transitivity | [x] | CI run `32045634651` proves `cmstmt_step_star_trans` |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
