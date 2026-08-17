@@ -107,6 +107,11 @@ Lemma nsubst0_under_outer_lambda : forall s,
 Proof.
   intros s.
   cbn [nsubst0 nsubst].
+  assert (1 <? 1 = false) as Hlt by reflexivity.
+  rewrite Hlt.
+  assert (1 =? 1 = true) as Heq by reflexivity.
+  rewrite Heq.
+  reflexivity.
 Qed.
 
 (* The staged computational boundary.  Quotation is inert data; only an
