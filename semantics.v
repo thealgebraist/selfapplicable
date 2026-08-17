@@ -55,7 +55,8 @@ Definition normalise (t : term) (n : term) : Prop :=
   exists v, eval [] t v /\ quote_value v n.
 
 Inductive cty : Type :=
-| CInt | CVoid | CPtr (τ : cty) | CArray (τ : cty) | CStruct (name : string).
+| CInt | CVoid | CPtr (τ : cty) | CArray (τ : cty) | CStruct (name : string)
+| CFun (args : list cty) (result : cty).
 Inductive cop : Type := CVar : string -> cop | CIntLit : nat -> cop
 | CAdd : cop -> cop -> cop | CDeref : cop -> cop
 | CAddr : cop -> cop | CCall : string -> list cop -> cop.
@@ -93,6 +94,7 @@ Inductive cexpr : Type :=
 | CXAddr : nat -> cexpr
 | CXField : cexpr -> string -> cexpr
 | CXIndex : cexpr -> cexpr -> cexpr
+| CXCall : cexpr -> list cexpr -> cexpr
 | CXAdd : cexpr -> cexpr -> cexpr.
 
 Inductive cval_typed : cval -> cty -> Prop :=
@@ -131,6 +133,19 @@ Inductive cexpr_typed_in : ctype_ctx -> cexpr -> cty -> Prop :=
 | CXTCSAdd : forall Γ e1 e2,
     cexpr_typed_in Γ e1 CInt -> cexpr_typed_in Γ e2 CInt ->
     cexpr_typed_in Γ (CXAdd e1 e2) CInt.
+
+Inductive cargs_typed : ctype_ctx -> list cexpr -> list cty -> Prop :=
+| CArgsNil : forall Γ, cargs_typed Γ [] []
+| CArgsCons : forall Γ e es τ τs,
+    cexpr_typed_in Γ e τ ->
+    cargs_typed Γ es τs ->
+    cargs_typed Γ (e :: es) (τ :: τs).
+
+Inductive ccall_typed : ctype_ctx -> cexpr -> list cexpr -> cty -> Prop :=
+| CCallTyped : forall Γ f args params result,
+    cexpr_typed_in Γ f (CFun params result) ->
+    cargs_typed Γ args params ->
+    ccall_typed Γ f args result.
 
 Inductive cexpr_big : cmemory -> cstore -> cexpr -> cval -> Prop :=
 | CXBVal : forall M σ v, cexpr_big M σ (CXVal v) v
