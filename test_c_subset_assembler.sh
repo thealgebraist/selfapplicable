@@ -511,6 +511,7 @@ expect_status fixtures/getdents64_query.c 1
 expect_status fixtures/openat_query.c 1
 expect_status fixtures/mkdirat_query.c 1
 expect_status fixtures/unlinkat_query.c 1
+expect_status fixtures/newfstatat_query.c 1
 expect_status fixtures/landlock_add_rule_query.c 1
 expect_status fixtures/landlock_restrict_self_query.c 1
 expect_status fixtures/keyctl_query.c 1
