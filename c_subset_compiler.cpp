@@ -1735,7 +1735,7 @@ void emit_getrandom(Program const& p) {
 
 void emit_readstdin(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
-    <<"  xor %eax, %eax\n  xor %edi, %edi\n  lea stdin_buf(%rip), %rsi\n  mov $"<<p.stdin_bytes<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lstdin_fail\n  mov %eax, %edx\n  mov $1, %eax\n  mov $1, %edi\n  lea stdin_buf(%rip), %rsi\n  syscall\n  xor %edi, %edi\n  jmp .Lstdin_done\n.Lstdin_fail:\n  mov $1, %edi\n.Lstdin_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nstdin_buf:\n  .skip 4096\n";
+    <<"  mov $"<<p.stdin_bytes<<", %r12\n.Lstdin_read:\n  test %r12, %r12\n  jz .Lstdin_done\n  xor %eax, %eax\n  xor %edi, %edi\n  lea stdin_buf(%rip), %rsi\n  mov %r12, %rdx\n  syscall\n  test %eax, %eax\n  js .Lstdin_fail\n  jz .Lstdin_done\n  mov %eax, %r14d\n  mov $1, %eax\n  mov $1, %edi\n  lea stdin_buf(%rip), %rsi\n  mov %r14d, %edx\n  syscall\n  sub %r14, %r12\n  jmp .Lstdin_read\n.Lstdin_fail:\n  mov $1, %edi\n  jmp .Lstdin_exit\n.Lstdin_done:\n  xor %edi, %edi\n.Lstdin_exit:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nstdin_buf:\n  .skip 4096\n";
 }
 
 void emit_dup(Program const& p) {
