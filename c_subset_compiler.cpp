@@ -850,6 +850,7 @@ Program parse_main(std::string const& s) {
     while((nl=value.find("\\b"))!=std::string::npos) value.replace(nl,2,"\b");
     while((nl=value.find("\\f"))!=std::string::npos) value.replace(nl,2,"\f");
     while((nl=value.find("\\v"))!=std::string::npos) value.replace(nl,2,"\v");
+    while((nl=value.find("\\0"))!=std::string::npos) value.replace(nl,2,std::string(1,'\0'));
     while((nl=value.find("\\\""))!=std::string::npos) value.replace(nl,2,"\"");
     while((nl=value.find("\\\\"))!=std::string::npos) value.replace(nl,2,"\\");
     return value;
@@ -873,6 +874,7 @@ Program parse_main(std::string const& s) {
     while((nl=p.loop_output.find("\\b"))!=std::string::npos) p.loop_output.replace(nl,2,"\b");
     while((nl=p.loop_output.find("\\f"))!=std::string::npos) p.loop_output.replace(nl,2,"\f");
     while((nl=p.loop_output.find("\\v"))!=std::string::npos) p.loop_output.replace(nl,2,"\v");
+    while((nl=p.loop_output.find("\\0"))!=std::string::npos) p.loop_output.replace(nl,2,std::string(1,'\0'));
     while((nl=p.loop_output.find("\\\""))!=std::string::npos) p.loop_output.replace(nl,2,"\"");
     while((nl=p.loop_output.find("\\\\"))!=std::string::npos) p.loop_output.replace(nl,2,"\\");
     if(std::stoi(w[3])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
