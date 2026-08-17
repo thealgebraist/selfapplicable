@@ -179,6 +179,7 @@ expect_status fixtures/getrandom_small.c 0
 expect_status fixtures/write_stderr.c 0
 expect_stderr fixtures/write_stderr.c "warning"
 expect_stderr fixtures/write_stderr_adjacent.c "A"
+expect_stderr fixtures/write_stderr_three_adjacent.c "AB"
 expect_status fixtures/readstdin_empty.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0

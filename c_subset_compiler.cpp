@@ -886,6 +886,11 @@ Program parse_main(std::string const& s) {
     p.error_output=decode_write(w[1].str())+decode_write(w[2].str());
     if(std::stoi(w[3])!=(int)p.error_output.size()) throw std::runtime_error("write length mismatch");
   }
+  static const std::regex error_three_adjacent_write(R"re(write\s*\(\s*2\s*,\s*"([^"]*)"\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,error_three_adjacent_write)) {
+    p.error_output=decode_write(w[1].str())+decode_write(w[2].str())+decode_write(w[3].str());
+    if(std::stoi(w[4])!=(int)p.error_output.size()) throw std::runtime_error("write length mismatch");
+  }
   static const std::regex do_write_loop(
     R"re(int\s+i\s*=\s*0\s*;\s*do\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*while\s*\(\s*i\s*<\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,do_write_loop)) {
