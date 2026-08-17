@@ -12,6 +12,7 @@
 
 namespace csubset {
 int loop_break_at = -1;
+int loop_continue_at = -1;
 
 bool emit_getuid_mode = false;
 bool emit_geteuid_mode = false;
@@ -443,6 +444,7 @@ struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1
 
 Program parse_main(std::string const& s) {
   loop_break_at=-1;
+  loop_continue_at=-1;
   std::smatch main_match;
   if(!std::regex_search(s,main_match,std::regex(R"(\bint\s+main\s*)"))) throw std::runtime_error("unsupported main declaration");
   auto main_pos=(std::size_t)main_match.position();
@@ -2530,6 +2532,15 @@ Program parse_main(std::string const& s) {
     loop_break_at=std::stoi(break_match[2]);
     p.loop_count=std::stoi(break_match[1]); p.loop_present=true; p.loop_output=break_match[3].str();
     if(std::stoi(break_match[4])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
+  static const std::regex continue_loop(
+    R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*\{\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*continue\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
+  std::smatch continue_match;
+  if(std::regex_search(body,continue_match,continue_loop)) {
+    loop_continue_at=std::stoi(continue_match[2]);
+    p.loop_count=std::stoi(continue_match[1]); p.loop_present=true; p.loop_output=continue_match[3].str();
+    if(std::stoi(continue_match[4])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
     p.output.clear();
   }
   static const std::regex any_while(R"(\bwhile\s*\()"), supported_while(R"(\bwhile\s*\(\s*i\s*<=?\s*[0-9]+\s*\))");
@@ -6707,9 +6718,11 @@ int main(int argc,char **argv) {
         <<"  xor %r12d, %r12d\n.Lfor:\n  cmp $"<<program.loop_count<<", %r12d\n  "<<(program.loop_inclusive ? "jg" : "jge")<<" .Lfor_done\n";
         if(csubset::loop_break_at >= 0) std::cout
           <<"  cmp $"<<csubset::loop_break_at<<", %r12d\n  je .Lfor_done\n";
+        if(csubset::loop_continue_at >= 0) std::cout
+          <<"  cmp $"<<csubset::loop_continue_at<<", %r12d\n  je .Lfor_continue\n";
         std::cout
         <<"  mov $1, %eax\n  mov $1, %edi\n  lea loop_message(%rip), %rsi\n  mov $"<<program.loop_output.size()<<", %edx\n  syscall\n"
-        <<"  inc %r12d\n  jmp .Lfor\n.Lfor_done:\n";
+        <<"  .Lfor_continue:\n  inc %r12d\n  jmp .Lfor\n.Lfor_done:\n";
       }
     }
     if(program.argv1) std::cout
