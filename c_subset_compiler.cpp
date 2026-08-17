@@ -1730,7 +1730,7 @@ void emit_truncate(Program const& p) {
 
 void emit_getrandom(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
-    <<"  mov $318, %eax\n  lea random_buf(%rip), %rdi\n  mov $"<<p.random_bytes<<", %esi\n  xor %edx, %edx\n  syscall\n  test %eax, %eax\n  js .Lrandom_fail\n  mov %eax, %edx\n  mov $1, %eax\n  mov $1, %edi\n  lea random_buf(%rip), %rsi\n  syscall\n  xor %edi, %edi\n  jmp .Lrandom_done\n.Lrandom_fail:\n  mov $1, %edi\n.Lrandom_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nrandom_buf:\n  .skip 4096\n";
+    <<"  mov $"<<p.random_bytes<<", %r12\n  lea random_buf(%rip), %r13\n.Lrandom_read:\n  test %r12, %r12\n  jz .Lrandom_done\n  mov $318, %eax\n  mov %r13, %rdi\n  mov %r12, %rsi\n  xor %edx, %edx\n  syscall\n  test %eax, %eax\n  js .Lrandom_fail\n  jz .Lrandom_done\n  mov %eax, %r14d\n  mov $1, %eax\n  mov $1, %edi\n  mov %r13, %rsi\n  mov %r14d, %edx\n  syscall\n  add %r14, %r13\n  sub %r14, %r12\n  jmp .Lrandom_read\n.Lrandom_fail:\n  mov $1, %edi\n  jmp .Lrandom_exit\n.Lrandom_done:\n  xor %edi, %edi\n.Lrandom_exit:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nrandom_buf:\n  .skip 4096\n";
 }
 
 void emit_readstdin(Program const& p) {
