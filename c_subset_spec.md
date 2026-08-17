@@ -375,6 +375,8 @@ Three adjacent fragments with inclusive bounds are covered by
 `loop_write_inclusive_braced_three_adjacent_binary.c`.
 Four adjacent fragments with inclusive bounds are covered by
 `loop_write_inclusive_braced_four_adjacent_binary.c`.
+Five adjacent fragments complete the inclusive braced ladder in
+`loop_write_inclusive_braced_five_adjacent_binary.c`.
 Braced `for` bodies may likewise contain two checked literal writes, covered
 by `loop_write_two_body_writes.c`. Inclusive braced `for` bodies support the
 same composition, covered by `loop_write_inclusive_two_body_writes.c`.
