@@ -254,6 +254,7 @@ expect_status fixtures/getgid.c 0
 expect_status fixtures/getegid.c 0
 expect_status fixtures/getpgid_self.c 0
 expect_status fixtures/getsid_self.c 0
+expect_status fixtures/sched_getscheduler_self.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
