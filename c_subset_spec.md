@@ -100,6 +100,7 @@ after decoding and length validation; `write_adjacent.c` and
 `write_adjacent_five.c` cover two- through five-fragment forms.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
+`loop_write_hex.c` verifies that hexadecimal escapes use the same path.
 
 The option guard used by `true(1)` is recognized in this reduced form:
 

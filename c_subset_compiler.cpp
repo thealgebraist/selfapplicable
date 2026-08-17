@@ -910,17 +910,7 @@ Program parse_main(std::string const& s) {
   }
   static const std::regex loop(R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*write\s*\(\s*1\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,loop)) {
-    p.loop_count=std::stoi(w[1]); p.loop_output=w[2].str();
-    std::size_t nl; while((nl=p.loop_output.find("\\n"))!=std::string::npos) p.loop_output.replace(nl,2,"\n");
-    while((nl=p.loop_output.find("\\t"))!=std::string::npos) p.loop_output.replace(nl,2,"\t");
-    while((nl=p.loop_output.find("\\r"))!=std::string::npos) p.loop_output.replace(nl,2,"\r");
-    while((nl=p.loop_output.find("\\a"))!=std::string::npos) p.loop_output.replace(nl,2,"\a");
-    while((nl=p.loop_output.find("\\b"))!=std::string::npos) p.loop_output.replace(nl,2,"\b");
-    while((nl=p.loop_output.find("\\f"))!=std::string::npos) p.loop_output.replace(nl,2,"\f");
-    while((nl=p.loop_output.find("\\v"))!=std::string::npos) p.loop_output.replace(nl,2,"\v");
-    while((nl=p.loop_output.find("\\0"))!=std::string::npos) p.loop_output.replace(nl,2,std::string(1,'\0'));
-    while((nl=p.loop_output.find("\\\""))!=std::string::npos) p.loop_output.replace(nl,2,"\"");
-    while((nl=p.loop_output.find("\\\\"))!=std::string::npos) p.loop_output.replace(nl,2,"\\");
+    p.loop_count=std::stoi(w[1]); p.loop_output=decode_write(w[2].str());
     if(std::stoi(w[3])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
     p.output.clear();
   }

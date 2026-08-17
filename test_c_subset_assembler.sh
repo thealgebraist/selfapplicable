@@ -140,6 +140,7 @@ expect_output() {
 }
 expect_output fixtures/write_escape.c "A	B"
 expect_output fixtures/loop_write_escape.c "x	x	"
+expect_output fixtures/loop_write_hex.c "AA"
 expect_output fixtures/write_backslash.c "A\\B"
 expect_output fixtures/write_quote.c 'A"B'
 expect_output fixtures/write_two.c "AB"
