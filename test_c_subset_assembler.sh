@@ -439,6 +439,7 @@ expect_status fixtures/open_query.c 0
 expect_status fixtures/close_query.c 0
 expect_status fixtures/dup_query.c 0
 expect_status fixtures/dup2_query.c 0
+expect_status fixtures/pipe_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
