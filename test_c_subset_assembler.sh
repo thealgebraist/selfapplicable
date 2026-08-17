@@ -242,6 +242,7 @@ expect_status fixtures/getpriority_self.c 0
 expect_status fixtures/getcpu.c 0
 expect_status fixtures/sched_affinity_self.c 0
 expect_status fixtures/eventfd_zero.c 0
+expect_status fixtures/timerfd_monotonic.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0

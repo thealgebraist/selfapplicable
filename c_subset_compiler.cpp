@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path, fdatasync_path, writefd_text, stat_path, lstat_path; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0, alarm_seconds=0, clock_id=0, rusage_who=0, rlimit_resource=0, priority_query_which=0, priority_query_who=0, affinity_pid=0, eventfd_init=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0, fcntl_fd=0, fcntl_cmd=0, fcntl_arg=0, setpgid_pid=0, setpgid_pgid=0, priority_which=0, priority_who=0, priority_value=0, nice_increment=0, writefd_fd=0, writefd_len=0, readfd_fd=0, readfd_len=0, poll_fd=0, poll_events=0, poll_timeout=0, fstat_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, fdatasync=false, umask=false, fcntl=false, setpgid=false, yield=false, getpid=false, getppid=false, setpriority=false, isroot=false, gettid=false, isgroup0=false, ise_group0=false, nice=false, writefd=false, readfd=false, poll=false, alarm=false, clock_gettime=false, gettimeofday=false, times=false, getrusage=false, sysinfo=false, uname=false, getdomainname=false, fstat=false, stat=false, lstat=false, getgroups=false, getresuid=false, getresgid=false, getrlimit=false, getpriority=false, getcpu=false, sched_getaffinity=false, eventfd=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path, fdatasync_path, writefd_text, stat_path, lstat_path; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0, alarm_seconds=0, clock_id=0, rusage_who=0, rlimit_resource=0, priority_query_which=0, priority_query_who=0, affinity_pid=0, eventfd_init=0, timerfd_clock=0, timerfd_flags=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0, fcntl_fd=0, fcntl_cmd=0, fcntl_arg=0, setpgid_pid=0, setpgid_pgid=0, priority_which=0, priority_who=0, priority_value=0, nice_increment=0, writefd_fd=0, writefd_len=0, readfd_fd=0, readfd_len=0, poll_fd=0, poll_events=0, poll_timeout=0, fstat_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, fdatasync=false, umask=false, fcntl=false, setpgid=false, yield=false, getpid=false, getppid=false, setpriority=false, isroot=false, gettid=false, isgroup0=false, ise_group0=false, nice=false, writefd=false, readfd=false, poll=false, alarm=false, clock_gettime=false, gettimeofday=false, times=false, getrusage=false, sysinfo=false, uname=false, getdomainname=false, fstat=false, stat=false, lstat=false, getgroups=false, getresuid=false, getresgid=false, getrlimit=false, getpriority=false, getcpu=false, sched_getaffinity=false, eventfd=false, timerfd_create=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -1637,6 +1637,8 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,affinity_call)) { p.sched_getaffinity=true; p.affinity_pid=std::stoull(d[1]); }
   static const std::regex eventfd_call(R"re(eventfd\s*\(\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,eventfd_call)) { p.eventfd=true; p.eventfd_init=std::stoull(d[1]); }
+  static const std::regex timerfd_call(R"re(timerfd_create\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,d,timerfd_call)) { p.timerfd_create=true; p.timerfd_clock=std::stoull(d[1]); p.timerfd_flags=std::stoull(d[2]); }
   static const std::regex duplicate_fd(R"re(dup2\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,duplicate_fd)) { p.dup=true; p.dup_old=static_cast<unsigned>(std::stoul(d[1])); p.dup_new=static_cast<unsigned>(std::stoul(d[2])); }
   static const std::regex close_fd_call(R"re(close\s*\(\s*([0-9]+)\s*\)\s*;)re");
@@ -2005,6 +2007,11 @@ void emit_eventfd(Program const& p) {
     <<"  mov $290, %eax\n  mov $"<<p.eventfd_init<<", %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Leventfd_fail\n  mov %eax, %edi\n  mov $3, %eax\n  syscall\n  xor %edi, %edi\n  jmp .Leventfd_done\n.Leventfd_fail:\n  mov $1, %edi\n.Leventfd_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_timerfd_create(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $283, %eax\n  mov $"<<p.timerfd_clock<<", %edi\n  mov $"<<p.timerfd_flags<<", %esi\n  syscall\n  test %eax, %eax\n  js .Ltimerfd_fail\n  mov %eax, %edi\n  mov $3, %eax\n  syscall\n  xor %edi, %edi\n  jmp .Ltimerfd_done\n.Ltimerfd_fail:\n  mov $1, %edi\n.Ltimerfd_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_dup(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $33, %eax\n  mov $"<<p.dup_old<<", %edi\n  mov $"<<p.dup_new<<", %esi\n  syscall\n  test %eax, %eax\n  js .Ldup_fail\n  xor %edi, %edi\n  jmp .Ldup_done\n.Ldup_fail:\n  mov $1, %edi\n.Ldup_done:\n  mov $60, %eax\n  syscall\n";
@@ -2099,6 +2106,7 @@ int main(int argc,char **argv) {
     if(program.getcpu) { csubset::emit_getcpu(program); return 0; }
     if(program.sched_getaffinity) { csubset::emit_sched_getaffinity(program); return 0; }
     if(program.eventfd) { csubset::emit_eventfd(program); return 0; }
+    if(program.timerfd_create) { csubset::emit_timerfd_create(program); return 0; }
     if(program.dup) { csubset::emit_dup(program); return 0; }
     if(program.close) { csubset::emit_close(program); return 0; }
     if(program.pipe) { csubset::emit_pipe(program); return 0; }
