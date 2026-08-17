@@ -185,8 +185,16 @@ Inductive cmstmt : Type :=
 | CMSeq : cmstmt -> cmstmt -> cmstmt
 | CMIf : cexpr -> cmstmt -> cmstmt -> cmstmt
 | CMWhile : cexpr -> cmstmt -> cmstmt
+| CMSwitch : cexpr -> list (nat * cmstmt) -> cmstmt -> cmstmt
 | CMCall : cmstmt -> cmstmt
 | CMReturn : cexpr -> cmstmt.
+
+Inductive ccase_selected : nat -> list (nat * cmstmt) -> cmstmt -> Prop :=
+| CCSHere : forall n body rest,
+    ccase_selected n ((n, body) :: rest) body
+| CCSNext : forall n tag body rest selected,
+    n <> tag -> ccase_selected n rest selected ->
+    ccase_selected n ((tag, body) :: rest) selected.
 
 Inductive cmstmt_big : cmemory -> cstore -> cmstmt -> option cval -> cstore -> Prop :=
 | CMBSkip : forall M σ, cmstmt_big M σ CMSkip None σ
@@ -219,6 +227,15 @@ Inductive cmstmt_big : cmemory -> cstore -> cmstmt -> option cval -> cstore -> P
 | CMBCall : forall M σ body r σ',
     cmstmt_big M σ body r σ' ->
     cmstmt_big M σ (CMCall body) r σ'
+| CMBSwitchCase : forall M σ e cases default n body r σ',
+    cexpr_big M σ e (CVInt n) ->
+    ccase_selected n cases body ->
+    cmstmt_big M σ body r σ' ->
+    cmstmt_big M σ (CMSwitch e cases default) r σ'
+| CMBSwitchDefault : forall M σ e cases default n,
+    cexpr_big M σ e (CVInt n) ->
+    (forall body, ~ ccase_selected n cases body) ->
+    cmstmt_big M σ default None σ
 | CMBReturn : forall M σ e v,
     cexpr_big M σ e v ->
     cmstmt_big M σ (CMReturn e) (Some v) σ.
