@@ -23,6 +23,22 @@ Inductive nterm : Type :=
 | NQuote : nterm -> nterm
 | NUnquote : nterm -> nterm.
 
+(* The staged computational boundary.  Quotation is inert data; only an
+   unquote of an immediately available quotation crosses the boundary. *)
+Inductive nred : nterm -> nterm -> Prop :=
+| NRBeta : forall body arg,
+    nred (NApp (NLam body) arg) body
+| NRQuoteUnquote : forall t,
+    nred (NUnquote (NQuote t)) t
+| NRAppLeft : forall f f' a,
+    nred f f' -> nred (NApp f a) (NApp f' a)
+| NRAppRight : forall f a a',
+    nred a a' -> nred (NApp f a) (NApp f a')
+| NRQuoteBody : forall t t',
+    nred t t' -> nred (NQuote t) (NQuote t')
+| NRUnquote : forall c c',
+    nred c c' -> nred (NUnquote c) (NUnquote c').
+
 Inductive ntyped : list nty -> nterm -> nty -> Prop :=
 | NTVar : forall Γ n A,
     nth_error Γ n = Some A -> ntyped Γ (NVar n) A
@@ -75,6 +91,24 @@ Proof.
   intros Γ t A H.
   apply NTUnquote.
   now apply NTQuote.
+Qed.
+
+Lemma staged_round_trip : forall t,
+  nred (NUnquote (NQuote t)) t.
+Proof.
+  intros t.
+  constructor.
+Qed.
+
+Lemma staged_round_trip_typed : forall Γ t A,
+  ntyped Γ t A ->
+  exists u, nred (NUnquote (NQuote t)) u /\ ntyped Γ u A.
+Proof.
+  intros Γ t A H.
+  exists t.
+  split.
+  - apply staged_round_trip.
+  - exact H.
 Qed.
 
 Lemma neutral_has_quote : forall A k,

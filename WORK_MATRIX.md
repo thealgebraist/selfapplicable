@@ -11,6 +11,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Coq staged normalizer specification compiles | [x] | CI run `32038168585` compiles `normaliser_core.v` |
 | Core language | Coq staged quotation typing lemmas | [x] | CI run `32038300860` proves quote/unquote typing lemmas |
 | Core language | Coq typed application lemma | [x] | CI run `32038978602` proves typed function application |
+| Core language | Coq staged reduction round-trip | [ ] | `normaliser_core.v` now states/proves the local quote/unquote step; await CI confirmation |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
