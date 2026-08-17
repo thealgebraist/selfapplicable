@@ -202,12 +202,12 @@ Proof.
     + assumption.
   - inversion Hbig; subst.
     eapply CXBAdd.
-    + apply IHHstep. exact H2.
-    + exact H3.
+    + apply IHHstep. assumption.
+    + assumption.
   - inversion Hbig; subst.
     eapply CXBAdd.
-    + exact H2.
-    + apply IHHstep. exact H3.
+    + assumption.
+    + apply IHHstep. assumption.
   - inversion Hbig; subst. constructor.
 Qed.
 
