@@ -121,6 +121,8 @@ literal fragments.
 `loop_write_adjacent_tab.c` verifies tab bytes across fragments.
 `loop_write_adjacent_carriage_return.c` verifies carriage-return bytes across
 fragments.
+`loop_write_adjacent_form_vertical.c` verifies form-feed and vertical-tab
+fragments.
 `loop_write_adjacent.c` verifies adjacent string fragments inside a counted
 loop.
 `loop_write_adjacent_hex.c` combines adjacent fragments with hexadecimal
