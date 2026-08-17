@@ -850,6 +850,7 @@ Program parse_main(std::string const& s) {
     while((nl=value.find("\\b"))!=std::string::npos) value.replace(nl,2,"\b");
     while((nl=value.find("\\f"))!=std::string::npos) value.replace(nl,2,"\f");
     while((nl=value.find("\\v"))!=std::string::npos) value.replace(nl,2,"\v");
+    while((nl=value.find("\\?"))!=std::string::npos) value.replace(nl,2,"?");
     for(std::size_t pos=0; (pos=value.find("\\x",pos))!=std::string::npos;) {
       std::size_t count=0;
       while(pos+2+count<value.size() && count<2 &&

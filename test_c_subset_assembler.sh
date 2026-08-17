@@ -161,6 +161,7 @@ expect_bytes fixtures/write_octal_string.c "414142"
 expect_bytes fixtures/write_hex_string.c "414243"
 expect_bytes fixtures/write_apostrophe.c "412742"
 expect_bytes fixtures/write_high_byte.c "ff"
+expect_bytes fixtures/write_question_escape.c "413f42"
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c

@@ -82,7 +82,7 @@ write(1, argv[1], strlen(argv[1]));
 The compiler lowers `argv[1]` from the Linux entry stack and emits a bytewise
 NUL scan before the syscall. Missing `argv[1]` produces an empty successful
 command in this initial slice.
-String writes decode `\\n`, `\\t`, `\\r`, `\\a`, `\\b`, `\\f`, `\\v`, hexadecimal and octal escapes, `\\0`, `\\\\`, and escaped quotes/apostrophes before length
+String writes decode `\\n`, `\\t`, `\\r`, `\\a`, `\\b`, `\\f`, `\\v`, `\\?`, hexadecimal and octal escapes, `\\0`, `\\\\`, and escaped quotes/apostrophes before length
 checking and emission; `write_escape.c` and `write_high_byte.c` verify ordinary
 and high-byte results.
 `write_backslash.c` verifies literal backslash emission.
