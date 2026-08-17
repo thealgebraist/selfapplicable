@@ -56,6 +56,20 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma nsubst0_under_bound_lambda : forall s,
+  nsubst0 s (NLam (NVar 0)) = NLam (NVar 0).
+Proof.
+  intros s.
+  reflexivity.
+Qed.
+
+Lemma nsubst0_under_outer_lambda : forall s,
+  nsubst0 s (NLam (NVar 1)) = NLam (nshift 1 0 s).
+Proof.
+  intros s.
+  reflexivity.
+Qed.
+
 (* The staged computational boundary.  Quotation is inert data; only an
    unquote of an immediately available quotation crosses the boundary. *)
 Inductive nred : nterm -> nterm -> Prop :=
