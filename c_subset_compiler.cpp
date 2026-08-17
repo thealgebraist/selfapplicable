@@ -2554,8 +2554,18 @@ Program parse_main(std::string const& s) {
   std::smatch break_match;
   static const std::regex break_continue_loop(
     R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*\{\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*continue\s*;\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*break\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
+  static const std::regex break_then_continue_loop(
+    R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*\{\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*break\s*;\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*continue\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
   std::smatch break_continue_match;
-  if(std::regex_search(body,break_continue_match,break_continue_loop)) {
+  if(std::regex_search(body,break_continue_match,break_then_continue_loop)) {
+    loop_break_at=std::stoi(break_continue_match[2]);
+    loop_continue_at=std::stoi(break_continue_match[3]);
+    p.loop_count=std::stoi(break_continue_match[1]); p.loop_present=true;
+    p.loop_output=break_continue_match[4].str();
+    if(std::stoi(break_continue_match[5])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
+  if(loop_break_at < 0 && loop_continue_at < 0 && std::regex_search(body,break_continue_match,break_continue_loop)) {
     loop_continue_at=std::stoi(break_continue_match[2]);
     loop_break_at=std::stoi(break_continue_match[3]);
     p.loop_count=std::stoi(break_continue_match[1]); p.loop_present=true;
