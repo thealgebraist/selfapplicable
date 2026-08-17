@@ -296,6 +296,8 @@ Three separate checked writes in an inclusive braced `for` body are covered by
 `loop_write_inclusive_three_body_writes.c`.
 Four separate checked writes in an inclusive braced `for` body are covered by
 `loop_write_inclusive_four_body_writes.c`.
+Five separate checked writes in an inclusive braced `for` body are covered by
+`loop_write_inclusive_five_body_writes.c`.
 Three separate checked writes in a strict-bound `for` body are covered by
 `loop_write_three_body_writes.c`.
 This also composes with braced bodies and explicit `i++`, as shown by
