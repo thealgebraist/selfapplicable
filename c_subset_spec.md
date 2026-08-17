@@ -240,6 +240,8 @@ Its update must be the literal `i++`; `do_write_nonincrement.c` verifies
 rejection of alternative updates.
 The per-call length check also applies to post-test payloads;
 `do_write_bad_length.c` covers a malformed adjacent-fragment count.
+The same check applies to inclusive post-test loops; malformed metadata is
+rejected by `do_write_inclusive_bad_length.c`.
 `do_write_zero.c` verifies that the first iteration remains present even with
 a zero bound.
 Adjacent binary fragments are supported in the post-test body by
