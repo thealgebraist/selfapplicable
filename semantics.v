@@ -741,6 +741,23 @@ Proof.
     + exact Htyped.
 Qed.
 
+Lemma typed_call_unfold : forall M Γ σ body τ,
+  cmstmt_typed Γ (CMCall body) τ ->
+  cstore_typed Γ σ ->
+  cmstmt_step M (CMCall body, σ) (body, σ) /\
+  cmconfig_typed Γ (body, σ).
+Proof.
+  intros M Γ σ body τ Hcall Hσ.
+  assert (Hbody : cmstmt_typed Γ body τ) by
+    (inversion Hcall; assumption).
+  split.
+  - constructor.
+  - exists body, σ, τ.
+    split.
+    + reflexivity.
+    + split; assumption.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
