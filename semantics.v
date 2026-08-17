@@ -124,6 +124,7 @@ Inductive cmstmt : Type :=
 | CMSeq : cmstmt -> cmstmt -> cmstmt
 | CMIf : cexpr -> cmstmt -> cmstmt -> cmstmt
 | CMWhile : cexpr -> cmstmt -> cmstmt
+| CMCall : cmstmt -> cmstmt
 | CMReturn : cexpr -> cmstmt.
 
 Inductive cmstmt_big : cmemory -> cstore -> cmstmt -> option cval -> cstore -> Prop :=
@@ -135,6 +136,9 @@ Inductive cmstmt_big : cmemory -> cstore -> cmstmt -> option cval -> cstore -> P
     cmstmt_big M σ s1 None σ' ->
     cmstmt_big M σ' s2 r σ'' ->
     cmstmt_big M σ (CMSeq s1 s2) r σ''
+| CMBSeqReturn : forall M σ s1 s2 v σ',
+    cmstmt_big M σ s1 (Some v) σ' ->
+    cmstmt_big M σ (CMSeq s1 s2) (Some v) σ'
 | CMBIfZero : forall M σ e st sf σ',
     cexpr_big M σ e (CVInt 0) ->
     cmstmt_big M σ sf None σ' ->
@@ -151,6 +155,9 @@ Inductive cmstmt_big : cmemory -> cstore -> cmstmt -> option cval -> cstore -> P
     cmstmt_big M σ st None σ' ->
     cmstmt_big M σ' (CMWhile e st) None σ'' ->
     cmstmt_big M σ (CMWhile e st) None σ''
+| CMBCall : forall M σ body r σ',
+    cmstmt_big M σ body r σ' ->
+    cmstmt_big M σ (CMCall body) r σ'
 | CMBReturn : forall M σ e v,
     cexpr_big M σ e v ->
     cmstmt_big M σ (CMReturn e) (Some v) σ.
@@ -175,6 +182,8 @@ Inductive cmstmt_step : cmemory -> cmconfig -> cmconfig -> Prop :=
 | CMSWhile : forall M σ e st,
     cmstmt_step M (CMWhile e st, σ)
       (CMIf e (CMSeq st (CMWhile e st)) CMSkip, σ)
+| CMSCall : forall M σ body,
+    cmstmt_step M (CMCall body, σ) (body, σ)
 | CMSReturnValue : forall M σ v,
     cmstmt_step M (CMReturn (CXVal v), σ) (CMSkip, σ).
 
