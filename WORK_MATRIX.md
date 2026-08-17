@@ -86,7 +86,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Typed sequence-skip agreement | [x] | CI run `32047794010` proves `typed_seq_skip_semantic_agreement` |
 | Semantics | Typed while-zero unfolding | [x] | CI run `32048209726` proves `typed_while_zero_unfold` |
 | Semantics | Typed while-nonzero unfolding | [x] | CI run `32048353146` proves `typed_while_nonzero_unfold` |
-| Semantics | Typed while-zero semantic agreement | [ ] | Added `typed_while_zero_semantic_agreement`; await CI confirmation |
+| Semantics | Typed while-zero semantic agreement | [x] | CI run `32049691162` proves `typed_while_zero_semantic_agreement` |
 | Semantics | Typed switch-case agreement | [x] | CI run `32048651571` proves `typed_switch_case_semantic_agreement` |
 | Semantics | Typed switch-default agreement | [x] | CI run `32049112931` proves `typed_switch_default_semantic_agreement` |
 | Semantics | Typed call unfolding | [x] | CI run `32049283090` proves `typed_call_unfold` |
