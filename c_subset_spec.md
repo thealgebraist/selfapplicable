@@ -437,6 +437,13 @@ status 0 on success or 1 when the syscall fails:
 mkdir("/tmp/new-directory");
 ```
 
+The complementary `rm("path")` primitive uses `unlinkat` and returns the
+same success/failure status convention:
+
+```c
+rm("/tmp/old-file");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
