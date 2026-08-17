@@ -6,9 +6,11 @@ This directory contains a compact C++23 prototype of the core described in
 Build and run:
 
 ```sh
-g++ -std=c++23 -Wall -Wextra -pedantic -O2 normaliser.cpp -o normaliser
-./normaliser
+make check-normaliser
 ```
+
+Run the complete local checks with `make check`; create a release bundle with
+`make release`.
 
 The executable exercises:
 
