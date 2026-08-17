@@ -150,6 +150,13 @@ Inductive ccall_typed : ctype_ctx -> cexpr -> list cexpr -> cty -> Prop :=
     cargs_typed Γ args params ->
     ccall_typed Γ f args result.
 
+Lemma cargs_typed_arity : forall Γ es τs,
+  cargs_typed Γ es τs -> length es = length τs.
+Proof.
+  intros Γ es τs H.
+  induction H; simpl; auto.
+Qed.
+
 Inductive cexpr_big : cmemory -> cstore -> cexpr -> cval -> Prop :=
 | CXBVal : forall M σ v, cexpr_big M σ (CXVal v) v
 | CXBSlot : forall M σ a, cexpr_big M σ (CXSlot a) (σ a)
