@@ -220,6 +220,8 @@ Three adjacent fragments in a post-test body are covered by
 `do_write_three.c`.
 Four adjacent fragments in a post-test body are covered by
 `do_write_four.c`.
+Five adjacent fragments in a post-test body are covered by
+`do_write_five.c`.
 
 A bounded `while` form is also supported when its counter is initialized to
 zero and compared against a literal:
