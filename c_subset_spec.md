@@ -216,6 +216,8 @@ the mandatory first iteration; `do_write.c` covers this form.
 a zero bound.
 Adjacent binary fragments are supported in the post-test body by
 `do_write_adjacent_binary.c`.
+Three adjacent fragments in a post-test body are covered by
+`do_write_three.c`.
 
 A bounded `while` form is also supported when its counter is initialized to
 zero and compared against a literal:
