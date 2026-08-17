@@ -398,6 +398,15 @@ Definition cmconfig_typed (Γ : ctype_ctx) (c : cmconfig) : Prop :=
   exists s σ τ,
     c = (s, σ) /\ cmstmt_typed Γ s τ /\ cstore_typed Γ σ.
 
+Lemma typed_skip_config : forall Γ σ,
+  cstore_typed Γ σ -> cmconfig_typed Γ (CMSkip, σ).
+Proof.
+  intros Γ σ Hσ.
+  exists CMSkip, σ, CVoid.
+  repeat split; try reflexivity.
+  constructor.
+Qed.
+
 Inductive cmstmt_step : cmemory -> cmconfig -> cmconfig -> Prop :=
 | CMSAssign : forall M σ a e v,
     cexpr_big M σ e v ->
