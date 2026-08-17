@@ -180,6 +180,8 @@ The source enum-switch path invokes this same validator before lowering.
 The semantic core also has a distinct `char` type with one-byte layout; it is
 not definitionally equal to `int`, and `allocate(char)` yields `char *`.
 The source frontend lowers `sizeof(char)` to 1.
+Byte-sized char fields compose in packed aggregates; a following `int` field
+starts at offset 1 in the current layout model.
 Character pointers retain the ordinary eight-byte pointer layout;
 `sizeof(char *)` lowers to 8.
 Single-byte character literals such as `'A'` lower to their unsigned byte
