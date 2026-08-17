@@ -84,7 +84,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Typed zero-branch `if` agreement | [x] | CI run `32047266224` proves `typed_if_zero_semantic_agreement` |
 | Semantics | Typed nonzero-branch `if` agreement | [x] | CI run `32047519526` proves `typed_if_nonzero_semantic_agreement` |
 | Semantics | Typed sequence-skip agreement | [x] | CI run `32047794010` proves `typed_seq_skip_semantic_agreement` |
-| Semantics | Typed while-zero unfolding | [ ] | Added `typed_while_zero_unfold`; await CI confirmation |
+| Semantics | Typed while-zero unfolding | [x] | CI run `32048209726` proves `typed_while_zero_unfold` |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
