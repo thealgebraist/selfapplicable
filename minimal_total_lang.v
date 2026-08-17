@@ -64,10 +64,10 @@ Inductive Code0 (A : Ty0) : Type :=
 | Quoted0 : Tm0 A -> Code0 A.
 
 Definition unquote0 : forall A, Code0 A -> Tm0 A :=
-  fun A c => match c with Quoted0 t => t end.
+  fun A c => match c with Quoted0 A t => t end.
 
 Definition stage_normalise0 : forall A, Code0 A -> Code0 A :=
-  fun A c => match c with Quoted0 t => Quoted0 (normalise0 A t) end.
+  fun A c => match c with Quoted0 A t => Quoted0 A (normalise0 A t) end.
 
 Lemma eval0_quote0 : forall A (v : Val0 A),
   eval0 A (quote0 A v) = v.
