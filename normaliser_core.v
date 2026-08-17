@@ -249,6 +249,16 @@ Proof.
   - exact Htail.
 Qed.
 
+Lemma nred_star_unquote_quote_then : forall t u,
+  nred_star t u ->
+  nred_star (NUnquote (NQuote t)) u.
+Proof.
+  intros t u Htail.
+  apply nstage_then_nred_star with (u := t).
+  - constructor.
+  - exact Htail.
+Qed.
+
 Lemma nred_star_quote : forall t u,
   nred_star t u -> nred_star (NQuote t) (NQuote u).
 Proof.
