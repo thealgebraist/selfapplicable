@@ -136,7 +136,7 @@ Lemma beta_identity : forall s,
   nred (NApp (NLam (NVar 0)) s) s.
 Proof.
   intros s.
-  change (nred (NApp (NLam (NVar 0)) s) (nsubst0 s (NVar 0))).
+  rewrite <- nsubst0_var0.
   constructor.
 Qed.
 
@@ -144,7 +144,7 @@ Lemma beta_outer_variable : forall s,
   nred (NApp (NLam (NVar 1)) s) (NVar 0).
 Proof.
   intros s.
-  change (nred (NApp (NLam (NVar 1)) s) (nsubst0 s (NVar 1))).
+  rewrite <- (nsubst0_var_succ s 0).
   constructor.
 Qed.
 
