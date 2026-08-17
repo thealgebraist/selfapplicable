@@ -220,7 +220,8 @@ Lemma cexpr_big_deterministic : forall M σ e v1 v2,
   v1 = v2.
 Proof.
   intros M σ e v1 v2 H1.
-  induction H1; intros H2; inversion H2; subst; eauto.
+  revert v2.
+  induction H1; intros v2 H2; inversion H2; subst; eauto.
 Qed.
 
 Lemma cexpr_step_star_trans : forall M σ e1 e2 e3,
