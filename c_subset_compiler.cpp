@@ -307,6 +307,7 @@ bool emit_timerfd_create_query_mode = false;
 bool emit_signalfd_query_mode = false;
 bool emit_mmap_query_mode = false;
 bool emit_munmap_query_mode = false;
+bool emit_memfd_create_query_mode = false;
 bool emit_readlinkat_query_mode = false;
 bool emit_renameat2_query_mode = false;
 bool emit_symlinkat_query_mode = false;
@@ -2286,6 +2287,7 @@ Program parse_main(std::string const& s) {
   emit_signalfd_query_mode=std::regex_search(body,std::regex(R"re(\bsignalfd_query\s*\(\s*\)\s*;)re"));
   emit_mmap_query_mode=std::regex_search(body,std::regex(R"re(\bmmap_query\s*\(\s*\)\s*;)re"));
   emit_munmap_query_mode=std::regex_search(body,std::regex(R"re(\bmunmap_query\s*\(\s*\)\s*;)re"));
+  emit_memfd_create_query_mode=std::regex_search(body,std::regex(R"re(\bmemfd_create_query\s*\(\s*\)\s*;)re"));
   emit_readlinkat_query_mode=std::regex_search(body,std::regex(R"re(\breadlinkat_query\s*\(\s*\)\s*;)re"));
   emit_renameat2_query_mode=std::regex_search(body,std::regex(R"re(\brenameat2_query\s*\(\s*\)\s*;)re"));
   emit_symlinkat_query_mode=std::regex_search(body,std::regex(R"re(\bsymlinkat_query\s*\(\s*\)\s*;)re"));
@@ -4151,6 +4153,16 @@ void emit_munmap_query(Program const&) {
     <<"  xor %edi, %edi\n  jmp .Lmunmap_done\n"
     <<".Lmunmap_fail:\n  mov $1, %edi\n.Lmunmap_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_memfd_create_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $319, %eax\n  lea memfd_create_query_name(%rip), %rdi\n  xor %esi, %esi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lmemfd_create_query_fail\n"
+    <<"  mov %eax, %edi\n  mov $3, %eax\n  syscall\n  xor %edi, %edi\n  jmp .Lmemfd_create_query_done\n"
+    <<".Lmemfd_create_query_fail:\n  mov $1, %edi\n.Lmemfd_create_query_done:\n"
+    <<"  mov $60, %eax\n  syscall\n"
+    <<".section .rodata\nmemfd_create_query_name:\n  .asciz \"selfapp-query\"\n";
 }
 
 void emit_readlinkat_query(Program const&) {
@@ -6360,6 +6372,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_signalfd_query_mode) { csubset::emit_signalfd_query(program); return 0; }
     if(csubset::emit_mmap_query_mode) { csubset::emit_mmap_query(program); return 0; }
     if(csubset::emit_munmap_query_mode) { csubset::emit_munmap_query(program); return 0; }
+    if(csubset::emit_memfd_create_query_mode) { csubset::emit_memfd_create_query(program); return 0; }
     if(csubset::emit_fstatat_query_mode) { csubset::emit_fstatat_query(program); return 0; }
     if(csubset::emit_mknodat_query_mode) { csubset::emit_mknodat_query(program); return 0; }
     if(csubset::emit_utimensat_query_mode) { csubset::emit_utimensat_query(program); return 0; }
