@@ -59,6 +59,31 @@ jobs:
             test "$actual" -eq "${expected[$fixture]}"
           done
 
+      - name: Assemble and run typed C-subset fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          declare -A expected=(
+            [function_call.c]=7
+            [struct_field_return.c]=7
+            [struct_arrow_return.c]=8
+            [struct_next_return.c]=12
+            [pointer_array_assign.c]=16
+            [pointer_add_deref.c]=17
+            [struct_sizeof_return.c]=12
+            [recursive_base_case.c]=0
+          )
+          for fixture in "${!expected[@]}"; do
+            ./c_subset_compiler-ci "fixtures/$fixture" > "$fixture.s"
+            as --64 "$fixture.s" -o "$fixture.o"
+            ld "$fixture.o" -o "$fixture.bin"
+            set +e
+            timeout 5 "./$fixture.bin"
+            actual=$?
+            set -e
+            test "$actual" -eq "${expected[$fixture]}"
+          done
+
       - name: Build and verify release bundle
         shell: bash
         run: |
