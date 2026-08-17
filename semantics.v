@@ -716,10 +716,10 @@ Proof.
   intros M Γ σ e cases default n body r σ' Hswitch He Hselected
     Hbody Htyped.
   split.
-  - now apply CMBSwitchCase.
+  - eapply CMBSwitchCase; eauto.
   - split.
     + apply cmstmt_step_to_star.
-      now apply CMSSwitchCase.
+      eapply CMSSwitchCase; eauto.
     + exact Htyped.
 Qed.
 
