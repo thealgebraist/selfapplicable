@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path, fdatasync_path, writefd_text, stat_path, lstat_path; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0, alarm_seconds=0, clock_id=0, rusage_who=0, rlimit_resource=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0, fcntl_fd=0, fcntl_cmd=0, fcntl_arg=0, setpgid_pid=0, setpgid_pgid=0, priority_which=0, priority_who=0, priority_value=0, nice_increment=0, writefd_fd=0, writefd_len=0, readfd_fd=0, readfd_len=0, poll_fd=0, poll_events=0, poll_timeout=0, fstat_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, fdatasync=false, umask=false, fcntl=false, setpgid=false, yield=false, getpid=false, getppid=false, setpriority=false, isroot=false, gettid=false, isgroup0=false, ise_group0=false, nice=false, writefd=false, readfd=false, poll=false, alarm=false, clock_gettime=false, gettimeofday=false, times=false, getrusage=false, sysinfo=false, uname=false, getdomainname=false, fstat=false, stat=false, lstat=false, getgroups=false, getresuid=false, getresgid=false, getrlimit=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path, fdatasync_path, writefd_text, stat_path, lstat_path; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0, alarm_seconds=0, clock_id=0, rusage_who=0, rlimit_resource=0, priority_query_which=0, priority_query_who=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0, fcntl_fd=0, fcntl_cmd=0, fcntl_arg=0, setpgid_pid=0, setpgid_pgid=0, priority_which=0, priority_who=0, priority_value=0, nice_increment=0, writefd_fd=0, writefd_len=0, readfd_fd=0, readfd_len=0, poll_fd=0, poll_events=0, poll_timeout=0, fstat_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, fdatasync=false, umask=false, fcntl=false, setpgid=false, yield=false, getpid=false, getppid=false, setpriority=false, isroot=false, gettid=false, isgroup0=false, ise_group0=false, nice=false, writefd=false, readfd=false, poll=false, alarm=false, clock_gettime=false, gettimeofday=false, times=false, getrusage=false, sysinfo=false, uname=false, getdomainname=false, fstat=false, stat=false, lstat=false, getgroups=false, getresuid=false, getresgid=false, getrlimit=false, getpriority=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -1630,6 +1630,8 @@ Program parse_main(std::string const& s) {
   p.getresgid=std::regex_search(body,std::regex(R"re(\bgetresgid\s*\(\s*\)\s*;)re"));
   static const std::regex rlimit_call(R"re(getrlimit\s*\(\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,rlimit_call)) { p.getrlimit=true; p.rlimit_resource=std::stoull(d[1]); if(p.rlimit_resource>15) throw std::runtime_error("rlimit resource out of range"); }
+  static const std::regex priority_query_call(R"re(getpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,d,priority_query_call)) { p.getpriority=true; p.priority_query_which=std::stoul(d[1]); p.priority_query_who=std::stoul(d[2]); if(p.priority_query_which>2) throw std::runtime_error("priority selector out of range"); }
   static const std::regex duplicate_fd(R"re(dup2\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,duplicate_fd)) { p.dup=true; p.dup_old=static_cast<unsigned>(std::stoul(d[1])); p.dup_new=static_cast<unsigned>(std::stoul(d[2])); }
   static const std::regex close_fd_call(R"re(close\s*\(\s*([0-9]+)\s*\)\s*;)re");
@@ -1978,6 +1980,11 @@ void emit_getrlimit(Program const& p) {
     <<"  mov $97, %eax\n  mov $"<<p.rlimit_resource<<", %edi\n  lea rlimit_buf(%rip), %rsi\n  syscall\n  test %eax, %eax\n  js .Lrlimit_fail\n  xor %edi, %edi\n  jmp .Lrlimit_done\n.Lrlimit_fail:\n  mov $1, %edi\n.Lrlimit_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nrlimit_buf:\n  .skip 16\n";
 }
 
+void emit_getpriority(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $140, %eax\n  mov $"<<p.priority_query_which<<", %edi\n  mov $"<<p.priority_query_who<<", %esi\n  syscall\n  test %eax, %eax\n  js .Lgetpriority_fail\n  xor %edi, %edi\n  jmp .Lgetpriority_done\n.Lgetpriority_fail:\n  mov $1, %edi\n.Lgetpriority_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_dup(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $33, %eax\n  mov $"<<p.dup_old<<", %edi\n  mov $"<<p.dup_new<<", %esi\n  syscall\n  test %eax, %eax\n  js .Ldup_fail\n  xor %edi, %edi\n  jmp .Ldup_done\n.Ldup_fail:\n  mov $1, %edi\n.Ldup_done:\n  mov $60, %eax\n  syscall\n";
@@ -2068,6 +2075,7 @@ int main(int argc,char **argv) {
     if(program.getresuid) { csubset::emit_getresuid(program); return 0; }
     if(program.getresgid) { csubset::emit_getresgid(program); return 0; }
     if(program.getrlimit) { csubset::emit_getrlimit(program); return 0; }
+    if(program.getpriority) { csubset::emit_getpriority(program); return 0; }
     if(program.dup) { csubset::emit_dup(program); return 0; }
     if(program.close) { csubset::emit_close(program); return 0; }
     if(program.pipe) { csubset::emit_pipe(program); return 0; }
