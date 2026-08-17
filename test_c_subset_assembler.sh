@@ -237,6 +237,7 @@ expect_status fixtures/isegroup0_nonroot.c 1
 expect_status fixtures/getgroups.c 0
 expect_status fixtures/getresuid.c 0
 expect_status fixtures/getresgid.c 0
+expect_status fixtures/getrlimit_cpu.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
