@@ -197,6 +197,7 @@ bool emit_pselect6_query_mode = false;
 bool emit_ppoll_query_mode = false;
 bool emit_select_query_mode = false;
 bool emit_poll_query_mode = false;
+bool emit_adjtimex_query_mode = false;
 bool emit_clock_adjtime_query_mode = false;
 bool emit_ioctl_query_mode = false;
 bool emit_fcntl_query_mode = false;
@@ -2136,6 +2137,7 @@ Program parse_main(std::string const& s) {
   emit_ppoll_query_mode=std::regex_search(body,std::regex(R"re(\bppoll_query\s*\(\s*\)\s*;)re"));
   emit_select_query_mode=std::regex_search(body,std::regex(R"re(\bselect_query\s*\(\s*\)\s*;)re"));
   emit_poll_query_mode=std::regex_search(body,std::regex(R"re(\bpoll_query\s*\(\s*\)\s*;)re"));
+  emit_adjtimex_query_mode=std::regex_search(body,std::regex(R"re(\badjtimex_query\s*\(\s*\)\s*;)re"));
   emit_clock_adjtime_query_mode=std::regex_search(body,std::regex(R"re(\bclock_adjtime_query\s*\(\s*\)\s*;)re"));
   emit_ioctl_query_mode=std::regex_search(body,std::regex(R"re(\bioctl_query\s*\(\s*\)\s*;)re"));
   emit_fcntl_query_mode=std::regex_search(body,std::regex(R"re(\bfcntl_query\s*\(\s*\)\s*;)re"));
@@ -5093,6 +5095,15 @@ void emit_clock_adjtime_query(Program const&) {
     <<".Lclock_adjtime_fail:\n  mov $1, %edi\n.Lclock_adjtime_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_adjtimex_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $159, %eax\n  xor %edi, %edi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Ladjtimex_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Ladjtimex_done\n"
+    <<".Ladjtimex_fail:\n  mov $1, %edi\n"
+    <<".Ladjtimex_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_ioctl_query(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $16, %eax\n  mov $1, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  syscall\n"
@@ -5818,6 +5829,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_ppoll_query_mode) { csubset::emit_ppoll_query(program); return 0; }
     if(csubset::emit_select_query_mode) { csubset::emit_select_query(program); return 0; }
     if(csubset::emit_poll_query_mode) { csubset::emit_poll_query(program); return 0; }
+    if(csubset::emit_adjtimex_query_mode) { csubset::emit_adjtimex_query(program); return 0; }
     if(csubset::emit_clock_adjtime_query_mode) { csubset::emit_clock_adjtime_query(program); return 0; }
     if(csubset::emit_ioctl_query_mode) { csubset::emit_ioctl_query(program); return 0; }
     if(csubset::emit_fcntl_query_mode) { csubset::emit_fcntl_query(program); return 0; }
