@@ -46,3 +46,24 @@ Inductive nquote : nty -> nnormal -> nterm -> Prop :=
 
 Definition staged_normalise (Γ : list nty) (t : nterm) (A : nty) (n : nterm) : Prop :=
   ntyped Γ t A /\ exists v, nquote A v n.
+
+Lemma quote_preserves_type : forall Γ t A,
+  ntyped Γ t A -> ntyped Γ (NQuote t) (NCode A).
+Proof.
+  intros Γ t A H.
+  now apply NTQuote.
+Qed.
+
+Lemma unquote_preserves_type : forall Γ t A,
+  ntyped Γ t (NCode A) -> ntyped Γ (NUnquote t) A.
+Proof.
+  intros Γ t A H.
+  now apply NTUnquote.
+Qed.
+
+Lemma staged_normalise_has_type : forall Γ t A n,
+  staged_normalise Γ t A n -> ntyped Γ t A.
+Proof.
+  intros Γ t A n H.
+  exact (proj1 H).
+Qed.
