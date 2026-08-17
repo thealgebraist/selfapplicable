@@ -406,6 +406,7 @@ expect_status fixtures/fcntl_get_rw_hint_query.c 0
 expect_status fixtures/fcntl_set_rw_hint_query.c 0
 expect_status fixtures/fadvise_query.c 1
 expect_status fixtures/syncfs_query.c 0
+expect_status fixtures/mlock_query.c 0
 expect_status fixtures/process_vm_writev_query.c 0
 expect_status fixtures/clone3_query.c 1
 expect_status fixtures/userfaultfd_query.c 1
