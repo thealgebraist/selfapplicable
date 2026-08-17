@@ -61,6 +61,14 @@ Proof.
   now apply NTUnquote.
 Qed.
 
+Lemma quote_unquote_type : forall Γ t A,
+  ntyped Γ t A -> ntyped Γ (NUnquote (NQuote t)) A.
+Proof.
+  intros Γ t A H.
+  apply NTUnquote.
+  now apply NTQuote.
+Qed.
+
 Lemma staged_normalise_has_type : forall Γ t A n,
   staged_normalise Γ t A n -> ntyped Γ t A.
 Proof.
