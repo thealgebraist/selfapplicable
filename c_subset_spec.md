@@ -576,6 +576,13 @@ success or failure:
 close(0);
 ```
 
+`pipe()` creates an anonymous Linux pipe and reports whether creation
+succeeded; its descriptor pair is stored in compiler-owned memory:
+
+```c
+pipe();
+```
+
 The same one-level primitive is exposed as:
 
 ```c
