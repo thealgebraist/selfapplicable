@@ -842,13 +842,24 @@ Program parse_main(std::string const& s) {
   // the comma which introduces write's byte count rather than stopping at
   // the first quote in the payload.
   static const std::regex write(R"re(write\s*\(\s*1\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
-  std::smatch w; if(std::regex_search(body,w,write)) {
-    p.output=w[1].str();
-    std::size_t nl; while((nl=p.output.find("\\n"))!=std::string::npos) p.output.replace(nl,2,"\n");
-    while((nl=p.output.find("\\t"))!=std::string::npos) p.output.replace(nl,2,"\t");
-    while((nl=p.output.find("\\\""))!=std::string::npos) p.output.replace(nl,2,"\"");
-    while((nl=p.output.find("\\\\"))!=std::string::npos) p.output.replace(nl,2,"\\");
-  if(std::stoi(w[2])!=(int)p.output.size()) throw std::runtime_error("write length mismatch");
+  auto decode_write = [](std::string value) {
+    std::size_t nl; while((nl=value.find("\\n"))!=std::string::npos) value.replace(nl,2,"\n");
+    while((nl=value.find("\\t"))!=std::string::npos) value.replace(nl,2,"\t");
+    while((nl=value.find("\\\""))!=std::string::npos) value.replace(nl,2,"\"");
+    while((nl=value.find("\\\\"))!=std::string::npos) value.replace(nl,2,"\\");
+    return value;
+  };
+  std::smatch w;
+  static const std::regex two_writes(
+    R"re(write\s*\(\s*1\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,two_writes)) {
+    auto first=decode_write(w[1].str()); auto second=decode_write(w[3].str());
+    if(std::stoi(w[2])!=(int)first.size() || std::stoi(w[4])!=(int)second.size())
+      throw std::runtime_error("write length mismatch");
+    p.output=first+second;
+  } else if(std::regex_search(body,w,write)) {
+    p.output=decode_write(w[1].str());
+    if(std::stoi(w[2])!=(int)p.output.size()) throw std::runtime_error("write length mismatch");
   }
   static const std::regex loop(R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*write\s*\(\s*1\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,w,loop)) {

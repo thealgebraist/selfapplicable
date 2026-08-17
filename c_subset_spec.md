@@ -86,6 +86,8 @@ String writes decode `\\n`, `\\t`, `\\\\`, and escaped quotes before length
 checking and emission; `write_escape.c` verifies the resulting bytes.
 `write_backslash.c` verifies literal backslash emission.
 `write_quote.c` verifies an escaped quote in a string literal.
+Two consecutive literal writes are concatenated after independent escape and
+length checks; `write_two.c` verifies the resulting single syscall payload.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 
