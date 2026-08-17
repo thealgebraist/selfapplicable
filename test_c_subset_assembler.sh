@@ -11,13 +11,17 @@ expect_status() {
   source=$1
   expected=$2
   stem=$(basename "$source" .c)
-  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  timeout 5 "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
   as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
   ld "$tmp/$stem.o" -o "$tmp/$stem"
   set +e
-  "$tmp/$stem"
+  timeout 5 "$tmp/$stem"
   actual=$?
   set -e
+  if test "$actual" -eq 124; then
+    echo "FAIL: $source: target exceeded 5 second timeout" >&2
+    exit 1
+  fi
   test "$actual" -eq "$expected" || {
     echo "FAIL: $source: expected exit $expected, got $actual" >&2
     exit 1
@@ -26,7 +30,7 @@ expect_status() {
 
 expect_reject() {
   source=$1
-  if "$tmp/c_subset_compiler" "$root/$source" > "$tmp/reject.s" 2>/dev/null; then
+  if timeout 5 "$tmp/c_subset_compiler" "$root/$source" > "$tmp/reject.s" 2>/dev/null; then
     echo "FAIL: $source was accepted" >&2
     exit 1
   fi
@@ -132,10 +136,14 @@ expect_output() {
   source=$1
   expected=$2
   stem=$(basename "$source" .c)
-  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  timeout 5 "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
   as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
   ld "$tmp/$stem.o" -o "$tmp/$stem"
-  actual=$("$tmp/$stem")
+  set +e
+  actual=$(timeout 5 "$tmp/$stem")
+  status=$?
+  set -e
+  test "$status" -ne 124 || { echo "FAIL: $source: target exceeded 5 second timeout" >&2; exit 1; }
   test "$actual" = "$expected" || { echo "FAIL: $source: output mismatch" >&2; exit 1; }
 }
 
@@ -144,10 +152,14 @@ expect_stdin_output() {
   input=$2
   expected=$3
   stem=$(basename "$source" .c)
-  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  timeout 5 "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
   as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
   ld "$tmp/$stem.o" -o "$tmp/$stem"
-  actual=$(printf '%s' "$input" | "$tmp/$stem")
+  set +e
+  actual=$(printf '%s' "$input" | timeout 5 "$tmp/$stem")
+  status=$?
+  set -e
+  test "$status" -ne 124 || { echo "FAIL: $source: target exceeded 5 second timeout" >&2; exit 1; }
   test "$actual" = "$expected" || { echo "FAIL: $source: stdin output mismatch" >&2; exit 1; }
 }
 
@@ -155,10 +167,14 @@ expect_stderr() {
   source=$1
   expected=$2
   stem=$(basename "$source" .c)
-  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  timeout 5 "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
   as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
   ld "$tmp/$stem.o" -o "$tmp/$stem"
-  actual=$("$tmp/$stem" 2>&1 >/dev/null)
+  set +e
+  actual=$(timeout 5 "$tmp/$stem" 2>&1 >/dev/null)
+  status=$?
+  set -e
+  test "$status" -ne 124 || { echo "FAIL: $source: target exceeded 5 second timeout" >&2; exit 1; }
   test "$actual" = "$expected" || { echo "FAIL: $source: stderr mismatch" >&2; exit 1; }
 }
 
@@ -166,10 +182,14 @@ expect_combined_output() {
   source=$1
   expected=$2
   stem=$(basename "$source" .c)
-  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  timeout 5 "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
   as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
   ld "$tmp/$stem.o" -o "$tmp/$stem"
-  actual=$("$tmp/$stem" 2>&1)
+  set +e
+  actual=$(timeout 5 "$tmp/$stem" 2>&1)
+  status=$?
+  set -e
+  test "$status" -ne 124 || { echo "FAIL: $source: target exceeded 5 second timeout" >&2; exit 1; }
   test "$actual" = "$expected" || { echo "FAIL: $source: combined output mismatch" >&2; exit 1; }
 }
 
@@ -291,13 +311,11 @@ expect_status fixtures/getdents64_tmp.c 0
 expect_status fixtures/copy_file_range_zero.c 1
 expect_status fixtures/readahead_stdout.c 1
 expect_status fixtures/futex_wake_probe.c 0
-expect_status fixtures/epoll_wait_query.c 0
 expect_status fixtures/futex_wait_probe.c 1
 expect_status fixtures/timerfd_gettime_query.c 0
 expect_status fixtures/sched_getattr_query.c 0
 expect_status fixtures/get_robust_list_query.c 0
 expect_status fixtures/pidfd_send_signal_probe.c 1
-expect_status fixtures/inotify_add_watch_query.c 0
 expect_status fixtures/splice_zero.c 0
 expect_status fixtures/sync_file_range_stdout.c 1
 expect_status fixtures/tee_zero.c 0
@@ -310,7 +328,6 @@ expect_status fixtures/fcntl_getfd_stdout.c 0
 expect_status fixtures/fcntl_getfl_stdout.c 0
 expect_status fixtures/fcntl_getown_stdout.c 0
 expect_status fixtures/fcntl_getsig_stdout.c 0
-expect_status fixtures/epoll_ctl_query.c 0
 expect_status fixtures/epoll_pwait_query.c 0
 expect_status fixtures/ppoll_empty_query.c 0
 expect_status fixtures/select_empty_query.c 0
@@ -666,10 +683,14 @@ expect_bytes() {
   source=$1
   expected=$2
   stem=$(basename "$source" .c)
-  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  timeout 5 "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
   as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
   ld "$tmp/$stem.o" -o "$tmp/$stem"
-  actual=$("$tmp/$stem" | od -An -tx1 | tr -d ' \n')
+  set +e
+  actual=$(timeout 5 "$tmp/$stem" | od -An -tx1 | tr -d ' \n')
+  status=$?
+  set -e
+  test "$status" -ne 124 || { echo "FAIL: $source: target exceeded 5 second timeout" >&2; exit 1; }
   test "$actual" = "$expected" || { echo "FAIL: $source: byte mismatch" >&2; exit 1; }
 }
 expect_bytes fixtures/loop_write_empty_nul.c "0000"

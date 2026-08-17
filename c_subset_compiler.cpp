@@ -5900,13 +5900,18 @@ void emit_ise_group0(Program const& p) {
 }
 
 void emit_nice(Program const& p) {
+  if(p.nice_increment==0) {
+    std::cout<<".text\n.globl _start\n_start:\n"
+      <<"  xor %edi, %edi\n  mov $60, %eax\n  syscall\n";
+    return;
+  }
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $34, %eax\n  mov $"<<p.nice_increment<<", %edi\n  syscall\n  test %eax, %eax\n  js .Lnice_fail\n  xor %edi, %edi\n  jmp .Lnice_done\n.Lnice_fail:\n  mov $1, %edi\n.Lnice_done:\n  mov $60, %eax\n  syscall\n";
 }
 
 void emit_writefd(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
-    <<"  mov $"<<p.writefd_len<<", %r12\n  xor %r13d, %r13d\n.Lwritefd_loop:\n  cmp %r12, %r13\n  jge .Lwritefd_done\n  mov $1, %eax\n  mov $"<<p.writefd_fd<<", %edi\n  lea writefd_buf(%rip), %rsi\n  add %r13, %rsi\n  mov %r12, %rdx\n  sub %r13, %rdx\n  syscall\n  test %eax, %eax\n  jle .Lwritefd_fail\n  add %eax, %r13\n  jmp .Lwritefd_loop\n.Lwritefd_fail:\n  mov $1, %edi\n.Lwritefd_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nwritefd_buf:\n  .byte ";
+    <<"  mov $"<<p.writefd_len<<", %r12\n  xor %r13d, %r13d\n.Lwritefd_loop:\n  cmp %r12, %r13\n  jge .Lwritefd_done\n  mov $1, %eax\n  mov $"<<p.writefd_fd<<", %edi\n  lea writefd_buf(%rip), %rsi\n  add %r13, %rsi\n  mov %r12, %rdx\n  sub %r13, %rdx\n  syscall\n  test %eax, %eax\n  jle .Lwritefd_fail\n  add %rax, %r13\n  jmp .Lwritefd_loop\n.Lwritefd_fail:\n  mov $1, %edi\n.Lwritefd_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nwritefd_buf:\n  .byte ";
   for(std::size_t i=0;i<p.writefd_text.size();++i) { if(i) std::cout<<", "; std::cout<<(unsigned)(unsigned char)p.writefd_text[i]; }
   std::cout<<"\n";
 }
