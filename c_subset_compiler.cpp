@@ -310,6 +310,7 @@ bool emit_munmap_query_mode = false;
 bool emit_memfd_create_query_mode = false;
 bool emit_brk_query_mode = false;
 bool emit_remap_file_pages_query_mode = false;
+bool emit_fsync_query_mode = false;
 bool emit_readlinkat_query_mode = false;
 bool emit_renameat2_query_mode = false;
 bool emit_symlinkat_query_mode = false;
@@ -2292,6 +2293,7 @@ Program parse_main(std::string const& s) {
   emit_memfd_create_query_mode=std::regex_search(body,std::regex(R"re(\bmemfd_create_query\s*\(\s*\)\s*;)re"));
   emit_brk_query_mode=std::regex_search(body,std::regex(R"re(\bbrk_query\s*\(\s*\)\s*;)re"));
   emit_remap_file_pages_query_mode=std::regex_search(body,std::regex(R"re(\bremap_file_pages_query\s*\(\s*\)\s*;)re"));
+  emit_fsync_query_mode=std::regex_search(body,std::regex(R"re(\bfsync_query\s*\(\s*\)\s*;)re"));
   emit_readlinkat_query_mode=std::regex_search(body,std::regex(R"re(\breadlinkat_query\s*\(\s*\)\s*;)re"));
   emit_renameat2_query_mode=std::regex_search(body,std::regex(R"re(\brenameat2_query\s*\(\s*\)\s*;)re"));
   emit_symlinkat_query_mode=std::regex_search(body,std::regex(R"re(\bsymlinkat_query\s*\(\s*\)\s*;)re"));
@@ -4184,6 +4186,15 @@ void emit_remap_file_pages_query(Program const&) {
     <<"  test %eax, %eax\n  js .Lremap_file_pages_fail\n"
     <<"  xor %edi, %edi\n  jmp .Lremap_file_pages_done\n"
     <<".Lremap_file_pages_fail:\n  mov $1, %edi\n.Lremap_file_pages_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_fsync_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $74, %eax\n  mov $-1, %edi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lfsync_query_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lfsync_query_done\n"
+    <<".Lfsync_query_fail:\n  mov $1, %edi\n.Lfsync_query_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
 }
 
@@ -6397,6 +6408,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_memfd_create_query_mode) { csubset::emit_memfd_create_query(program); return 0; }
     if(csubset::emit_brk_query_mode) { csubset::emit_brk_query(program); return 0; }
     if(csubset::emit_remap_file_pages_query_mode) { csubset::emit_remap_file_pages_query(program); return 0; }
+    if(csubset::emit_fsync_query_mode) { csubset::emit_fsync_query(program); return 0; }
     if(csubset::emit_fstatat_query_mode) { csubset::emit_fstatat_query(program); return 0; }
     if(csubset::emit_mknodat_query_mode) { csubset::emit_mknodat_query(program); return 0; }
     if(csubset::emit_utimensat_query_mode) { csubset::emit_utimensat_query(program); return 0; }
