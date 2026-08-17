@@ -14,6 +14,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Coq staged reduction round-trip | [x] | CI run `32039417369` compiles `nred`, `staged_round_trip`, and the typed round-trip theorem |
 | Core language | Coq reflexive-transitive staged reduction | [x] | CI run `32039514912` compiles `nred_star` and `staged_round_trip_star` |
 | Core language | Typed preservation for staged reduction | [x] | CI run `32039783247` proves preservation for the explicit `nstage` quote/unquote step |
+| Core language | Transitivity of staged reduction closure | [ ] | Added `nred_star_trans`; await CI confirmation |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |

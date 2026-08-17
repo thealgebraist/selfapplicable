@@ -48,6 +48,18 @@ Inductive nstage : nterm -> nterm -> Prop :=
 | NSQuoteUnquote : forall t,
     nstage (NUnquote (NQuote t)) t.
 
+Lemma nred_star_trans : forall t u v,
+  nred_star t u -> nred_star u v -> nred_star t v.
+Proof.
+  intros t u v Htu Huv.
+  induction Htu as [t | t u w Hstep Huw IH].
+  - exact Huv.
+  - eapply NRSNext.
+    + exact Hstep.
+    + apply IH.
+      exact Huv.
+Qed.
+
 Inductive ntyped : list nty -> nterm -> nty -> Prop :=
 | NTVar : forall Γ n A,
     nth_error Γ n = Some A -> ntyped Γ (NVar n) A
