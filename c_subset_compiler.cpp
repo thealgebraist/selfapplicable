@@ -908,7 +908,8 @@ Program parse_main(std::string const& s) {
       p.error_output+=payload;
     }
   }
-  if(body.find("write(1")!=std::string::npos && body.find("write(2")!=std::string::npos) {
+  static const std::regex has_stdout_write(R"(write\s*\(\s*1\s*,)"), has_stderr_write(R"(write\s*\(\s*2\s*,)");
+  if(std::regex_search(body,has_stdout_write) && std::regex_search(body,has_stderr_write)) {
     static const std::regex ordered_write(R"re(write\s*\(\s*([12])\s*,\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
     for(std::sregex_iterator it(body.begin(),body.end(),ordered_write), end; it!=end; ++it) {
       auto payload=decode_write((*it)[2].str());

@@ -543,6 +543,8 @@ The harness captures both descriptors together and asserts the exact `OE`
 sequence.
 Three interleaved calls are covered by `write_mixed_streams_three.c`, which
 asserts `OEO`.
+Whitespace around the call syntax is covered by
+`write_mixed_streams_spaced.c`.
 
 `readstdin(size)` reads up to a bounded number of bytes from descriptor 0 and
 forwards them to stdout:
