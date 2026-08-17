@@ -143,6 +143,7 @@ expect_output fixtures/cat.c "cat payload"
 expect_status fixtures/mkdir_existing.c 1
 expect_status fixtures/rm_missing.c 1
 expect_status fixtures/rmdir_root.c 1
+expect_status fixtures/touch_devnull.c 0
 expect_output fixtures/write_escape.c "A	B"
 expect_output fixtures/loop_write_escape.c "x	x	"
 expect_output fixtures/loop_write_hex.c "AA"

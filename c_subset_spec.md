@@ -451,6 +451,13 @@ removes only directories:
 rmdir("/tmp/old-directory");
 ```
 
+`touch("path")` opens a path with create/write flags, closes it, and returns
+0 or 1 according to the syscall result:
+
+```c
+touch("/tmp/new-file");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
