@@ -226,6 +226,9 @@ The loop body may also be enclosed in braces, as in
 Braced loops may include the explicit `i++` update, covered by
 `while_write_explicit_increment.c`; the backend checks and supplies the same
 single counter update.
+The bound may be inclusive (`i <= N`), as tested by
+`while_write_inclusive.c`; inclusive loops use the corresponding signed
+comparison in the generated assembly.
 
 The first filesystem primitive is the `pwd` pattern:
 
