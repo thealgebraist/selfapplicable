@@ -233,6 +233,8 @@ Braced while bodies may contain two checked literal `write` statements; their
 concatenated payload is repeated by `while_write_two_body_writes.c`.
 The same composition works with inclusive bounds, covered by
 `while_write_inclusive_two_body_writes.c`.
+Inclusive while bodies also support three separate checked writes, covered by
+`while_write_inclusive_three_body_writes.c`.
 Three separate checked writes, including an embedded NUL, are covered by
 `while_write_three_body_writes.c`.
 Four separate checked writes in a strict-bound while body are covered by
