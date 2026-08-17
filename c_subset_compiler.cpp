@@ -845,6 +845,7 @@ Program parse_main(std::string const& s) {
   auto decode_write = [](std::string value) {
     std::size_t nl; while((nl=value.find("\\n"))!=std::string::npos) value.replace(nl,2,"\n");
     while((nl=value.find("\\t"))!=std::string::npos) value.replace(nl,2,"\t");
+    while((nl=value.find("\\r"))!=std::string::npos) value.replace(nl,2,"\r");
     while((nl=value.find("\\\""))!=std::string::npos) value.replace(nl,2,"\"");
     while((nl=value.find("\\\\"))!=std::string::npos) value.replace(nl,2,"\\");
     return value;
@@ -863,6 +864,7 @@ Program parse_main(std::string const& s) {
     p.loop_count=std::stoi(w[1]); p.loop_output=w[2].str();
     std::size_t nl; while((nl=p.loop_output.find("\\n"))!=std::string::npos) p.loop_output.replace(nl,2,"\n");
     while((nl=p.loop_output.find("\\t"))!=std::string::npos) p.loop_output.replace(nl,2,"\t");
+    while((nl=p.loop_output.find("\\r"))!=std::string::npos) p.loop_output.replace(nl,2,"\r");
     while((nl=p.loop_output.find("\\\""))!=std::string::npos) p.loop_output.replace(nl,2,"\"");
     while((nl=p.loop_output.find("\\\\"))!=std::string::npos) p.loop_output.replace(nl,2,"\\");
     if(std::stoi(w[3])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");

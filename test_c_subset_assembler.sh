@@ -144,6 +144,17 @@ expect_output fixtures/write_backslash.c "A\\B"
 expect_output fixtures/write_quote.c 'A"B'
 expect_output fixtures/write_two.c "AB"
 expect_output fixtures/write_three.c "ABC"
+expect_bytes() {
+  source=$1
+  expected=$2
+  stem=$(basename "$source" .c)
+  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
+  ld "$tmp/$stem.o" -o "$tmp/$stem"
+  actual=$("$tmp/$stem" | od -An -tx1 | tr -d ' \n')
+  test "$actual" = "$expected" || { echo "FAIL: $source: byte mismatch" >&2; exit 1; }
+}
+expect_bytes fixtures/write_carriage_return.c "410d42"
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c
