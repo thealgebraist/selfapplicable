@@ -82,6 +82,14 @@ Proof.
   constructor.
 Qed.
 
+Lemma beta_outer_variable : forall s,
+  nred (NApp (NLam (NVar 1)) s) (NVar 0).
+Proof.
+  intros s.
+  change (nred (NApp (NLam (NVar 1)) s) (nsubst0 s (NVar 1))).
+  constructor.
+Qed.
+
 Inductive nred_star : nterm -> nterm -> Prop :=
 | NRSRefl : forall t, nred_star t t
 | NRSNext : forall t u v,
