@@ -106,6 +106,8 @@ after decoding and length validation; `write_adjacent.c` and
 `write_adjacent_high_byte.c` verifies high-byte preservation across fragments.
 `write_adjacent_octal.c` verifies octal preservation across fragments.
 `write_adjacent_control.c` verifies control-byte preservation across fragments.
+`write_adjacent_whitespace.c` verifies newline and tab preservation across
+fragments.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
