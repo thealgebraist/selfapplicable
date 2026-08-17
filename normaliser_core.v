@@ -364,6 +364,35 @@ Fixpoint nplug (C : nctx) (t : nterm) : nterm :=
   | NCUnquote C' => NUnquote (nplug C' t)
   end.
 
+Fixpoint nctx_subst (s : nterm) (C : nctx) : nctx :=
+  match C with
+  | NCHole => NCHole
+  | NCAppLeft C' a => NCAppLeft (nctx_subst s C') (nsubst0 s a)
+  | NCAppRight f C' => NCAppRight (nsubst0 s f) (nctx_subst s C')
+  | NCLam C' => NCLam (nctx_subst s C')
+  | NCQuote C' => NCQuote (nctx_subst s C')
+  | NCUnquote C' => NCUnquote (nctx_subst s C')
+  end.
+
+Lemma nsubst0_plug : forall s C t,
+  nsubst0 s (nplug C t) = nplug (nctx_subst s C) (nsubst0 s t).
+Proof.
+  intros s C t.
+  induction C as [| C IHC a | f C IHC | C IHC | C IHC | C IHC];
+    simpl.
+  - reflexivity.
+  - rewrite nsubst0_app, IHC.
+    reflexivity.
+  - rewrite nsubst0_app, IHC.
+    reflexivity.
+  - rewrite IHC.
+    reflexivity.
+  - rewrite IHC.
+    reflexivity.
+  - rewrite IHC.
+    reflexivity.
+Qed.
+
 Fixpoint nctx_compose (C D : nctx) : nctx :=
   match C with
   | NCHole => D
