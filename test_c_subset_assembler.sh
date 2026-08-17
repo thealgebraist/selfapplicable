@@ -328,6 +328,7 @@ expect_status fixtures/map_shadow_stack_query.c 1
 expect_status fixtures/fchmodat2_query.c 1
 expect_status fixtures/statmount_query.c 1
 expect_status fixtures/listmount_query.c 1
+expect_status fixtures/lsm_get_self_attr_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
