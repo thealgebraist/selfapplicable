@@ -228,6 +228,8 @@ Three independently checked writes in a post-test body are covered by
 `do_write_three_body_writes.c`.
 Four independently checked writes in a post-test body are covered by
 `do_write_four_body_writes.c`.
+Five independently checked writes in a post-test body are covered by
+`do_write_five_body_writes.c`.
 
 A bounded `while` form is also supported when its counter is initialized to
 zero and compared against a literal:
