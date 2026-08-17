@@ -308,6 +308,7 @@ bool emit_signalfd_query_mode = false;
 bool emit_mmap_query_mode = false;
 bool emit_munmap_query_mode = false;
 bool emit_memfd_create_query_mode = false;
+bool emit_brk_query_mode = false;
 bool emit_readlinkat_query_mode = false;
 bool emit_renameat2_query_mode = false;
 bool emit_symlinkat_query_mode = false;
@@ -2288,6 +2289,7 @@ Program parse_main(std::string const& s) {
   emit_mmap_query_mode=std::regex_search(body,std::regex(R"re(\bmmap_query\s*\(\s*\)\s*;)re"));
   emit_munmap_query_mode=std::regex_search(body,std::regex(R"re(\bmunmap_query\s*\(\s*\)\s*;)re"));
   emit_memfd_create_query_mode=std::regex_search(body,std::regex(R"re(\bmemfd_create_query\s*\(\s*\)\s*;)re"));
+  emit_brk_query_mode=std::regex_search(body,std::regex(R"re(\bbrk_query\s*\(\s*\)\s*;)re"));
   emit_readlinkat_query_mode=std::regex_search(body,std::regex(R"re(\breadlinkat_query\s*\(\s*\)\s*;)re"));
   emit_renameat2_query_mode=std::regex_search(body,std::regex(R"re(\brenameat2_query\s*\(\s*\)\s*;)re"));
   emit_symlinkat_query_mode=std::regex_search(body,std::regex(R"re(\bsymlinkat_query\s*\(\s*\)\s*;)re"));
@@ -4163,6 +4165,15 @@ void emit_memfd_create_query(Program const&) {
     <<".Lmemfd_create_query_fail:\n  mov $1, %edi\n.Lmemfd_create_query_done:\n"
     <<"  mov $60, %eax\n  syscall\n"
     <<".section .rodata\nmemfd_create_query_name:\n  .asciz \"selfapp-query\"\n";
+}
+
+void emit_brk_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $12, %eax\n  xor %edi, %edi\n  syscall\n"
+    <<"  test %rax, %rax\n  js .Lbrk_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lbrk_done\n"
+    <<".Lbrk_fail:\n  mov $1, %edi\n.Lbrk_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
 }
 
 void emit_readlinkat_query(Program const&) {
@@ -6373,6 +6384,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_mmap_query_mode) { csubset::emit_mmap_query(program); return 0; }
     if(csubset::emit_munmap_query_mode) { csubset::emit_munmap_query(program); return 0; }
     if(csubset::emit_memfd_create_query_mode) { csubset::emit_memfd_create_query(program); return 0; }
+    if(csubset::emit_brk_query_mode) { csubset::emit_brk_query(program); return 0; }
     if(csubset::emit_fstatat_query_mode) { csubset::emit_fstatat_query(program); return 0; }
     if(csubset::emit_mknodat_query_mode) { csubset::emit_mknodat_query(program); return 0; }
     if(csubset::emit_utimensat_query_mode) { csubset::emit_utimensat_query(program); return 0; }
