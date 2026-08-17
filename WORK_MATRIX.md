@@ -38,7 +38,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Context composition identity laws | [x] | CI run `32043169892` proves hole-left and hole-right identity lemmas |
 | Core language | Nested context reduction bridge | [x] | CI run `32043338028` proves `nred_star_nested_plug` |
 | Core language | Binder-free context substitution bridge | [x] | CI run `32043851603` proves `nctx_flat`, `nctx_subst_flat`, and `nsubst_flat_plug` |
-| Core language | Flat-context composition closure | [ ] | Added `nctx_flat_compose`; await CI confirmation |
+| Core language | Flat-context composition closure | [x] | `nctx_flat_compose` verified by CI run `32044236173` |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
