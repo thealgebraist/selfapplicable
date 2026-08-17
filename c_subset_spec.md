@@ -227,6 +227,8 @@ Five adjacent while fragments are covered by `while_write_five.c`, completing
 the current while fragment-depth ladder.
 The loop body may also be enclosed in braces, as in
 `while_write_braced.c`.
+Five-fragment braced while payloads are covered by
+`while_write_braced_five.c`.
 Braced loops may include the explicit `i++` update, covered by
 `while_write_explicit_increment.c`; the backend checks and supplies the same
 single counter update.
