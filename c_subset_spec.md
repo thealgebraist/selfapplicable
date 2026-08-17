@@ -105,6 +105,7 @@ Counted-loop writes use the same decoding path, covered by
 `loop_write_apostrophe.c` verifies escaped apostrophes in the same path.
 `loop_write_question.c` verifies escaped question marks in counted loops.
 `loop_write_carriage_return.c` verifies binary carriage-return bytes in loops.
+`loop_write_control_escapes.c` verifies the remaining common control escapes.
 `loop_write_adjacent.c` verifies adjacent string fragments inside a counted
 loop.
 `loop_write_adjacent_three.c` extends that coverage to three fragments.
