@@ -43,3 +43,9 @@ Create a reproducible source bundle with:
 The bundle includes `MANIFEST.sha256`; the archive itself gets a companion
 SHA-256 file. Target validation remains assembler-only (`as --64` followed by
 `ld`).
+
+Verify both layers with:
+
+```sh
+./verify_release_bundle.sh dist/selfapplicable-VERSION.tar.gz
+```
