@@ -870,6 +870,7 @@ Program parse_main(std::string const& s) {
     }
     while((nl=value.find("\\0"))!=std::string::npos) value.replace(nl,2,std::string(1,'\0'));
     while((nl=value.find("\\\""))!=std::string::npos) value.replace(nl,2,"\"");
+    while((nl=value.find("\\'"))!=std::string::npos) value.replace(nl,2,"'");
     while((nl=value.find("\\\\"))!=std::string::npos) value.replace(nl,2,"\\");
     return value;
   };
