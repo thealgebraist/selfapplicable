@@ -533,6 +533,8 @@ Three-fragment stderr concatenation is covered by
 `write_stderr_three_adjacent.c`.
 Four-fragment stderr concatenation is covered by
 `write_stderr_four_adjacent.c`.
+Five-fragment stderr concatenation completes the ladder in
+`write_stderr_five_adjacent.c`.
 
 `readstdin(size)` reads up to a bounded number of bytes from descriptor 0 and
 forwards them to stdout:
