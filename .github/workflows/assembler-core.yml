@@ -15,6 +15,11 @@ jobs:
       - name: Build host compiler
         run: g++ -std=c++23 -Wall -Wextra -pedantic -O2 c_subset_compiler.cpp -o c_subset_compiler-ci
 
+      - name: Build and run dependent normalizer
+        run: |
+          g++ -std=c++23 -Wall -Wextra -pedantic -O2 normaliser.cpp -o normaliser-ci
+          ./normaliser-ci
+
       - name: Assemble and run control-flow fixtures
         shell: bash
         run: |
