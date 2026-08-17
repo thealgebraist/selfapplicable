@@ -55,7 +55,7 @@ Proof.
   induction t as [k | body IH | f IHf a IHa | code IH | code IH];
     intros cutoff;
     simpl.
-  - destruct (cutoff <=? k); simpl; rewrite Nat.add_0_l; reflexivity.
+  - destruct (cutoff <=? k); simpl; reflexivity.
   - rewrite IH.
     reflexivity.
   - rewrite IHf, IHa.
