@@ -35,6 +35,9 @@ jobs:
       - name: Check semantic tooling entry point
         run: ./check_semantics.sh
 
+      - name: Run complete assembler regression
+        run: ./test_c_subset_assembler.sh
+
       - name: Compile Coq semantics
         run: |
           sudo apt-get update -qq
