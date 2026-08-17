@@ -114,6 +114,27 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma nsubst0_app : forall s f a,
+  nsubst0 s (NApp f a) = NApp (nsubst0 s f) (nsubst0 s a).
+Proof.
+  intros s f a.
+  reflexivity.
+Qed.
+
+Lemma nsubst0_quote : forall s t,
+  nsubst0 s (NQuote t) = NQuote (nsubst0 s t).
+Proof.
+  intros s t.
+  reflexivity.
+Qed.
+
+Lemma nsubst0_unquote : forall s t,
+  nsubst0 s (NUnquote t) = NUnquote (nsubst0 s t).
+Proof.
+  intros s t.
+  reflexivity.
+Qed.
+
 (* The staged computational boundary.  Quotation is inert data; only an
    unquote of an immediately available quotation crosses the boundary. *)
 Inductive nred : nterm -> nterm -> Prop :=
