@@ -519,6 +519,13 @@ the returned bytes to standard output:
 getrandom(16);
 ```
 
+Literal writes may target file descriptor 2 as well as stdout; escape and
+declared-length validation are shared:
+
+```c
+write(2, "warning\n", 8);
+```
+
 The same one-level primitive is exposed as:
 
 ```c
