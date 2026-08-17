@@ -121,6 +121,7 @@ bool emit_process_madvise_query_mode = false;
 bool emit_process_vm_readv_query_mode = false;
 bool emit_process_vm_writev_query_mode = false;
 bool emit_getrandom_query_mode = false;
+bool emit_sched_yield_query_mode = false;
 bool emit_clone3_query_mode = false;
 bool emit_userfaultfd_query_mode = false;
 bool emit_kcmp_query_mode = false;
@@ -1932,6 +1933,7 @@ Program parse_main(std::string const& s) {
   emit_process_vm_readv_query_mode=std::regex_search(body,std::regex(R"re(\bprocess_vm_readv_query\s*\(\s*\)\s*;)re"));
   emit_process_vm_writev_query_mode=std::regex_search(body,std::regex(R"re(\bprocess_vm_writev_query\s*\(\s*\)\s*;)re"));
   emit_getrandom_query_mode=std::regex_search(body,std::regex(R"re(\bgetrandom_query\s*\(\s*\)\s*;)re"));
+  emit_sched_yield_query_mode=std::regex_search(body,std::regex(R"re(\bsched_yield_query\s*\(\s*\)\s*;)re"));
   emit_clone3_query_mode=std::regex_search(body,std::regex(R"re(\bclone3_query\s*\(\s*\)\s*;)re"));
   emit_userfaultfd_query_mode=std::regex_search(body,std::regex(R"re(\buserfaultfd_query\s*\(\s*\)\s*;)re"));
   emit_kcmp_query_mode=std::regex_search(body,std::regex(R"re(\bkcmp_query\s*\(\s*\)\s*;)re"));
@@ -3933,6 +3935,14 @@ void emit_getrandom_query(Program const&) {
     <<".bss\n.align 8\ngetrandom_buffer:\n  .skip 16\n";
 }
 
+void emit_sched_yield_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $24, %eax\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lsched_yield_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lsched_yield_done\n"
+    <<".Lsched_yield_fail:\n  mov $1, %edi\n.Lsched_yield_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -4319,6 +4329,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_process_madvise_query_mode) { csubset::emit_process_madvise_query(program); return 0; }
     if(csubset::emit_process_vm_readv_query_mode) { csubset::emit_process_vm_readv_query(program); return 0; }
     if(csubset::emit_getrandom_query_mode) { csubset::emit_getrandom_query(program); return 0; }
+    if(csubset::emit_sched_yield_query_mode) { csubset::emit_sched_yield_query(program); return 0; }
     if(csubset::emit_process_vm_writev_query_mode) { csubset::emit_process_vm_writev_query(program); return 0; }
     if(csubset::emit_clone3_query_mode) { csubset::emit_clone3_query(program); return 0; }
     if(csubset::emit_userfaultfd_query_mode) { csubset::emit_userfaultfd_query(program); return 0; }
