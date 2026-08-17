@@ -125,6 +125,8 @@ expect_status fixtures/character_quote_return.c 39
 expect_status fixtures/character_backslash_return.c 92
 expect_status fixtures/character_hex_return.c 65
 expect_status fixtures/character_octal_return.c 65
+expect_reject fixtures/character_bad_hex.c
+expect_reject fixtures/character_bad_octal.c
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c
