@@ -355,6 +355,7 @@ expect_status fixtures/timer_gettime_query.c 1
 expect_status fixtures/timer_settime_query.c 1
 expect_status fixtures/timer_delete_query.c 1
 expect_status fixtures/alarm_query.c 0
+expect_status fixtures/sched_getaffinity_query.c 0
 expect_status fixtures/process_vm_writev_query.c 0
 expect_status fixtures/clone3_query.c 1
 expect_status fixtures/userfaultfd_query.c 1
