@@ -85,6 +85,8 @@ command in this initial slice.
 String writes decode `\\n`, `\\t`, `\\r`, `\\a`, `\\b`, `\\f`, `\\v`, `\\?`, one- or two-digit hexadecimal and octal escapes, `\\0`, `\\\\`, and escaped quotes/apostrophes before length
 checking and emission; `write_escape.c` and `write_high_byte.c` verify ordinary
 and high-byte results.
+Malformed hexadecimal escapes are rejected before assembly, covered by
+`write_bad_hex_string.c`.
 `write_backslash.c` verifies literal backslash emission.
 `write_quote.c` verifies an escaped quote in a string literal.
 Consecutive literal writes are collected in source order after independent

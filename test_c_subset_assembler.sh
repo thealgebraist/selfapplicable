@@ -199,5 +199,6 @@ expect_reject fixtures/struct_value_cycle.c
 expect_reject fixtures/duplicate_global.c
 expect_reject fixtures/duplicate_pointer_global.c
 expect_reject fixtures/array_index_bad.c
+expect_reject fixtures/write_bad_hex_string.c
 
 echo "assembler regression: PASS"
