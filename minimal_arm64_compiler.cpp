@@ -8,14 +8,17 @@
 #include <stdexcept>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace mini {
 struct Nat { std::uint64_t value; };
 struct Bool { bool value; };
+struct Var { std::size_t index; };
 struct Add { struct Term *left; struct Term *right; };
 struct If { struct Term *condition; struct Term *then_branch; struct Term *else_branch; };
+struct Let { struct Term *value; struct Term *body; };
 struct Term {
-  using Node = std::variant<Nat, Bool, Add, If>;
+  using Node = std::variant<Nat, Bool, Var, Add, If, Let>;
   Node node;
 };
 
@@ -41,6 +44,7 @@ struct Parser {
     if (start == pos) throw std::runtime_error("expected natural number");
     return std::stoull(input.substr(start, pos - start));
   }
+  std::size_t index() { return static_cast<std::size_t>(number()); }
   Term *term() {
     if (take('(')) {
       space(); const std::size_t start = pos;
@@ -50,8 +54,10 @@ struct Parser {
       if (tag == "nat") result = new Term{Nat{number()}};
       else if (tag == "true") result = new Term{Bool{true}};
       else if (tag == "false") result = new Term{Bool{false}};
+      else if (tag == "var") result = new Term{Var{index()}};
       else if (tag == "add") result = new Term{Add{term(), term()}};
       else if (tag == "if") result = new Term{If{term(), term(), term()}};
+      else if (tag == "let") result = new Term{Let{term(), term()}};
       else throw std::runtime_error("unknown constructor: " + tag);
       if (!take(')')) throw std::runtime_error("missing ')' ");
       return result;
@@ -65,17 +71,33 @@ struct Parser {
 };
 
 // This is the executable counterpart of eval0/normalise0 in minimal_total_lang.v.
-Term *normalize(const Term *term) {
+// The environment is de Bruijn-style: index 0 is the newest let binding.
+using Env = std::vector<const Term *>;
+Term *normalize_in(const Term *term, const Env &env) {
   if (const auto *n = std::get_if<Nat>(&term->node)) return new Term{*n};
   if (const auto *b = std::get_if<Bool>(&term->node)) return new Term{*b};
+  if (const auto *v = std::get_if<Var>(&term->node)) {
+    if (v->index >= env.size()) throw std::runtime_error("unbound variable");
+    return normalize_in(env[v->index], env);
+  }
   if (const auto *a = std::get_if<Add>(&term->node)) {
-    auto *left = normalize(a->left); auto *right = normalize(a->right);
+    auto *left = normalize_in(a->left, env); auto *right = normalize_in(a->right, env);
     const auto l = std::get<Nat>(left->node).value, r = std::get<Nat>(right->node).value;
     return new Term{Nat{l + r}};
   }
-  const auto &i = std::get<If>(term->node);
-  auto *condition = normalize(i.condition);
-  return normalize(std::get<Bool>(condition->node).value ? i.then_branch : i.else_branch);
+  if (const auto *i = std::get_if<If>(&term->node)) {
+    auto *condition = normalize_in(i->condition, env);
+    return normalize_in(std::get<Bool>(condition->node).value ? i->then_branch : i->else_branch, env);
+  }
+  const auto &let = std::get<Let>(term->node);
+  auto *value = normalize_in(let.value, env);
+  Env extended{value};
+  extended.insert(extended.end(), env.begin(), env.end());
+  return normalize_in(let.body, extended);
+}
+
+Term *normalize(const Term *term) {
+  return normalize_in(term, {});
 }
 
 Code quote(Term *term) { return Code{term}; }

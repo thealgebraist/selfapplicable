@@ -17,3 +17,7 @@ if command -v aarch64-linux-gnu-as >/dev/null 2>&1; then
   aarch64-linux-gnu-as "$tmpdir/output.s" -o "$tmpdir/output.o"
 fi
 echo 'minimal ARM64 compiler: ok'
+printf '%s\n' '(let (nat 40) (let (nat 2) (add (var 0) (var 1))))' > "$tmpdir/let.min"
+"$compiler" "$tmpdir/let.min" > "$tmpdir/let.s"
+grep -q '^    mov x0, #42$' "$tmpdir/let.s"
+echo 'minimal ARM64 let/de Bruijn: ok'
