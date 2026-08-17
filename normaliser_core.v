@@ -78,7 +78,7 @@ Lemma beta_identity : forall s,
   nred (NApp (NLam (NVar 0)) s) s.
 Proof.
   intros s.
-  change nred (NApp (NLam (NVar 0)) s) (nsubst0 s (NVar 0)).
+  change (nred (NApp (NLam (NVar 0)) s) (nsubst0 s (NVar 0))).
   constructor.
 Qed.
 
