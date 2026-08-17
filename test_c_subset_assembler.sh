@@ -228,6 +228,8 @@ expect_status fixtures/nice_one.c 0
 expect_status fixtures/setpriority_query.c 1
 expect_status fixtures/getgroups_query.c 0
 expect_status fixtures/sched_setscheduler_query.c 1
+expect_status fixtures/sethostname_query.c 1
+expect_status fixtures/setdomainname_query.c 1
 expect_status fixtures/isatty_stdin.c 1
 expect_status fixtures/sync.c 0
 expect_status fixtures/fsync_payload.c 0

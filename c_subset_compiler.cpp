@@ -325,6 +325,8 @@ bool emit_sched_setattr_query_mode = false;
 bool emit_sched_getparam_query_mode = false;
 bool emit_sched_setparam_query_mode = false;
 bool emit_sched_setscheduler_query_mode = false;
+bool emit_sethostname_query_mode = false;
+bool emit_setdomainname_query_mode = false;
 bool emit_sched_getscheduler_query_mode = false;
 bool emit_sched_get_priority_max_query_mode = false;
 bool emit_sched_get_priority_min_query_mode = false;
@@ -2312,6 +2314,8 @@ Program parse_main(std::string const& s) {
   emit_sched_getparam_query_mode=std::regex_search(body,std::regex(R"re(\bsched_getparam_query\s*\(\s*\)\s*;)re"));
   emit_sched_setparam_query_mode=std::regex_search(body,std::regex(R"re(\bsched_setparam_query\s*\(\s*\)\s*;)re"));
   emit_sched_setscheduler_query_mode=std::regex_search(body,std::regex(R"re(\bsched_setscheduler_query\s*\(\s*\)\s*;)re"));
+  emit_sethostname_query_mode=std::regex_search(body,std::regex(R"re(\bsethostname_query\s*\(\s*\)\s*;)re"));
+  emit_setdomainname_query_mode=std::regex_search(body,std::regex(R"re(\bsetdomainname_query\s*\(\s*\)\s*;)re"));
   emit_sched_getscheduler_query_mode=std::regex_search(body,std::regex(R"re(\bsched_getscheduler_query\s*\(\s*\)\s*;)re"));
   emit_sched_get_priority_max_query_mode=std::regex_search(body,std::regex(R"re(\bsched_get_priority_max_query\s*\(\s*\)\s*;)re"));
   emit_sched_get_priority_min_query_mode=std::regex_search(body,std::regex(R"re(\bsched_get_priority_min_query\s*\(\s*\)\s*;)re"));
@@ -4404,6 +4408,24 @@ void emit_sched_setscheduler_query(Program const&) {
     <<".Lsched_setscheduler_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_sethostname_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $170, %eax\n  mov $-1, %rdi\n  mov $1, %esi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lsethostname_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lsethostname_done\n"
+    <<".Lsethostname_fail:\n  mov $1, %edi\n.Lsethostname_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_setdomainname_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $171, %eax\n  mov $-1, %rdi\n  mov $1, %esi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lsetdomainname_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lsetdomainname_done\n"
+    <<".Lsetdomainname_fail:\n  mov $1, %edi\n.Lsetdomainname_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
 void emit_sched_getscheduler_query(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $145, %eax\n  mov $-1, %edi\n  syscall\n"
@@ -6483,6 +6505,8 @@ int main(int argc,char **argv) {
     if(csubset::emit_sched_getparam_query_mode) { csubset::emit_sched_getparam_query(program); return 0; }
     if(csubset::emit_sched_setparam_query_mode) { csubset::emit_sched_setparam_query(program); return 0; }
     if(csubset::emit_sched_setscheduler_query_mode) { csubset::emit_sched_setscheduler_query(program); return 0; }
+    if(csubset::emit_sethostname_query_mode) { csubset::emit_sethostname_query(program); return 0; }
+    if(csubset::emit_setdomainname_query_mode) { csubset::emit_setdomainname_query(program); return 0; }
     if(csubset::emit_sched_getscheduler_query_mode) { csubset::emit_sched_getscheduler_query(program); return 0; }
     if(csubset::emit_sched_get_priority_max_query_mode) { csubset::emit_sched_get_priority_max_query(program); return 0; }
     if(csubset::emit_sched_get_priority_min_query_mode) { csubset::emit_sched_get_priority_min_query(program); return 0; }
