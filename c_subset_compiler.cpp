@@ -72,6 +72,7 @@ bool emit_epoll_wait_mode = false;
 bool emit_futex_wait_mode = false;
 bool emit_timerfd_gettime_mode = false;
 bool emit_sched_getattr_mode = false;
+bool emit_get_robust_list_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1719,6 +1720,7 @@ Program parse_main(std::string const& s) {
   emit_futex_wait_mode=std::regex_search(body,std::regex(R"re(\bfutex_wait_probe\s*\(\s*\)\s*;)re"));
   emit_timerfd_gettime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_gettime_query\s*\(\s*\)\s*;)re"));
   emit_sched_getattr_mode=std::regex_search(body,std::regex(R"re(\bsched_getattr_query\s*\(\s*\)\s*;)re"));
+  emit_get_robust_list_mode=std::regex_search(body,std::regex(R"re(\bget_robust_list_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -2248,6 +2250,11 @@ void emit_sched_getattr(Program const&) {
     <<"  movl $48, sched_attr_buf(%rip)\n  mov $315, %eax\n  xor %edi, %edi\n  lea sched_attr_buf(%rip), %rsi\n  mov $48, %edx\n  xor %r10d, %r10d\n  syscall\n  test %eax, %eax\n  js .Lsched_attr_fail\n  xor %edi, %edi\n  jmp .Lsched_attr_done\n.Lsched_attr_fail:\n  mov $1, %edi\n.Lsched_attr_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nsched_attr_buf:\n  .skip 128\n";
 }
 
+void emit_get_robust_list(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $274, %eax\n  xor %edi, %edi\n  lea robust_head(%rip), %rsi\n  lea robust_len(%rip), %rdx\n  syscall\n  test %eax, %eax\n  js .Lrobust_fail\n  xor %edi, %edi\n  jmp .Lrobust_done\n.Lrobust_fail:\n  mov $1, %edi\n.Lrobust_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nrobust_head:\n  .skip 8\nrobust_len:\n  .skip 8\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -2571,6 +2578,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_futex_wait_mode) { csubset::emit_futex_wait(program); return 0; }
     if(csubset::emit_timerfd_gettime_mode) { csubset::emit_timerfd_gettime(program); return 0; }
     if(csubset::emit_sched_getattr_mode) { csubset::emit_sched_getattr(program); return 0; }
+    if(csubset::emit_get_robust_list_mode) { csubset::emit_get_robust_list(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
