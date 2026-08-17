@@ -535,6 +535,13 @@ readstdin(4096);
 The `readstdin_four.c` fixture verifies exact four-byte forwarding through the
 assembler-only path.
 
+`dup2(old_fd, new_fd)` forwards constant descriptors to Linux `dup2`,
+returning 0 or 1 according to the syscall result:
+
+```c
+dup2(1, 2);
+```
+
 The same one-level primitive is exposed as:
 
 ```c
