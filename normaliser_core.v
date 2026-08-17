@@ -51,28 +51,29 @@ Lemma nsubst0_var0 : forall s,
   nsubst0 s (NVar 0) = s.
 Proof.
   intros s.
-  reflexivity.
+  cbn [nsubst0, nsubst].
 Qed.
 
 Lemma nsubst0_var_succ : forall s k,
   nsubst0 s (NVar (S k)) = NVar k.
 Proof.
   intros s k.
-  reflexivity.
+  cbn [nsubst0, nsubst].
+  destruct k; reflexivity.
 Qed.
 
 Lemma nsubst0_under_bound_lambda : forall s,
   nsubst0 s (NLam (NVar 0)) = NLam (NVar 0).
 Proof.
   intros s.
-  reflexivity.
+  cbn [nsubst0, nsubst].
 Qed.
 
 Lemma nsubst0_under_outer_lambda : forall s,
   nsubst0 s (NLam (NVar 1)) = NLam (nshift 1 0 s).
 Proof.
   intros s.
-  reflexivity.
+  cbn [nsubst0, nsubst].
 Qed.
 
 (* The staged computational boundary.  Quotation is inert data; only an
