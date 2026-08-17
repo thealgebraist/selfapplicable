@@ -41,3 +41,22 @@ coqc minimal_total_lang.v
 ```
 
 The CI workflow compiles this file alongside the existing core and C semantics.
+
+## ARM64 compiler
+
+`minimal_arm64_compiler.cpp` is the first executable backend for this language.
+It accepts the constructors `nat`, `true`, `false`, `add`, and `if` in a small
+S-expression syntax. It normalizes the ADT term before emitting AArch64 Linux
+assembly. The generated `_start` places the normalized natural/boolean result
+in `x0` and exits through syscall 93. `test_minimal_arm64.sh` checks the emitted
+instruction contract and assembles the result with `aarch64-linux-gnu-as` when
+that cross-toolchain is installed.
+
+```sh
+printf '%s\n' '(add (nat 2) (if true (nat 3) (nat 4)))' \
+  | ./minimal_arm64_compiler-ci
+```
+
+This backend intentionally compiles only closed, pure ADT terms. Variables,
+functions, memory, and effects remain future extensions with separate typing
+and lowering proofs.

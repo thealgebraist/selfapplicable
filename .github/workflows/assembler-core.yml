@@ -18,6 +18,12 @@ jobs:
       - name: Build and run dependent normalizer
         run: make check-normaliser
 
+      - name: Compile minimal ADT to ARM64
+        shell: bash
+        run: |
+          set -euo pipefail
+          make check-minimal-arm64
+
       - name: Assemble and run control-flow fixtures
         shell: bash
         run: |
