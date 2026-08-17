@@ -1,0 +1,43 @@
+name: assembler-core
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build host compiler
+        run: g++ -std=c++23 -Wall -Wextra -pedantic -O2 c_subset_compiler.cpp -o c_subset_compiler-ci
+
+      - name: Assemble and run control-flow fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          for fixture in loop_break.c loop_continue.c loop_break_continue.c loop_break_then_continue.c; do
+            ./c_subset_compiler-ci "fixtures/$fixture" > "$fixture.s"
+            as --64 "$fixture.s" -o "$fixture.o"
+            ld "$fixture.o" -o "$fixture.bin"
+            case "$fixture" in
+              loop_break.c) expected=XX ;;
+              loop_continue.c) expected=XXXX ;;
+              loop_break_continue.c) expected=XXX ;;
+              loop_break_then_continue.c) expected=XX ;;
+            esac
+            actual=$(timeout 5 "./$fixture.bin")
+            test "$actual" = "$expected"
+          done
+
+      - name: Check semantic tooling entry point
+        run: ./check_semantics.sh
+
+      - name: Build and verify release bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./make_release_bundle.sh "ci-${GITHUB_SHA}" ci-dist
+          ./verify_release_bundle.sh "ci-dist/selfapplicable-ci-${GITHUB_SHA}.tar.gz"
