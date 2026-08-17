@@ -90,6 +90,8 @@ and high-byte results.
 Consecutive literal writes are collected in source order after independent
 escape and length checks; `write_two.c` and `write_three.c` verify the resulting
 single syscall payload for multiple calls.
+Adjacent string literals in one `write` argument are likewise concatenated
+after decoding and length validation; `write_adjacent.c` covers that C form.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 

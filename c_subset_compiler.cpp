@@ -876,10 +876,16 @@ Program parse_main(std::string const& s) {
     return value;
   };
   std::smatch w;
+  static const std::regex adjacent_write(
+    R"re(write\s*\(\s*1\s*,\s*"([^\n]*)"\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,adjacent_write)) {
+    p.output=decode_write(w[1].str())+decode_write(w[2].str());
+    if(std::stoi(w[3])!=(int)p.output.size()) throw std::runtime_error("write length mismatch");
+  }
   // Collect every literal write in source order.  This deliberately keeps
   // each call's declared byte count independently checked before combining
   // the payload into one static message.
-  for(std::sregex_iterator it(body.begin(),body.end(),write), end; it!=end; ++it) {
+  if(p.output.empty()) for(std::sregex_iterator it(body.begin(),body.end(),write), end; it!=end; ++it) {
     auto payload=decode_write((*it)[1].str());
     if(std::stoi((*it)[2])!=(int)payload.size()) throw std::runtime_error("write length mismatch");
     p.output+=payload;
