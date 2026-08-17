@@ -129,6 +129,8 @@ loop.
 escapes in that loop path.
 `loop_write_adjacent_mixed.c` combines question-mark and hexadecimal escapes.
 `loop_write_adjacent_mixed_octal.c` combines octal and tab escapes.
+`loop_write_adjacent_binary_mixed.c` combines NUL and octal bytes across
+adjacent fragments.
 `loop_write_adjacent_octal.c` covers the corresponding octal form.
 `loop_write_adjacent_control.c` covers adjacent control-byte fragments.
 `loop_write_adjacent_three.c` extends that coverage to three fragments.
