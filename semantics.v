@@ -225,6 +225,13 @@ Proof.
   - eapply CXRSNext; eauto.
 Qed.
 
+Lemma cexpr_step_to_star : forall M σ e e',
+  cexpr_step M σ e e' -> cexpr_step_star M σ e e'.
+Proof.
+  intros M σ e e' H.
+  eapply CXRSNext; eauto.
+Qed.
+
 Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
   fun a' => if Nat.eqb a a' then v else σ a'.
 
@@ -432,6 +439,13 @@ Proof.
   induction H12.
   - exact H23.
   - eapply CMSRNext; eauto.
+Qed.
+
+Lemma cmstmt_step_to_star : forall M c c',
+  cmstmt_step M c c' -> cmstmt_step_star M c c'.
+Proof.
+  intros M c c' H.
+  eapply CMSRNext; eauto.
 Qed.
 
 Lemma small_step_assignment_preserves_store_type : forall M Γ σ a e v,
