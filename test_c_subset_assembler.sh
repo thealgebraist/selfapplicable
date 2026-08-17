@@ -457,6 +457,7 @@ expect_status fixtures/splice_query.c 0
 expect_status fixtures/tee_query.c 0
 expect_status fixtures/vmsplice_query.c 0
 expect_status fixtures/pidfd_open_query.c 1
+expect_status fixtures/pidfd_send_signal_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
