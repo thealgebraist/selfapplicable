@@ -91,6 +91,7 @@ bool emit_epoll_ctl_mode = false;
 bool emit_epoll_pwait_mode = false;
 bool emit_ppoll_mode = false;
 bool emit_select_mode = false;
+bool emit_pselect6_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1757,6 +1758,7 @@ Program parse_main(std::string const& s) {
   emit_epoll_pwait_mode=std::regex_search(body,std::regex(R"re(\bepoll_pwait_query\s*\(\s*\)\s*;)re"));
   emit_ppoll_mode=std::regex_search(body,std::regex(R"re(\bppoll_empty_query\s*\(\s*\)\s*;)re"));
   emit_select_mode=std::regex_search(body,std::regex(R"re(\bselect_empty_query\s*\(\s*\)\s*;)re"));
+  emit_pselect6_mode=std::regex_search(body,std::regex(R"re(\bpselect6_empty_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -2381,6 +2383,11 @@ void emit_select(Program const&) {
     <<"  mov $23, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  lea select_timeout(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lselect_fail\n  xor %edi, %edi\n  jmp .Lselect_done\n.Lselect_fail:\n  mov $1, %edi\n.Lselect_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nselect_timeout:\n  .skip 16\n";
 }
 
+void emit_pselect6(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $270, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  lea pselect6_timeout(%rip), %r8\n  xor %r9d, %r9d\n  syscall\n  test %eax, %eax\n  js .Lpselect6_fail\n  xor %edi, %edi\n  jmp .Lpselect6_done\n.Lpselect6_fail:\n  mov $1, %edi\n.Lpselect6_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\npselect6_timeout:\n  .skip 16\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -2723,6 +2730,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_epoll_pwait_mode) { csubset::emit_epoll_pwait(program); return 0; }
     if(csubset::emit_ppoll_mode) { csubset::emit_ppoll(program); return 0; }
     if(csubset::emit_select_mode) { csubset::emit_select(program); return 0; }
+    if(csubset::emit_pselect6_mode) { csubset::emit_pselect6(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
