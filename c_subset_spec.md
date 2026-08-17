@@ -276,7 +276,8 @@ Braced inclusive `for` bodies are covered by
 Strict-bound braced `for` bodies with five fragments are covered by
 `loop_write_braced_five.c`.
 Braced `for` bodies may likewise contain two checked literal writes, covered
-by `loop_write_two_body_writes.c`.
+by `loop_write_two_body_writes.c`. Inclusive braced `for` bodies support the
+same composition, covered by `loop_write_inclusive_two_body_writes.c`.
 This also composes with braced bodies and explicit `i++`, as shown by
 `while_write_inclusive_braced.c`.
 
