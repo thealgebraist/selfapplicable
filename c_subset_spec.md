@@ -527,6 +527,8 @@ write(2, "warning\n", 8);
 ```
 The stderr harness assertion captures that exact payload after assembling and
 linking the fixture.
+Adjacent stderr fragments are concatenated and checked independently by
+`write_stderr_adjacent.c`.
 
 `readstdin(size)` reads up to a bounded number of bytes from descriptor 0 and
 forwards them to stdout:
