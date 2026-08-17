@@ -30,3 +30,13 @@ findutils-src/
 /echo_argv
 /echo_argv.o
 /echo_argv.s
+
+# Local assembler-only fixture outputs and release bundles.
+/c_subset_semantics
+/dist/
+/find_*
+/ls_subset*
+/pwd_subset*
+/repeat
+/repeat.s
+/true_gnu*

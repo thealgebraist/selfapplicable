@@ -211,6 +211,22 @@ Proof.
   - apply nred_star_refl.
 Qed.
 
+Lemma beta_identity_star : forall s,
+  nred_star (NApp (NLam (NVar 0)) s) s.
+Proof.
+  intros s.
+  apply nred_to_nred_star.
+  apply beta_identity.
+Qed.
+
+Lemma beta_outer_variable_star : forall s,
+  nred_star (NApp (NLam (NVar 1)) s) (NVar 0).
+Proof.
+  intros s.
+  apply nred_to_nred_star.
+  apply beta_outer_variable.
+Qed.
+
 Lemma nred_star_trans : forall t u v,
   nred_star t u -> nred_star u v -> nred_star t v.
 Proof.
