@@ -105,6 +105,7 @@ Counted-loop writes use the same decoding path, covered by
 loop.
 `loop_write_adjacent_three.c` extends that coverage to three fragments.
 `loop_write_adjacent_four.c` extends it to four fragments.
+`loop_write_adjacent_five.c` extends it to five fragments.
 
 The option guard used by `true(1)` is recognized in this reduced form:
 
