@@ -346,6 +346,47 @@ Proof.
     exact Ha.
 Qed.
 
+Inductive nctx : Type :=
+| NCHole
+| NCAppLeft : nctx -> nterm -> nctx
+| NCAppRight : nterm -> nctx -> nctx
+| NCLam : nctx -> nctx
+| NCQuote : nctx -> nctx
+| NCUnquote : nctx -> nctx.
+
+Fixpoint nplug (C : nctx) (t : nterm) : nterm :=
+  match C with
+  | NCHole => t
+  | NCAppLeft C' a => NApp (nplug C' t) a
+  | NCAppRight f C' => NApp f (nplug C' t)
+  | NCLam C' => NLam (nplug C' t)
+  | NCQuote C' => NQuote (nplug C' t)
+  | NCUnquote C' => NUnquote (nplug C' t)
+  end.
+
+Lemma nred_star_plug : forall C t u,
+  nred_star t u -> nred_star (nplug C t) (nplug C u).
+Proof.
+  induction C as [| C IHC a | f C IHC | C IHC | C IHC | C IHC];
+    intros t u H.
+  - exact H.
+  - apply nred_star_app_left.
+    apply IHC.
+    exact H.
+  - apply nred_star_app_right.
+    apply IHC.
+    exact H.
+  - apply nred_star_lam.
+    apply IHC.
+    exact H.
+  - apply nred_star_quote.
+    apply IHC.
+    exact H.
+  - apply nred_star_unquote.
+    apply IHC.
+    exact H.
+Qed.
+
 Inductive ntyped : list nty -> nterm -> nty -> Prop :=
 | NTVar : forall Γ n A,
     nth_error Γ n = Some A -> ntyped Γ (NVar n) A
