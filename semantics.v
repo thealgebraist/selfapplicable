@@ -2,7 +2,7 @@
     It deliberately separates classic big-step evaluation from the compatible
     small-step reduction relation.  The executable C++ implementation is the
     engineering artifact; this file states the trusted semantic boundary. *)
-From Coq Require Import Arith Lists String.
+From Coq Require Import Arith.Arith Lists.List Strings.String.
 Import ListNotations.
 
 Inductive term : Type :=
