@@ -445,6 +445,7 @@ expect_status fixtures/mlock2_query.c 0
 expect_status fixtures/mlockall_query.c 0
 expect_status fixtures/munlock_query.c 0
 expect_status fixtures/munlockall_query.c 0
+expect_status fixtures/ioprio_get_query.c 0
 expect_status fixtures/madvise_query.c 0
 expect_status fixtures/mprotect_query.c 0
 expect_status fixtures/mremap_query.c 1
