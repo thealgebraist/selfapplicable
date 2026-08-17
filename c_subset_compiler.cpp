@@ -775,6 +775,9 @@ Program parse_main(std::string const& s) {
           auto hex=value.substr(2); if(hex.find_first_not_of("0123456789abcdefABCDEF")!=std::string::npos) throw std::runtime_error("invalid hexadecimal character escape");
           p.else_status=std::stoi(hex,nullptr,16);
         }
+        else if(value.size()==4 && value[0]=='\\' && value.find_first_not_of("01234567",1)==std::string::npos) {
+          p.else_status=std::stoi(value.substr(1),nullptr,8);
+        }
         else throw std::runtime_error("unsupported character escape");
       } else if(std::regex_search(body,array_match,node_offsetof_return) && node_match.ready() && array_match[1].str()==node_match[1].str()) {
         p.else_status=4;
