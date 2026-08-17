@@ -197,7 +197,7 @@ Proof.
     + apply IHHstep. exact H0.
     + exact H3.
   - inversion Hbig; subst.
-    apply CXBLoad.
+    apply (CXBLoad M σ (CXVal (CVPtr a)) a result).
     + constructor.
     + assumption.
   - inversion Hbig; subst.
