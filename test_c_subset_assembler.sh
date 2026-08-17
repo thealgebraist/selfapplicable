@@ -221,6 +221,7 @@ expect_status fixtures/isgroup0_nonroot.c 1
 expect_status fixtures/nice_zero.c 0
 expect_output fixtures/writefd_stdout.c Q
 expect_stdin_output fixtures/readfd_stdin.c ABC ABC
+expect_status fixtures/poll_zero.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0

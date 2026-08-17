@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path, fdatasync_path, writefd_text; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0, fcntl_fd=0, fcntl_cmd=0, fcntl_arg=0, setpgid_pid=0, setpgid_pgid=0, priority_which=0, priority_who=0, priority_value=0, nice_increment=0, writefd_fd=0, writefd_len=0, readfd_fd=0, readfd_len=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, fdatasync=false, umask=false, fcntl=false, setpgid=false, yield=false, getpid=false, getppid=false, setpriority=false, isroot=false, gettid=false, isgroup0=false, nice=false, writefd=false, readfd=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path, fdatasync_path, writefd_text; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0, fcntl_fd=0, fcntl_cmd=0, fcntl_arg=0, setpgid_pid=0, setpgid_pgid=0, priority_which=0, priority_who=0, priority_value=0, nice_increment=0, writefd_fd=0, writefd_len=0, readfd_fd=0, readfd_len=0, poll_fd=0, poll_events=0, poll_timeout=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, fdatasync=false, umask=false, fcntl=false, setpgid=false, yield=false, getpid=false, getppid=false, setpriority=false, isroot=false, gettid=false, isgroup0=false, nice=false, writefd=false, readfd=false, poll=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -1604,6 +1604,8 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,writefd_call)) { p.writefd=true; p.writefd_fd=std::stoul(d[1]); p.writefd_text=decode_write(d[2].str()); p.writefd_len=std::stoul(d[3]); if(p.writefd_len!=p.writefd_text.size()) throw std::runtime_error("writefd length mismatch"); }
   static const std::regex readfd_call(R"re(readfd\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,readfd_call)) { p.readfd=true; p.readfd_fd=std::stoul(d[1]); p.readfd_len=std::stoul(d[2]); if(p.readfd_len>4096) throw std::runtime_error("readfd request too large"); }
+  static const std::regex poll_call(R"re(poll\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,d,poll_call)) { p.poll=true; p.poll_fd=std::stoul(d[1]); p.poll_events=std::stoul(d[2]); p.poll_timeout=std::stoul(d[3]); if(p.poll_timeout>60000) throw std::runtime_error("poll timeout too large"); }
   static const std::regex duplicate_fd(R"re(dup2\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,duplicate_fd)) { p.dup=true; p.dup_old=static_cast<unsigned>(std::stoul(d[1])); p.dup_new=static_cast<unsigned>(std::stoul(d[2])); }
   static const std::regex close_fd_call(R"re(close\s*\(\s*([0-9]+)\s*\)\s*;)re");
@@ -1867,6 +1869,11 @@ void emit_readfd(Program const& p) {
     <<"  xor %eax, %eax\n  mov $"<<p.readfd_fd<<", %edi\n  lea readfd_buf(%rip), %rsi\n  mov $"<<p.readfd_len<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lreadfd_fail\n  jz .Lreadfd_done\n  mov %eax, %edx\n  mov $1, %eax\n  mov $1, %edi\n  lea readfd_buf(%rip), %rsi\n  syscall\n  cmp %edx, %eax\n  jne .Lreadfd_fail\n.Lreadfd_done:\n  xor %edi, %edi\n  jmp .Lreadfd_exit\n.Lreadfd_fail:\n  mov $1, %edi\n.Lreadfd_exit:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nreadfd_buf:\n  .skip 4096\n";
 }
 
+void emit_poll(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $7, %eax\n  lea pollfd(%rip), %rdi\n  mov $1, %esi\n  mov $"<<p.poll_timeout<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lpoll_fail\n  xor %edi, %edi\n  jmp .Lpoll_done\n.Lpoll_fail:\n  mov $1, %edi\n.Lpoll_done:\n  mov $60, %eax\n  syscall\n.data\n.align 8\npollfd:\n  .long "<<p.poll_fd<<"\n  .short "<<p.poll_events<<"\n  .short 0\n";
+}
+
 void emit_dup(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $33, %eax\n  mov $"<<p.dup_old<<", %edi\n  mov $"<<p.dup_new<<", %esi\n  syscall\n  test %eax, %eax\n  js .Ldup_fail\n  xor %edi, %edi\n  jmp .Ldup_done\n.Ldup_fail:\n  mov $1, %edi\n.Ldup_done:\n  mov $60, %eax\n  syscall\n";
@@ -1940,6 +1947,7 @@ int main(int argc,char **argv) {
     if(program.nice) { csubset::emit_nice(program); return 0; }
     if(program.writefd) { csubset::emit_writefd(program); return 0; }
     if(program.readfd) { csubset::emit_readfd(program); return 0; }
+    if(program.poll) { csubset::emit_poll(program); return 0; }
     if(program.dup) { csubset::emit_dup(program); return 0; }
     if(program.close) { csubset::emit_close(program); return 0; }
     if(program.pipe) { csubset::emit_pipe(program); return 0; }
