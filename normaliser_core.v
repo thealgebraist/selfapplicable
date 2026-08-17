@@ -47,6 +47,13 @@ Fixpoint nsubst (depth : nat) (replacement : nterm) (t : nterm) : nterm :=
 Definition nsubst0 (replacement : nterm) (t : nterm) : nterm :=
   nsubst 0 replacement t.
 
+Lemma nshift_zero : forall t,
+  nshift 0 0 t = t.
+Proof.
+  induction t as [k | body IH | f IHf a IHa | code IH | code IH];
+    simpl; try rewrite IH; try rewrite IHf; try rewrite IHa; reflexivity.
+Qed.
+
 Lemma nsubst0_var0 : forall s,
   nsubst0 s (NVar 0) = s.
 Proof.
@@ -54,6 +61,7 @@ Proof.
   cbn [nsubst0 nsubst].
   rewrite Nat.ltb_irrefl.
   rewrite Nat.eqb_refl.
+  rewrite nshift_zero.
   reflexivity.
 Qed.
 
