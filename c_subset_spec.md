@@ -542,6 +542,13 @@ returning 0 or 1 according to the syscall result:
 dup2(1, 2);
 ```
 
+`close(fd)` forwards a constant descriptor to Linux `close` and reports its
+success or failure:
+
+```c
+close(0);
+```
+
 The same one-level primitive is exposed as:
 
 ```c

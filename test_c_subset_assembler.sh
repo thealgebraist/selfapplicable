@@ -169,6 +169,7 @@ expect_status fixtures/write_stderr.c 0
 expect_status fixtures/readstdin_empty.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
+expect_status fixtures/close_stdin.c 0
 expect_output fixtures/write_escape.c "A	B"
 expect_output fixtures/loop_write_escape.c "x	x	"
 expect_output fixtures/loop_write_hex.c "AA"
