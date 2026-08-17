@@ -103,6 +103,30 @@ Proof.
   - exact Htail.
 Qed.
 
+Lemma nred_star_quote : forall t u,
+  nred_star t u -> nred_star (NQuote t) (NQuote u).
+Proof.
+  intros t u H.
+  induction H as [t | t u v Hstep Htail IH].
+  - apply nred_star_refl.
+  - eapply NRSNext.
+    + apply NRQuoteBody.
+      exact Hstep.
+    + exact IH.
+Qed.
+
+Lemma nred_star_unquote : forall t u,
+  nred_star t u -> nred_star (NUnquote t) (NUnquote u).
+Proof.
+  intros t u H.
+  induction H as [t | t u v Hstep Htail IH].
+  - apply nred_star_refl.
+  - eapply NRSNext.
+    + apply NRUnquote.
+      exact Hstep.
+    + exact IH.
+Qed.
+
 Inductive ntyped : list nty -> nterm -> nty -> Prop :=
 | NTVar : forall Γ n A,
     nth_error Γ n = Some A -> ntyped Γ (NVar n) A
