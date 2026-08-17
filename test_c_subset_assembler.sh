@@ -441,6 +441,7 @@ expect_status fixtures/fcntl_set_rw_hint_query.c 0
 expect_status fixtures/fadvise_query.c 1
 expect_status fixtures/syncfs_query.c 0
 expect_status fixtures/mlock_query.c 0
+expect_status fixtures/mlock2_query.c 0
 expect_status fixtures/mlockall_query.c 0
 expect_status fixtures/munlock_query.c 0
 expect_status fixtures/madvise_query.c 0
