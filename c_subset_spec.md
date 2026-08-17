@@ -85,6 +85,7 @@ command in this initial slice.
 String writes decode `\\n`, `\\t`, `\\\\`, and escaped quotes before length
 checking and emission; `write_escape.c` verifies the resulting bytes.
 `write_backslash.c` verifies literal backslash emission.
+`write_quote.c` verifies an escaped quote in a string literal.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 

@@ -141,6 +141,7 @@ expect_output() {
 expect_output fixtures/write_escape.c "A	B"
 expect_output fixtures/loop_write_escape.c "x	x	"
 expect_output fixtures/write_backslash.c "A\\B"
+expect_output fixtures/write_quote.c 'A"B'
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c
