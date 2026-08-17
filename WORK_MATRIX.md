@@ -86,7 +86,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Typed sequence-skip agreement | [x] | CI run `32047794010` proves `typed_seq_skip_semantic_agreement` |
 | Semantics | Typed while-zero unfolding | [x] | CI run `32048209726` proves `typed_while_zero_unfold` |
 | Semantics | Typed while-nonzero unfolding | [x] | CI run `32048353146` proves `typed_while_nonzero_unfold` |
-| Semantics | Typed switch-case agreement | [ ] | Added `typed_switch_case_semantic_agreement`; await CI confirmation |
+| Semantics | Typed switch-case agreement | [x] | CI run `32048651571` proves `typed_switch_case_semantic_agreement` |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
