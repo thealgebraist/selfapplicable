@@ -75,6 +75,7 @@ bool emit_pidfd_getfd_mode = false;
 bool emit_landlock_query_mode = false;
 bool emit_madvise_mode = false;
 bool emit_mprotect_mode = false;
+bool emit_mremap_mode = false;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1717,6 +1718,7 @@ Program parse_main(std::string const& s) {
   emit_landlock_query_mode=std::regex_search(body,std::regex(R"re(\blandlock_create_ruleset_query\s*\(\s*\)\s*;)re"));
   emit_madvise_mode=std::regex_search(body,std::regex(R"re(\bmadvise_probe\s*\(\s*\)\s*;)re"));
   emit_mprotect_mode=std::regex_search(body,std::regex(R"re(\bmprotect_probe\s*\(\s*\)\s*;)re"));
+  emit_mremap_mode=std::regex_search(body,std::regex(R"re(\bmremap_probe\s*\(\s*\)\s*;)re"));
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -2253,6 +2255,11 @@ void emit_mprotect(Program const&) {
     <<"  mov $10, %eax\n  lea mprotect_page(%rip), %rdi\n  mov $4096, %esi\n  mov $3, %edx\n  syscall\n  test %eax, %eax\n  js .Lmprotect_fail\n  xor %edi, %edi\n  jmp .Lmprotect_done\n.Lmprotect_fail:\n  mov $1, %edi\n.Lmprotect_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 4096\nmprotect_page:\n  .skip 4096\n";
 }
 
+void emit_mremap(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $25, %eax\n  lea mremap_page(%rip), %rdi\n  mov $4096, %esi\n  mov $4096, %edx\n  xor %r10d, %r10d\n  syscall\n  test %eax, %eax\n  js .Lmremap_fail\n  xor %edi, %edi\n  jmp .Lmremap_done\n.Lmremap_fail:\n  mov $1, %edi\n.Lmremap_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 4096\nmremap_page:\n  .skip 4096\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2539,6 +2546,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_landlock_query_mode) { csubset::emit_landlock_query(program); return 0; }
     if(csubset::emit_madvise_mode) { csubset::emit_madvise(program); return 0; }
     if(csubset::emit_mprotect_mode) { csubset::emit_mprotect(program); return 0; }
+    if(csubset::emit_mremap_mode) { csubset::emit_mremap(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
