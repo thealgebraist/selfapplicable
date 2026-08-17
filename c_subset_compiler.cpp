@@ -121,6 +121,7 @@ bool emit_timer_getoverrun_query_mode = false;
 bool emit_futex_lock_pi2_query_mode = false;
 bool emit_clock_settime_query_mode = false;
 bool emit_settimeofday_query_mode = false;
+bool emit_semget_query_mode = false;
 bool emit_lsm_list_modules_query_mode = false;
 bool emit_lsm_set_self_attr_query_mode = false;
 bool emit_open_tree_query_mode = false;
@@ -2033,6 +2034,7 @@ Program parse_main(std::string const& s) {
   emit_futex_lock_pi2_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_lock_pi2_query\s*\(\s*\)\s*;)re"));
   emit_clock_settime_query_mode=std::regex_search(body,std::regex(R"re(\bclock_settime_query\s*\(\s*\)\s*;)re"));
   emit_settimeofday_query_mode=std::regex_search(body,std::regex(R"re(\bsettimeofday_query\s*\(\s*\)\s*;)re"));
+  emit_semget_query_mode=std::regex_search(body,std::regex(R"re(\bsemget_query\s*\(\s*\)\s*;)re"));
   emit_lsm_list_modules_query_mode=std::regex_search(body,std::regex(R"re(\blsm_list_modules_query\s*\(\s*\)\s*;)re"));
   emit_lsm_set_self_attr_query_mode=std::regex_search(body,std::regex(R"re(\blsm_set_self_attr_query\s*\(\s*\)\s*;)re"));
   emit_open_tree_query_mode=std::regex_search(body,std::regex(R"re(\bopen_tree_query\s*\(\s*\)\s*;)re"));
@@ -3125,6 +3127,15 @@ void emit_settimeofday_query(Program const&) {
     <<"  test %eax, %eax\n  js .Lsettimeofday_fail\n"
     <<"  xor %edi, %edi\n  jmp .Lsettimeofday_done\n"
     <<".Lsettimeofday_fail:\n  mov $1, %edi\n.Lsettimeofday_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_semget_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $64, %eax\n  mov $-1, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lsemget_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lsemget_done\n"
+    <<".Lsemget_fail:\n  mov $1, %edi\n.Lsemget_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
 }
 
@@ -5455,6 +5466,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_futex_lock_pi2_query_mode) { csubset::emit_futex_lock_pi2_query(program); return 0; }
     if(csubset::emit_clock_settime_query_mode) { csubset::emit_clock_settime_query(program); return 0; }
     if(csubset::emit_settimeofday_query_mode) { csubset::emit_settimeofday_query(program); return 0; }
+    if(csubset::emit_semget_query_mode) { csubset::emit_semget_query(program); return 0; }
     if(csubset::emit_lsm_list_modules_query_mode) { csubset::emit_lsm_list_modules_query(program); return 0; }
     if(csubset::emit_lsm_set_self_attr_query_mode) { csubset::emit_lsm_set_self_attr_query(program); return 0; }
     if(csubset::emit_open_tree_query_mode) { csubset::emit_open_tree_query(program); return 0; }
