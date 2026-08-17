@@ -636,7 +636,7 @@ Lemma typed_seq_skip_semantic_agreement : forall M Γ σ s r σ',
 Proof.
   intros M Γ σ s r σ' Hseq Hsecond Htyped.
   split.
-  - apply CMBSeq.
+  - eapply CMBSeq.
     + constructor.
     + exact Hsecond.
   - split.
