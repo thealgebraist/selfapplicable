@@ -237,6 +237,8 @@ Inclusive while bodies also support three separate checked writes, covered by
 `while_write_inclusive_three_body_writes.c`.
 Four separate checked writes in an inclusive while body are covered by
 `while_write_inclusive_four_body_writes.c`.
+Five separate checked writes in an inclusive while body are covered by
+`while_write_inclusive_five_body_writes.c`.
 Three separate checked writes, including an embedded NUL, are covered by
 `while_write_three_body_writes.c`.
 Four separate checked writes in a strict-bound while body are covered by
