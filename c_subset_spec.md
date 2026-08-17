@@ -263,6 +263,8 @@ The same rule applies to `for` bounds; `loop_write_unbounded.c` verifies that
 non-literal bounds are rejected.
 The reduced `for` form also requires `int i = 0`; nonzero initializers are
 rejected by `loop_write_nonzero_init.c`.
+Its update clause must be the literal `i++`; `loop_write_nonincrement.c`
+verifies rejection of alternative updates.
 Braced inclusive `for` bodies are covered by
 `loop_write_inclusive_braced.c`.
 This also composes with braced bodies and explicit `i++`, as shown by
