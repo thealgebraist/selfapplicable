@@ -62,14 +62,13 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Testing | Timeout coverage for output/reject helpers | [x] | `test_c_subset_assembler.sh` |
 | Testing | Continuous assembler-only CI gate | [x] | GitHub Actions run `32036698013` passed |
 | Testing | Full regression run under current host load | [x] | Local `./test_c_subset_assembler.sh` completed with `C subset + dependent NbE: PASS` |
-| Semantics | Coq big-step semantics | [ ] | Core relations exist; `normaliser_sound` remains admitted and needs a strengthened correspondence |
+| Semantics | Coq big-step semantics | [ ] | Core relations exist; `small_step_preserves_big_step` and `normaliser_sound` remain admitted |
 | Semantics | Coq small-step semantics | [ ] | Add preservation/progress proofs for the C subset |
 | Semantics | Coq semantic source compiles | [x] | CI run `32037863355` installs Coq and compiles `semantics.v` |
 | Semantics | C store update lemmas | [x] | CI run `32038550737` proves same-slot and distinct-slot update properties |
 | Semantics | Typed store assignment preservation | [x] | CI run `32039096595` proves typed updates preserve `cstore_typed` |
 | Semantics | End-to-end typed assignment theorem | [x] | CI run `32039204250` connects expression evaluation, assignment, and typed store output |
 | Semantics | Small-step typed assignment preservation | [x] | CI run `32043962999` proves `small_step_assignment_preserves_store_type` |
-| Semantics | Arithmetic small-step preservation | [x] | `small_step_preserves_big_step` is now proved by induction over `cstep` |
 | Semantics | C-expression small-step/big-step bridge | [x] | CI run `32045111676` proves `cexpr_step_preserves_big` |
 | Semantics | C-expression multi-step/big-step bridge | [x] | CI run `32045271877` proves `cexpr_step_star_preserves_big` |
 | Semantics | C-expression reduction closure transitivity | [x] | CI run `32045490645` proves `cexpr_step_star_trans` |
