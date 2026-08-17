@@ -323,6 +323,7 @@ expect_status fixtures/rseq_query.c 1
 expect_status fixtures/futex_waitv_query.c 1
 expect_status fixtures/process_mrelease_query.c 1
 expect_status fixtures/cachestat_query.c 1
+expect_status fixtures/set_mempolicy_home_node_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1

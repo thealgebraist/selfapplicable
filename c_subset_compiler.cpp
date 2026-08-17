@@ -100,6 +100,7 @@ bool emit_rseq_query_mode = false;
 bool emit_futex_waitv_query_mode = false;
 bool emit_process_mrelease_query_mode = false;
 bool emit_cachestat_query_mode = false;
+bool emit_set_mempolicy_home_node_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1775,6 +1776,7 @@ Program parse_main(std::string const& s) {
   emit_futex_waitv_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_waitv_query\s*\(\s*\)\s*;)re"));
   emit_process_mrelease_query_mode=std::regex_search(body,std::regex(R"re(\bprocess_mrelease_query\s*\(\s*\)\s*;)re"));
   emit_cachestat_query_mode=std::regex_search(body,std::regex(R"re(\bcachestat_query\s*\(\s*\)\s*;)re"));
+  emit_set_mempolicy_home_node_query_mode=std::regex_search(body,std::regex(R"re(\bset_mempolicy_home_node_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -2465,6 +2467,15 @@ void emit_cachestat_query(Program const&) {
     <<".Lcachestat_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_set_mempolicy_home_node_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $450, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lhome_node_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lhome_node_done\n"
+    <<".Lhome_node_fail:\n  mov $1, %edi\n"
+    <<".Lhome_node_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -2816,6 +2827,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_futex_waitv_query_mode) { csubset::emit_futex_waitv_query(program); return 0; }
     if(csubset::emit_process_mrelease_query_mode) { csubset::emit_process_mrelease_query(program); return 0; }
     if(csubset::emit_cachestat_query_mode) { csubset::emit_cachestat_query(program); return 0; }
+    if(csubset::emit_set_mempolicy_home_node_query_mode) { csubset::emit_set_mempolicy_home_node_query(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
