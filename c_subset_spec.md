@@ -246,6 +246,8 @@ rejected by `do_write_inclusive_bad_length.c`.
 a zero bound.
 Zero-length post-test payloads remain valid; `do_write_empty.c` covers this
 case.
+The inclusive post-test form also accepts empty payloads, covered by
+`do_write_inclusive_empty.c`.
 Adjacent binary fragments are supported in the post-test body by
 `do_write_adjacent_binary.c`.
 Three adjacent fragments in a post-test body are covered by
