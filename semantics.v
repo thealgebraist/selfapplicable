@@ -608,6 +608,24 @@ Proof.
     + exact Htyped.
 Qed.
 
+Lemma typed_if_nonzero_semantic_agreement : forall M Γ σ e st sf n σ',
+  cmstmt_typed Γ (CMIf e st sf) CVoid ->
+  cexpr_big M σ e (CVInt (S n)) ->
+  cmstmt_big M σ st None σ' ->
+  cmconfig_typed Γ (st, σ') ->
+  cmstmt_big M σ (CMIf e st sf) None σ' /\
+  cmstmt_step_star M (CMIf e st sf, σ) (st, σ) /\
+  cmconfig_typed Γ (st, σ').
+Proof.
+  intros M Γ σ e st sf n σ' Hif He Hbranch Htyped.
+  split.
+  - now apply CMBIfNonzero.
+  - split.
+    + apply cmstmt_step_to_star.
+      now apply CMSIfNonzero.
+    + exact Htyped.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
