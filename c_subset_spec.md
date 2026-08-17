@@ -123,6 +123,7 @@ fragments.
 `write_adjacent_binary_mixed.c` combines NUL and high-byte fragments.
 `write_adjacent_mixed.c` combines question-mark and octal fragments.
 `write_adjacent_empty.c` verifies empty adjacent fragments are accepted.
+`write_adjacent_empty_trailing.c` covers a trailing empty fragment.
 `write_adjacent_mixed_whitespace.c` combines newline and octal fragments.
 `write_adjacent_mixed_tab_hex.c` combines tab and hexadecimal fragments.
 `write_adjacent_mixed_cr_hex.c` combines carriage-return and hexadecimal
