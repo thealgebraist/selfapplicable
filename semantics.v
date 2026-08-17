@@ -222,9 +222,7 @@ Proof.
   intros M σ e1 e2 e3 H12 H23.
   induction H12.
   - exact H23.
-  - eapply CXRSNext.
-    + exact H.
-    + apply IHH12. exact H23.
+  - eapply CXRSNext; eauto.
 Qed.
 
 Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
