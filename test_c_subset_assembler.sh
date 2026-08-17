@@ -348,6 +348,7 @@ expect_status fixtures/nanosleep_query.c 1
 expect_status fixtures/clock_nanosleep_query.c 1
 expect_status fixtures/clock_gettime_query.c 0
 expect_status fixtures/clock_getres_query.c 0
+expect_status fixtures/getitimer_query.c 1
 expect_status fixtures/process_vm_writev_query.c 0
 expect_status fixtures/clone3_query.c 1
 expect_status fixtures/userfaultfd_query.c 1
