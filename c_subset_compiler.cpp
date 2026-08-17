@@ -69,6 +69,7 @@ bool emit_copy_file_range_mode = false;
 bool emit_readahead_mode = false;
 bool emit_futex_wake_mode = false;
 bool emit_epoll_wait_mode = false;
+bool emit_timerfd_settime_mode = false;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1705,6 +1706,7 @@ Program parse_main(std::string const& s) {
   emit_readahead_mode=std::regex_search(body,std::regex(R"re(\breadahead_stdout\s*\(\s*\)\s*;)re"));
   emit_futex_wake_mode=std::regex_search(body,std::regex(R"re(\bfutex_wake_probe\s*\(\s*\)\s*;)re"));
   emit_epoll_wait_mode=std::regex_search(body,std::regex(R"re(\bepoll_wait_query\s*\(\s*\)\s*;)re"));
+  emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -2211,6 +2213,11 @@ void emit_epoll_wait(Program const&) {
     <<"  mov $291, %eax\n  xor %edi, %edi\n  syscall\n  test %eax, %eax\n  js .Lepwait_fail\n  mov %eax, %r12d\n  mov $232, %eax\n  mov %r12d, %edi\n  lea epwait_events(%rip), %rsi\n  mov $1, %edx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Lepwait_fail\n  xor %edi, %edi\n  jmp .Lepwait_done\n.Lepwait_fail:\n  mov $1, %edi\n.Lepwait_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nepwait_events:\n  .skip 16\n";
 }
 
+void emit_timerfd_settime(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2491,6 +2498,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_readahead_mode) { csubset::emit_readahead(program); return 0; }
     if(csubset::emit_futex_wake_mode) { csubset::emit_futex_wake(program); return 0; }
     if(csubset::emit_epoll_wait_mode) { csubset::emit_epoll_wait(program); return 0; }
+    if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }

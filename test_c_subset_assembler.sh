@@ -292,6 +292,7 @@ expect_status fixtures/copy_file_range_zero.c 1
 expect_status fixtures/readahead_stdout.c 1
 expect_status fixtures/futex_wake_probe.c 0
 expect_status fixtures/epoll_wait_query.c 0
+expect_status fixtures/timerfd_settime_query.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
