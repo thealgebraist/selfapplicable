@@ -758,6 +758,19 @@ Proof.
     + split; assumption.
 Qed.
 
+Lemma typed_call_big : forall M Γ σ body τ r σ',
+  cmstmt_typed Γ (CMCall body) τ ->
+  cmstmt_big M σ body r σ' ->
+  cmconfig_typed Γ (body, σ') ->
+  cmstmt_big M σ (CMCall body) r σ' /\
+  cmconfig_typed Γ (body, σ').
+Proof.
+  intros M Γ σ body τ r σ' Hcall Hbody Htyped.
+  split.
+  - now apply CMBCall.
+  - exact Htyped.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
