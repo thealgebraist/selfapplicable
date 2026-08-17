@@ -11,6 +11,7 @@
 #include <regex>
 
 namespace csubset {
+int loop_break_at = -1;
 
 bool emit_getuid_mode = false;
 bool emit_geteuid_mode = false;
@@ -441,6 +442,7 @@ std::string read_source(const char *path) {
 struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path, fsync_path, fdatasync_path, writefd_text, stat_path, lstat_path, memfd_name; std::vector<std::pair<int,std::string>> ordered_output; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0, sleep_seconds=0, umask_mode=0, alarm_seconds=0, clock_id=0, rusage_who=0, rlimit_resource=0, priority_query_which=0, priority_query_who=0, affinity_pid=0, eventfd_init=0, timerfd_clock=0, timerfd_flags=0, inotify_flags=0, pidfd_pid=0, pidfd_flags=0, memfd_flags=0, epoll_flags=0, epoll_size=0; unsigned chmod_mode=0, access_mode=0, dup_old=0, dup_new=0, close_fd=0, tty_fd=0, fcntl_fd=0, fcntl_cmd=0, fcntl_arg=0, setpgid_pid=0, setpgid_pgid=0, priority_which=0, priority_who=0, priority_value=0, nice_increment=0, writefd_fd=0, writefd_len=0, readfd_fd=0, readfd_len=0, poll_fd=0, poll_events=0, poll_timeout=0, fstat_fd=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, sleep=false, isatty=false, sync=false, fsync=false, fdatasync=false, umask=false, fcntl=false, setpgid=false, yield=false, getpid=false, getppid=false, setpriority=false, isroot=false, gettid=false, isgroup0=false, ise_group0=false, nice=false, writefd=false, readfd=false, poll=false, alarm=false, clock_gettime=false, gettimeofday=false, times=false, getrusage=false, sysinfo=false, uname=false, getdomainname=false, fstat=false, stat=false, lstat=false, getgroups=false, getresuid=false, getresgid=false, getrlimit=false, getpriority=false, getcpu=false, sched_getaffinity=false, eventfd=false, timerfd_create=false, inotify_init1=false, pidfd_open=false, memfd_create=false, epoll_create1=false, epoll_create=false, dup=false, close=false, pipe=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
+  loop_break_at=-1;
   std::smatch main_match;
   if(!std::regex_search(s,main_match,std::regex(R"(\bint\s+main\s*)"))) throw std::runtime_error("unsupported main declaration");
   auto main_pos=(std::size_t)main_match.position();
@@ -2521,6 +2523,15 @@ Program parse_main(std::string const& s) {
     }
     }
     }
+  static const std::regex break_loop(
+    R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*\{\s*if\s*\(\s*i\s*==\s*([0-9]+)\s*\)\s*break\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
+  std::smatch break_match;
+  if(std::regex_search(body,break_match,break_loop)) {
+    loop_break_at=std::stoi(break_match[2]);
+    p.loop_count=std::stoi(break_match[1]); p.loop_present=true; p.loop_output=break_match[3].str();
+    if(std::stoi(break_match[4])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
   static const std::regex any_while(R"(\bwhile\s*\()"), supported_while(R"(\bwhile\s*\(\s*i\s*<=?\s*[0-9]+\s*\))");
   if(std::regex_search(body,any_while) && !std::regex_search(body,supported_while)) throw std::runtime_error("unsupported while condition");
   static const std::regex any_for(R"(\bfor\s*\([^;]+;\s*i\s*<=?\s*([^;]+);\s*i\+\+\s*\))");
@@ -6691,10 +6702,15 @@ int main(int argc,char **argv) {
     if(program.loop_count>0 || program.loop_present) {
       if(program.loop_do) std::cout
         <<"  xor %r12d, %r12d\n.Lfor:\n  mov $1, %eax\n  mov $1, %edi\n  lea loop_message(%rip), %rsi\n  mov $"<<program.loop_output.size()<<", %edx\n  syscall\n  inc %r12d\n  cmp $"<<program.loop_count<<", %r12d\n  "<<(program.loop_inclusive ? "jg" : "jge")<<" .Lfor_done\n  jmp .Lfor\n.Lfor_done:\n";
-      else std::cout
-        <<"  xor %r12d, %r12d\n.Lfor:\n  cmp $"<<program.loop_count<<", %r12d\n  "<<(program.loop_inclusive ? "jg" : "jge")<<" .Lfor_done\n"
+      else {
+        std::cout
+        <<"  xor %r12d, %r12d\n.Lfor:\n  cmp $"<<program.loop_count<<", %r12d\n  "<<(program.loop_inclusive ? "jg" : "jge")<<" .Lfor_done\n";
+        if(csubset::loop_break_at >= 0) std::cout
+          <<"  cmp $"<<csubset::loop_break_at<<", %r12d\n  je .Lfor_done\n";
+        std::cout
         <<"  mov $1, %eax\n  mov $1, %edi\n  lea loop_message(%rip), %rsi\n  mov $"<<program.loop_output.size()<<", %edx\n  syscall\n"
         <<"  inc %r12d\n  jmp .Lfor\n.Lfor_done:\n";
+      }
     }
     if(program.argv1) std::cout
              <<"  mov (%rsp), %rdi\n  cmp $2, %rdi\n  jl .Largv_done\n"

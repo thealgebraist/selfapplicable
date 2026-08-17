@@ -193,6 +193,7 @@ expect_combined_output() {
   test "$actual" = "$expected" || { echo "FAIL: $source: combined output mismatch" >&2; exit 1; }
 }
 
+expect_output fixtures/loop_break.c XX
 expect_output fixtures/cat.c "cat payload"
 expect_status fixtures/mkdir_existing.c 1
 expect_status fixtures/rm_missing.c 1
