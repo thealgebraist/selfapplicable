@@ -84,6 +84,7 @@ NUL scan before the syscall. Missing `argv[1]` produces an empty successful
 command in this initial slice.
 String writes decode `\\n`, `\\t`, `\\\\`, and escaped quotes before length
 checking and emission; `write_escape.c` verifies the resulting bytes.
+`write_backslash.c` verifies literal backslash emission.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 
