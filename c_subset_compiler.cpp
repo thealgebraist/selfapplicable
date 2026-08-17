@@ -109,6 +109,7 @@ bool emit_listmount_query_mode = false;
 bool emit_lsm_get_self_attr_query_mode = false;
 bool emit_mseal_query_mode = false;
 bool emit_futex_requeue_query_mode = false;
+bool emit_futex_trylock_pi_query_mode = false;
 bool emit_lsm_list_modules_query_mode = false;
 bool emit_lsm_set_self_attr_query_mode = false;
 bool emit_open_tree_query_mode = false;
@@ -2009,6 +2010,7 @@ Program parse_main(std::string const& s) {
   emit_lsm_get_self_attr_query_mode=std::regex_search(body,std::regex(R"re(\blsm_get_self_attr_query\s*\(\s*\)\s*;)re"));
   emit_mseal_query_mode=std::regex_search(body,std::regex(R"re(\bmseal_query\s*\(\s*\)\s*;)re"));
   emit_futex_requeue_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_requeue_query\s*\(\s*\)\s*;)re"));
+  emit_futex_trylock_pi_query_mode=std::regex_search(body,std::regex(R"re(\bfutex_trylock_pi_query\s*\(\s*\)\s*;)re"));
   emit_lsm_list_modules_query_mode=std::regex_search(body,std::regex(R"re(\blsm_list_modules_query\s*\(\s*\)\s*;)re"));
   emit_lsm_set_self_attr_query_mode=std::regex_search(body,std::regex(R"re(\blsm_set_self_attr_query\s*\(\s*\)\s*;)re"));
   emit_open_tree_query_mode=std::regex_search(body,std::regex(R"re(\bopen_tree_query\s*\(\s*\)\s*;)re"));
@@ -2994,6 +2996,15 @@ void emit_futex_requeue_query(Program const&) {
     <<"  xor %edi, %edi\n  jmp .Lfutex_requeue_done\n"
     <<".Lfutex_requeue_fail:\n  mov $1, %edi\n"
     <<".Lfutex_requeue_done:\n  mov $60, %eax\n  syscall\n";
+}
+
+void emit_futex_trylock_pi_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $202, %eax\n  lea futex_pi_word(%rip), %rdi\n  mov $7, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  xor %r8d, %r8d\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lfutex_pi_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lfutex_pi_done\n"
+    <<".Lfutex_pi_fail:\n  mov $1, %edi\n.Lfutex_pi_done:\n"
+    <<"  mov $60, %eax\n  syscall\n.bss\n.align 4\nfutex_pi_word:\n  .skip 4\n";
 }
 
 void emit_lsm_list_modules_query(Program const&) {
@@ -5311,6 +5322,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_lsm_get_self_attr_query_mode) { csubset::emit_lsm_get_self_attr_query(program); return 0; }
     if(csubset::emit_mseal_query_mode) { csubset::emit_mseal_query(program); return 0; }
     if(csubset::emit_futex_requeue_query_mode) { csubset::emit_futex_requeue_query(program); return 0; }
+    if(csubset::emit_futex_trylock_pi_query_mode) { csubset::emit_futex_trylock_pi_query(program); return 0; }
     if(csubset::emit_lsm_list_modules_query_mode) { csubset::emit_lsm_list_modules_query(program); return 0; }
     if(csubset::emit_lsm_set_self_attr_query_mode) { csubset::emit_lsm_set_self_attr_query(program); return 0; }
     if(csubset::emit_open_tree_query_mode) { csubset::emit_open_tree_query(program); return 0; }

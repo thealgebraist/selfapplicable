@@ -332,6 +332,7 @@ expect_status fixtures/listmount_query.c 1
 expect_status fixtures/lsm_get_self_attr_query.c 1
 expect_status fixtures/mseal_query.c 0
 expect_status fixtures/futex_requeue_query.c 1
+expect_status fixtures/futex_trylock_pi_query.c 1
 expect_status fixtures/lsm_list_modules_query.c 1
 expect_status fixtures/lsm_set_self_attr_query.c 1
 expect_status fixtures/open_tree_query.c 1
