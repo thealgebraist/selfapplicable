@@ -83,7 +83,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Typed skip big/small-step agreement | [x] | CI run `32047143767` proves `typed_skip_semantic_agreement` |
 | Semantics | Typed zero-branch `if` agreement | [x] | CI run `32047266224` proves `typed_if_zero_semantic_agreement` |
 | Semantics | Typed nonzero-branch `if` agreement | [x] | CI run `32047519526` proves `typed_if_nonzero_semantic_agreement` |
-| Semantics | Typed sequence-skip agreement | [ ] | Added `typed_seq_skip_semantic_agreement`; await CI confirmation |
+| Semantics | Typed sequence-skip agreement | [x] | CI run `32047794010` proves `typed_seq_skip_semantic_agreement` |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
