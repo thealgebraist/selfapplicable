@@ -35,6 +35,12 @@ jobs:
       - name: Check semantic tooling entry point
         run: ./check_semantics.sh
 
+      - name: Compile Coq semantics
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq coq
+          coqc -q semantics.v
+
       - name: Assemble and run switch fixtures
         shell: bash
         run: |
