@@ -218,6 +218,8 @@ Inclusive post-test loops also accept adjacent binary fragments, covered by
 `do_write_inclusive_adjacent_binary.c`.
 Three adjacent fragments in an inclusive post-test body are covered by
 `do_write_inclusive_three.c`.
+Four adjacent fragments in an inclusive post-test body are covered by
+`do_write_inclusive_four.c`.
 `do_write_zero.c` verifies that the first iteration remains present even with
 a zero bound.
 Adjacent binary fragments are supported in the post-test body by
