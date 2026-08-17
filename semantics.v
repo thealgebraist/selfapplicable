@@ -214,16 +214,6 @@ Proof.
     + apply IHHstar. exact Hbig.
 Qed.
 
-Lemma cexpr_big_deterministic : forall M σ e v1 v2,
-  cexpr_big M σ e v1 ->
-  cexpr_big M σ e v2 ->
-  v1 = v2.
-Proof.
-  intros M σ e v1 v2 H1.
-  revert v2.
-  induction H1; intros v2 H2; inversion H2; subst; eauto.
-Qed.
-
 Lemma cexpr_step_star_trans : forall M σ e1 e2 e3,
   cexpr_step_star M σ e1 e2 ->
   cexpr_step_star M σ e2 e3 ->

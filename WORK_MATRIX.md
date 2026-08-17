@@ -70,7 +70,6 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | End-to-end typed assignment theorem | [x] | CI run `32039204250` connects expression evaluation, assignment, and typed store output |
 | Semantics | Small-step typed assignment preservation | [x] | CI run `32043962999` proves `small_step_assignment_preserves_store_type` |
 | Semantics | C-expression small-step/big-step bridge | [x] | CI run `32045111676` proves `cexpr_step_preserves_big` |
-| Semantics | C big-step expression determinism | [ ] | Added `cexpr_big_deterministic`; await CI confirmation |
 | Semantics | C-expression multi-step/big-step bridge | [x] | CI run `32045271877` proves `cexpr_step_star_preserves_big` |
 | Semantics | C-expression reduction closure transitivity | [x] | CI run `32045490645` proves `cexpr_step_star_trans` |
 | Semantics | C-statement reduction closure transitivity | [x] | CI run `32045634651` proves `cmstmt_step_star_trans` |
