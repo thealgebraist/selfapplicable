@@ -7,7 +7,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Dependent syntax and NbE normalizer | [x] | `normaliser.cpp`, dependent NbE tests |
 | Core language | Predicative universes and staged quotation | [x] | `normaliser.cpp`, staged examples |
 | Core language | Bidirectional checking and conversion | [x] | `normaliser.cpp` and checker tests |
-| Core language | Standalone normalizer CI execution | [ ] | Added direct build/run gate for `normaliser.cpp`; await CI confirmation |
+| Core language | Standalone normalizer CI execution | [x] | CI run `32052515574` builds and runs `normaliser.cpp` |
 | Core language | Inductive/ADT-oriented integer examples | [x] | Existing dependent-core examples |
 | Core language | Coq staged normalizer specification compiles | [x] | CI run `32038168585` compiles `normaliser_core.v` |
 | Core language | Coq staged quotation typing lemmas | [x] | CI run `32038300860` proves quote/unquote typing lemmas |
