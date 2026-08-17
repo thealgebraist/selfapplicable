@@ -619,10 +619,10 @@ Lemma typed_if_nonzero_semantic_agreement : forall M Γ σ e st sf n σ',
 Proof.
   intros M Γ σ e st sf n σ' Hif He Hbranch Htyped.
   split.
-  - now apply CMBIfNonzero.
+  - eapply CMBIfNonzero; eauto.
   - split.
     + apply cmstmt_step_to_star.
-      now apply CMSIfNonzero.
+      eapply CMSIfNonzero; eauto.
     + exact Htyped.
 Qed.
 
