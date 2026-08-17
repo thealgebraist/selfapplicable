@@ -218,6 +218,7 @@ bool emit_dup_query_mode = false;
 bool emit_dup2_query_mode = false;
 bool emit_pipe_query_mode = false;
 bool emit_pipe2_query_mode = false;
+bool emit_eventfd_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -2011,6 +2012,7 @@ Program parse_main(std::string const& s) {
   emit_dup2_query_mode=std::regex_search(body,std::regex(R"re(\bdup2_query\s*\(\s*\)\s*;)re"));
   emit_pipe_query_mode=std::regex_search(body,std::regex(R"re(\bpipe_query\s*\(\s*\)\s*;)re"));
   emit_pipe2_query_mode=std::regex_search(body,std::regex(R"re(\bpipe2_query\s*\(\s*\)\s*;)re"));
+  emit_eventfd_query_mode=std::regex_search(body,std::regex(R"re(\beventfd_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -3748,6 +3750,14 @@ void emit_pipe2_query(Program const&) {
     <<".bss\n.align 4\npipe2_fds:\n  .skip 8\n";
 }
 
+void emit_eventfd_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $290, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Leventfd_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Leventfd_done\n"
+    <<".Leventfd_fail:\n  mov $1, %edi\n.Leventfd_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -4217,6 +4227,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_dup2_query_mode) { csubset::emit_dup2_query(program); return 0; }
     if(csubset::emit_pipe_query_mode) { csubset::emit_pipe_query(program); return 0; }
     if(csubset::emit_pipe2_query_mode) { csubset::emit_pipe2_query(program); return 0; }
+    if(csubset::emit_eventfd_query_mode) { csubset::emit_eventfd_query(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
