@@ -138,6 +138,7 @@ bool emit_mq_unlink_query_mode = false;
 bool emit_mq_timedsend_query_mode = false;
 bool emit_mq_timedreceive_query_mode = false;
 bool emit_mq_notify_query_mode = false;
+bool emit_mq_getsetattr_query_mode = false;
 bool emit_lsm_list_modules_query_mode = false;
 bool emit_lsm_set_self_attr_query_mode = false;
 bool emit_open_tree_query_mode = false;
@@ -2067,6 +2068,7 @@ Program parse_main(std::string const& s) {
   emit_mq_timedsend_query_mode=std::regex_search(body,std::regex(R"re(\bmq_timedsend_query\s*\(\s*\)\s*;)re"));
   emit_mq_timedreceive_query_mode=std::regex_search(body,std::regex(R"re(\bmq_timedreceive_query\s*\(\s*\)\s*;)re"));
   emit_mq_notify_query_mode=std::regex_search(body,std::regex(R"re(\bmq_notify_query\s*\(\s*\)\s*;)re"));
+  emit_mq_getsetattr_query_mode=std::regex_search(body,std::regex(R"re(\bmq_getsetattr_query\s*\(\s*\)\s*;)re"));
   emit_lsm_list_modules_query_mode=std::regex_search(body,std::regex(R"re(\blsm_list_modules_query\s*\(\s*\)\s*;)re"));
   emit_lsm_set_self_attr_query_mode=std::regex_search(body,std::regex(R"re(\blsm_set_self_attr_query\s*\(\s*\)\s*;)re"));
   emit_open_tree_query_mode=std::regex_search(body,std::regex(R"re(\bopen_tree_query\s*\(\s*\)\s*;)re"));
@@ -3313,6 +3315,15 @@ void emit_mq_notify_query(Program const&) {
     <<"  test %eax, %eax\n  js .Lmq_notify_fail\n"
     <<"  xor %edi, %edi\n  jmp .Lmq_notify_done\n"
     <<".Lmq_notify_fail:\n  mov $1, %edi\n.Lmq_notify_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_mq_getsetattr_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $245, %eax\n  mov $-1, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lmq_getsetattr_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lmq_getsetattr_done\n"
+    <<".Lmq_getsetattr_fail:\n  mov $1, %edi\n.Lmq_getsetattr_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
 }
 
@@ -5660,6 +5671,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_mq_timedsend_query_mode) { csubset::emit_mq_timedsend_query(program); return 0; }
     if(csubset::emit_mq_timedreceive_query_mode) { csubset::emit_mq_timedreceive_query(program); return 0; }
     if(csubset::emit_mq_notify_query_mode) { csubset::emit_mq_notify_query(program); return 0; }
+    if(csubset::emit_mq_getsetattr_query_mode) { csubset::emit_mq_getsetattr_query(program); return 0; }
     if(csubset::emit_lsm_list_modules_query_mode) { csubset::emit_lsm_list_modules_query(program); return 0; }
     if(csubset::emit_lsm_set_self_attr_query_mode) { csubset::emit_lsm_set_self_attr_query(program); return 0; }
     if(csubset::emit_open_tree_query_mode) { csubset::emit_open_tree_query(program); return 0; }

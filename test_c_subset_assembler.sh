@@ -361,6 +361,7 @@ expect_status fixtures/mq_unlink_query.c 1
 expect_status fixtures/mq_timedsend_query.c 1
 expect_status fixtures/mq_timedreceive_query.c 1
 expect_status fixtures/mq_notify_query.c 1
+expect_status fixtures/mq_getsetattr_query.c 1
 expect_status fixtures/lsm_list_modules_query.c 1
 expect_status fixtures/lsm_set_self_attr_query.c 1
 expect_status fixtures/open_tree_query.c 1
