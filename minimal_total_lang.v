@@ -133,8 +133,8 @@ Definition emptyEnv1 : Env1 [] :=
 Definition extendEnv1 : forall Γ A, Val0 A -> Env1 Γ -> Env1 (A :: Γ) :=
   fun Γ A x ρ B v =>
     match v as v' in Var1 _ B' return Val0 B' with
-    | @Here1 _ _ => x
-    | @There1 _ _ _ v' => ρ _ v'
+    | @Here1 Γ0 A0 => x
+    | @There1 Γ0 A0 B0 v' => ρ _ v'
     end.
 
 Definition lookup1 (Γ : Ctx1) (A : Ty0) (v : Var1 Γ A)
