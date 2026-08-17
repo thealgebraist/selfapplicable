@@ -83,7 +83,7 @@ Lemma application_preserves_result_type : forall Γ f a A B,
   ntyped Γ (NApp f a) B.
 Proof.
   intros Γ f a A B Hf Ha.
-  now apply NTApp.
+  eapply NTApp; eauto.
 Qed.
 
 Lemma staged_normalise_has_type : forall Γ t A n,
