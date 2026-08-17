@@ -92,8 +92,8 @@ escape and length checks; `write_two.c` and `write_three.c` verify the resulting
 single syscall payload for multiple calls.
 Adjacent string literals in one `write` argument are likewise concatenated
 after decoding and length validation; `write_adjacent.c` and
-`write_adjacent_three.c` and `write_adjacent_four.c` cover two- through
-four-fragment forms.
+`write_adjacent_three.c`, `write_adjacent_four.c`, and
+`write_adjacent_five.c` cover two- through five-fragment forms.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 
