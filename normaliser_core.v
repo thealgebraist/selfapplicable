@@ -39,6 +39,11 @@ Inductive nred : nterm -> nterm -> Prop :=
 | NRUnquote : forall c c',
     nred c c' -> nred (NUnquote c) (NUnquote c').
 
+Inductive nred_star : nterm -> nterm -> Prop :=
+| NRSRefl : forall t, nred_star t t
+| NRSNext : forall t u v,
+    nred t u -> nred_star u v -> nred_star t v.
+
 Inductive ntyped : list nty -> nterm -> nty -> Prop :=
 | NTVar : forall Γ n A,
     nth_error Γ n = Some A -> ntyped Γ (NVar n) A
@@ -98,6 +103,15 @@ Lemma staged_round_trip : forall t,
 Proof.
   intros t.
   constructor.
+Qed.
+
+Lemma staged_round_trip_star : forall t,
+  nred_star (NUnquote (NQuote t)) t.
+Proof.
+  intros t.
+  eapply NRSNext.
+  - apply staged_round_trip.
+  - constructor.
 Qed.
 
 Lemma staged_round_trip_typed : forall Γ t A,
