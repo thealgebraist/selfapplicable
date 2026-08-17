@@ -548,6 +548,8 @@ Whitespace around the call syntax is covered by
 Adjacent fragments remain ordered in `write_mixed_adjacent.c`.
 Three adjacent fragments in an ordered mixed call are covered by
 `write_mixed_three_adjacent.c`.
+Four adjacent fragments are covered by
+`write_mixed_four_adjacent.c`.
 
 `readstdin(size)` reads up to a bounded number of bytes from descriptor 0 and
 forwards them to stdout:

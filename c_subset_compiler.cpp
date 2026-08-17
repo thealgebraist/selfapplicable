@@ -910,12 +910,13 @@ Program parse_main(std::string const& s) {
   }
   static const std::regex has_stdout_write(R"(write\s*\(\s*1\s*,)"), has_stderr_write(R"(write\s*\(\s*2\s*,)");
   if(std::regex_search(body,has_stdout_write) && std::regex_search(body,has_stderr_write)) {
-    static const std::regex ordered_write(R"re(write\s*\(\s*([12])\s*,\s*"([^\n]*)"(?:\s*"([^\n]*)")?(?:\s*"([^\n]*)")?\s*,\s*([0-9]+)\s*\)\s*;)re");
+    static const std::regex ordered_write(R"re(write\s*\(\s*([12])\s*,\s*"([^\n]*)"(?:\s*"([^\n]*)")?(?:\s*"([^\n]*)")?(?:\s*"([^\n]*)")?\s*,\s*([0-9]+)\s*\)\s*;)re");
     for(std::sregex_iterator it(body.begin(),body.end(),ordered_write), end; it!=end; ++it) {
       auto payload=decode_write((*it)[2].str());
       if((*it)[3].matched) payload+=decode_write((*it)[3].str());
       if((*it)[4].matched) payload+=decode_write((*it)[4].str());
-      if(std::stoi((*it)[5])!=(int)payload.size()) throw std::runtime_error("write length mismatch");
+      if((*it)[5].matched) payload+=decode_write((*it)[5].str());
+      if(std::stoi((*it)[6])!=(int)payload.size()) throw std::runtime_error("write length mismatch");
       p.ordered_output.emplace_back(std::stoi((*it)[1]),std::move(payload));
     }
   }
