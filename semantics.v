@@ -771,6 +771,20 @@ Proof.
   - exact Htyped.
 Qed.
 
+Lemma typed_call_unfold_star : forall M Γ σ body τ,
+  cmstmt_typed Γ (CMCall body) τ ->
+  cstore_typed Γ σ ->
+  cmstmt_step_star M (CMCall body, σ) (body, σ) /\
+  cmconfig_typed Γ (body, σ).
+Proof.
+  intros M Γ σ body τ Hcall Hσ.
+  pose proof (typed_call_unfold M Γ σ body τ Hcall Hσ)
+    as [Hstep Htyped].
+  split.
+  - now apply cmstmt_step_to_star.
+  - exact Htyped.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
