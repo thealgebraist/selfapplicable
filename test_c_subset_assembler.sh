@@ -119,6 +119,7 @@ expect_status fixtures/multiplication_return.c 12
 expect_status fixtures/char_sizeof_return.c 1
 expect_status fixtures/char_pointer_sizeof_return.c 8
 expect_status fixtures/character_literal_return.c 65
+expect_status fixtures/character_escape_return.c 10
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c

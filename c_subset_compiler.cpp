@@ -765,7 +765,13 @@ Program parse_main(std::string const& s) {
         int left=std::stoi(array_match[1]), right=std::stoi(array_match[3]);
         auto op=array_match[2].str(); p.else_status=op=="+" ? left+right : (op=="-" ? left-right : left*right);
       } else if(std::regex_search(body,array_match,character_return)) {
-        auto value=array_match[1].str(); if(value.size()!=1) throw std::runtime_error("character literal must contain one byte"); p.else_status=static_cast<unsigned char>(value[0]);
+        auto value=array_match[1].str();
+        if(value.size()==1) p.else_status=static_cast<unsigned char>(value[0]);
+        else if(value=="\\n") p.else_status=10;
+        else if(value=="\\t") p.else_status=9;
+        else if(value=="\\\\") p.else_status=92;
+        else if(value=="\\'") p.else_status=39;
+        else throw std::runtime_error("unsupported character escape");
       } else if(std::regex_search(body,array_match,node_offsetof_return) && node_match.ready() && array_match[1].str()==node_match[1].str()) {
         p.else_status=4;
       } else if(std::regex_search(body,array_match,struct_sizeof_return) && node_match.ready() && array_match[1].str()==node_match[1].str()) {

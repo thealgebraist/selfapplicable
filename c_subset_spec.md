@@ -184,6 +184,7 @@ Character pointers retain the ordinary eight-byte pointer layout;
 `sizeof(char *)` lowers to 8.
 Single-byte character literals such as `'A'` lower to their unsigned byte
 value.
+Common escapes `\n`, `\t`, `\\`, and `\'` are decoded in character literals.
 Constant bitwise and shift return expressions are lowered to their computed
 integer exit statuses; `bitwise_return.c` and `shift_return.c` cover these
 assembler paths.
