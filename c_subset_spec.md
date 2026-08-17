@@ -186,6 +186,8 @@ Char-pointer addition preserves `char *`, and indexing a char pointer returns
 the distinct `char` type.
 Char types are also preserved through function parameters and return values;
 integer arguments are rejected for char-typed parameters.
+Char-valued callback pointers preserve the same signature through indirect
+calls.
 Character pointers retain the ordinary eight-byte pointer layout;
 `sizeof(char *)` lowers to 8.
 Single-byte character literals such as `'A'` lower to their unsigned byte
