@@ -118,6 +118,7 @@ loop.
 `loop_write_adjacent_hex.c` combines adjacent fragments with hexadecimal
 escapes in that loop path.
 `loop_write_adjacent_octal.c` covers the corresponding octal form.
+`loop_write_adjacent_control.c` covers adjacent control-byte fragments.
 `loop_write_adjacent_three.c` extends that coverage to three fragments.
 `loop_write_adjacent_four.c` extends it to four fragments.
 `loop_write_adjacent_five.c` extends it to five fragments.
