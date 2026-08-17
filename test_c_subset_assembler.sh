@@ -416,6 +416,8 @@ expect_status fixtures/getuid_query.c 0
 expect_status fixtures/getgid_query.c 0
 expect_status fixtures/geteuid_query.c 0
 expect_status fixtures/getegid_query.c 0
+expect_status fixtures/gettid_query.c 0
+expect_status fixtures/getppid_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
