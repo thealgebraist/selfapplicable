@@ -83,7 +83,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Typed return big/small-step agreement | [x] | CI run `32047001312` proves `typed_return_semantic_agreement` |
 | Semantics | Typed skip big/small-step agreement | [x] | CI run `32047143767` proves `typed_skip_semantic_agreement` |
 | Semantics | Typed zero-branch `if` agreement | [x] | CI run `32047266224` proves `typed_if_zero_semantic_agreement` |
-| Semantics | Typed zero-branch `if` unfolding | [ ] | Added `typed_if_zero_unfold`; await CI confirmation |
+| Semantics | Typed zero-branch `if` unfolding | [x] | CI run `32050659020` proves `typed_if_zero_unfold` |
 | Semantics | Typed nonzero-branch `if` agreement | [x] | CI run `32047519526` proves `typed_if_nonzero_semantic_agreement` |
 | Semantics | Typed sequence-skip agreement | [x] | CI run `32047794010` proves `typed_seq_skip_semantic_agreement` |
 | Semantics | Typed while-zero unfolding | [x] | CI run `32048209726` proves `typed_while_zero_unfold` |
