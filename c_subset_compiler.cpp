@@ -132,6 +132,7 @@ bool emit_semop_query_mode = false;
 bool emit_semtimedop_query_mode = false;
 bool emit_msgsnd_query_mode = false;
 bool emit_msgrcv_query_mode = false;
+bool emit_msgctl_query_mode = false;
 bool emit_lsm_list_modules_query_mode = false;
 bool emit_lsm_set_self_attr_query_mode = false;
 bool emit_open_tree_query_mode = false;
@@ -2055,6 +2056,7 @@ Program parse_main(std::string const& s) {
   emit_semtimedop_query_mode=std::regex_search(body,std::regex(R"re(\bsemtimedop_query\s*\(\s*\)\s*;)re"));
   emit_msgsnd_query_mode=std::regex_search(body,std::regex(R"re(\bmsgsnd_query\s*\(\s*\)\s*;)re"));
   emit_msgrcv_query_mode=std::regex_search(body,std::regex(R"re(\bmsgrcv_query\s*\(\s*\)\s*;)re"));
+  emit_msgctl_query_mode=std::regex_search(body,std::regex(R"re(\bmsgctl_query\s*\(\s*\)\s*;)re"));
   emit_lsm_list_modules_query_mode=std::regex_search(body,std::regex(R"re(\blsm_list_modules_query\s*\(\s*\)\s*;)re"));
   emit_lsm_set_self_attr_query_mode=std::regex_search(body,std::regex(R"re(\blsm_set_self_attr_query\s*\(\s*\)\s*;)re"));
   emit_open_tree_query_mode=std::regex_search(body,std::regex(R"re(\bopen_tree_query\s*\(\s*\)\s*;)re"));
@@ -3246,6 +3248,15 @@ void emit_msgrcv_query(Program const&) {
     <<"  test %eax, %eax\n  js .Lmsgrcv_fail\n"
     <<"  xor %edi, %edi\n  jmp .Lmsgrcv_done\n"
     <<".Lmsgrcv_fail:\n  mov $1, %edi\n.Lmsgrcv_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_msgctl_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $71, %eax\n  mov $-1, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lmsgctl_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lmsgctl_done\n"
+    <<".Lmsgctl_fail:\n  mov $1, %edi\n.Lmsgctl_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
 }
 
@@ -5587,6 +5598,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_semtimedop_query_mode) { csubset::emit_semtimedop_query(program); return 0; }
     if(csubset::emit_msgsnd_query_mode) { csubset::emit_msgsnd_query(program); return 0; }
     if(csubset::emit_msgrcv_query_mode) { csubset::emit_msgrcv_query(program); return 0; }
+    if(csubset::emit_msgctl_query_mode) { csubset::emit_msgctl_query(program); return 0; }
     if(csubset::emit_lsm_list_modules_query_mode) { csubset::emit_lsm_list_modules_query(program); return 0; }
     if(csubset::emit_lsm_set_self_attr_query_mode) { csubset::emit_lsm_set_self_attr_query(program); return 0; }
     if(csubset::emit_open_tree_query_mode) { csubset::emit_open_tree_query(program); return 0; }
