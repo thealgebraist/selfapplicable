@@ -180,6 +180,7 @@ adjacent fragments.
 `loop_write_nul_empty_trailing.c` verifies an empty fragment after a NUL byte.
 `loop_write_binary_three.c` combines empty, NUL, and high-byte fragments.
 `loop_write_binary_four.c` adds a trailing empty fragment to that binary case.
+`loop_write_binary_four_nonempty.c` adds ordinary leading bytes to the loop.
 `loop_write_adjacent_four.c` extends it to four fragments.
 `loop_write_adjacent_five.c` extends it to five fragments.
 
