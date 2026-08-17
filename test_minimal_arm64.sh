@@ -11,6 +11,8 @@ grep -q '^    mov x8, #93$' "$tmpdir/output.s"
 direct=$($compiler --direct "$tmpdir/input.min" | sha256sum | cut -d ' ' -f 1)
 staged=$($compiler "$tmpdir/input.min" | sha256sum | cut -d ' ' -f 1)
 test "$direct" = "$staged"
+second=$($compiler "$tmpdir/input.min" | sha256sum | cut -d ' ' -f 1)
+test "$staged" = "$second"
 if command -v aarch64-linux-gnu-as >/dev/null 2>&1; then
   aarch64-linux-gnu-as "$tmpdir/output.s" -o "$tmpdir/output.o"
 fi

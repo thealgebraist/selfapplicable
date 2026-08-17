@@ -57,7 +57,9 @@ normalizer to that code value, and unquotes only the normalized result. Thus
 the compiler uses the same explicit code boundary as the formal kernel rather
 than having a separate ad-hoc constant-folding phase. A future compiler pass
 can be represented by the same `Code` interface and subjected to the same
-normalization step.
+normalization step. The executable path applies the projection twice; its
+idempotence is tested by requiring the second staged compilation result to be
+identical to the first. This mirrors the formal `normalise0_idempotent` lemma.
 
 ```sh
 printf '%s\n' '(add (nat 2) (if true (nat 3) (nat 4)))' \

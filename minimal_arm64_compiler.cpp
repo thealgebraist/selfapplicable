@@ -81,12 +81,15 @@ Term *normalize(const Term *term) {
 Code quote(Term *term) { return Code{term}; }
 Term *unquote(const Code &code) { return code.syntax; }
 Code normalize_code(const Code &code) { return quote(normalize(unquote(code))); }
+Code normalize_code_twice(const Code &code) { return normalize_code(normalize_code(code)); }
 
 // Self-application is staged: quote the input, normalize the quoted code, and
 // unquote only the resulting code value.  This is the executable analogue of
 // stage_normalise0 in minimal_total_lang.v.
 Term *self_apply_normalizer(Term *term) {
-  return unquote(normalize_code(quote(term)));
+  const auto once = normalize_code(quote(term));
+  const auto twice = normalize_code_twice(once);
+  return unquote(twice);
 }
 
 std::uint64_t result(const Term *term) {
