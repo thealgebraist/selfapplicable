@@ -10,6 +10,8 @@ This branch isolates the smallest useful kernel for the normalizer project.
 - `normalise0` evaluates and re-quotes a term;
 - `Code0 A` makes staging explicit without executing quoted syntax;
 - Coq proves quotation, idempotence, staging, and totality lemmas.
+- A second indexed layer adds de Bruijn variables, typed environments, and
+  total `let` evaluation; `let_add_normalises` is a concrete witness.
 
 The experiment deliberately omits variables, functions, effects, pointers, and
 general recursion. That omission is the point: it gives a small trusted core
@@ -17,12 +19,11 @@ whose invariants can be transported to progressively larger languages.
 
 ## Route toward C
 
-1. Add de Bruijn variables and an environment indexed by `Ty0`.
-2. Add a total `let`/function fragment and prove substitution and preservation.
-3. Add finite products and tagged unions for C structs and enums.
-4. Add a separate typed memory model for pointers and arrays.
-5. Add statements and a total, fuel-indexed expression normalizer.
-6. Encode a deliberately bounded C fragment and compare its generated assembly
+1. Add typed lambdas/application over the same indexed environment.
+2. Add finite products and tagged unions for C structs and enums.
+3. Add a separate typed memory model for pointers and arrays.
+4. Add statements and a total, fuel-indexed expression normalizer.
+5. Encode a deliberately bounded C fragment and compare its generated assembly
    traces with the existing compiler.
 
 General C remains outside this experiment until each extension has a total

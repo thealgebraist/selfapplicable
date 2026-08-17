@@ -6,6 +6,7 @@
     which larger C fragments can be encoded and tested.
 *)
 From Coq Require Import Arith.Arith.
+Import ListNotations.
 
 Inductive Nat0 : Type :=
 | Z0 : Nat0
@@ -98,6 +99,80 @@ Qed.
 
 Theorem total_normaliser : forall A (t : Tm0 A),
   exists n, n = normalise0 A t.
+Proof.
+  intros A t; eexists; reflexivity.
+Qed.
+
+(* A second, still total layer adds de Bruijn variables and let bindings. *)
+Definition Ctx1 := list Ty0.
+
+Inductive Var1 : Ctx1 -> Ty0 -> Type :=
+| Here1 : forall Γ A, Var1 (A :: Γ) A
+| There1 : forall Γ A B, Var1 Γ A -> Var1 (B :: Γ) A.
+
+Inductive Tm1 : Ctx1 -> Ty0 -> Type :=
+| NatLit1 : forall Γ, Nat0 -> Tm1 Γ NatTy0
+| BoolLit1 : forall Γ, Bool0 -> Tm1 Γ BoolTy0
+| VarTm1 : forall Γ A, Var1 Γ A -> Tm1 Γ A
+| Add1 : forall Γ, Tm1 Γ NatTy0 -> Tm1 Γ NatTy0 -> Tm1 Γ NatTy0
+| If1 : forall Γ A, Tm1 Γ BoolTy0 -> Tm1 Γ A -> Tm1 Γ A -> Tm1 Γ A
+| Let1 : forall Γ A B, Tm1 Γ A -> Tm1 (A :: Γ) B -> Tm1 Γ B.
+
+Inductive Env1 : Ctx1 -> Type :=
+| ENil1 : Env1 []
+| ECons1 : forall Γ A, Val0 A -> Env1 Γ -> Env1 (A :: Γ).
+
+Fixpoint lookup1 (Γ : Ctx1) (A : Ty0) (v : Var1 Γ A)
+    (ρ : Env1 Γ) : Val0 A :=
+  match v as v' in Var1 Γ' A' return Env1 Γ' -> Val0 A' with
+  | Here1 _ _ => fun ρ' =>
+      match ρ' with
+      | ECons1 _ _ x _ => x
+      end
+  | There1 _ _ _ v' => fun ρ' =>
+      match ρ' with
+      | ECons1 _ _ _ ρ'' => lookup1 _ _ v' ρ''
+      end
+  end ρ.
+
+Fixpoint eval1 (Γ : Ctx1) (A : Ty0) (t : Tm1 Γ A)
+    (ρ : Env1 Γ) : Val0 A :=
+  match t with
+  | NatLit1 _ n => NatVal0 n
+  | BoolLit1 _ b => BoolVal0 b
+  | VarTm1 _ _ v => lookup1 _ _ v ρ
+  | Add1 _ x y =>
+      match eval1 _ NatTy0 x ρ, eval1 _ NatTy0 y ρ with
+      | NatVal0 n, NatVal0 m => NatVal0 (nat0_plus n m)
+      end
+  | If1 _ A c x y =>
+      match eval1 _ BoolTy0 c ρ with
+      | BoolVal0 True0 => eval1 _ A x ρ
+      | BoolVal0 False0 => eval1 _ A y ρ
+      end
+  | Let1 _ A B value body =>
+      eval1 (A :: Γ) B body (ECons1 Γ A (eval1 Γ A value ρ) ρ)
+  end.
+
+Definition normalise_closed1 (A : Ty0) (t : Tm1 [] A) : Tm0 A :=
+  quote0 A (eval1 [] A t ENil1).
+
+Example let_add_normalises :
+  normalise_closed1 NatTy0
+    (Let1 [] NatTy0 NatTy0
+      (NatLit1 [] (S0 Z0))
+      (Add1 [NatTy0]
+        (VarTm1 [NatTy0] NatTy0 Here1)
+        (VarTm1 [NatTy0] NatTy0 Here1))) =
+  NatLit0 (S0 (S0 Z0)).
+Proof. reflexivity. Qed.
+
+Lemma lookup1_here : forall A (v : Val0 A) (ρ : Env1 []),
+  lookup1 [A] A (Here1 [] A) (ECons1 [] A v ρ) = v.
+Proof. intros; reflexivity. Qed.
+
+Theorem total_closed_normaliser1 : forall A (t : Tm1 [] A),
+  exists n, n = normalise_closed1 A t.
 Proof.
   intros A t; eexists; reflexivity.
 Qed.
