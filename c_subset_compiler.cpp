@@ -771,6 +771,10 @@ Program parse_main(std::string const& s) {
         else if(value=="\\t") p.else_status=9;
         else if(value=="\\\\") p.else_status=92;
         else if(value=="\\'") p.else_status=39;
+        else if(value.size()==4 && value[0]=='\\' && value[1]=='x') {
+          auto hex=value.substr(2); if(hex.find_first_not_of("0123456789abcdefABCDEF")!=std::string::npos) throw std::runtime_error("invalid hexadecimal character escape");
+          p.else_status=std::stoi(hex,nullptr,16);
+        }
         else throw std::runtime_error("unsupported character escape");
       } else if(std::regex_search(body,array_match,node_offsetof_return) && node_match.ready() && array_match[1].str()==node_match[1].str()) {
         p.else_status=4;

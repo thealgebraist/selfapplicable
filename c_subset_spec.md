@@ -186,6 +186,7 @@ Single-byte character literals such as `'A'` lower to their unsigned byte
 value.
 Common escapes `\n`, `\t`, `\\`, and `\'` are decoded in character literals.
 Each escape has an individual assembler regression fixture.
+Two-digit hexadecimal escapes such as `\x41` are also decoded.
 Constant bitwise and shift return expressions are lowered to their computed
 integer exit statuses; `bitwise_return.c` and `shift_return.c` cover these
 assembler paths.
