@@ -35,6 +35,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | General one-hole reduction contexts | [x] | CI run `32042898162` proves `nctx`, `nplug`, and `nred_star_plug` |
 | Core language | Composable reduction contexts | [x] | CI run `32042983327` proves `nctx_compose` and `nplug_compose` |
 | Core language | Context composition associativity | [x] | CI run `32043082798` proves `nctx_compose_assoc` |
+| Core language | Context composition identity laws | [ ] | Added hole-left and hole-right identity lemmas; await CI confirmation |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |

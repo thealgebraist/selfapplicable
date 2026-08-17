@@ -411,6 +411,20 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma nctx_compose_hole_left : forall C,
+  nctx_compose NCHole C = C.
+Proof.
+  intros C.
+  reflexivity.
+Qed.
+
+Lemma nctx_compose_hole_right : forall C,
+  nctx_compose C NCHole = C.
+Proof.
+  induction C as [| C IHC a | f C IHC | C IHC | C IHC | C IHC];
+    simpl; try rewrite IHC; reflexivity.
+Qed.
+
 Lemma nred_star_plug : forall C t u,
   nred_star t u -> nred_star (nplug C t) (nplug C u).
 Proof.
