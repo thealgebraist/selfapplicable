@@ -455,6 +455,7 @@ expect_status fixtures/name_to_handle_at_query.c 1
 expect_status fixtures/sync_file_range_query.c 1
 expect_status fixtures/finit_module_query.c 1
 expect_status fixtures/delete_module_query.c 1
+expect_status fixtures/init_module_query.c 1
 expect_status fixtures/lookup_dcookie_query.c 1
 expect_status fixtures/setns_query.c 1
 expect_status fixtures/open_by_handle_at_query.c 1
