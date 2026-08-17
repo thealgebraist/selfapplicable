@@ -95,6 +95,8 @@ Out-of-range octal escapes in loop payloads are covered by
 `loop_write_bad_octal.c`.
 Malformed escapes in adjacent fragments are rejected by
 `write_adjacent_bad_hex.c`.
+Out-of-range octal fragments are rejected by
+`write_adjacent_bad_octal.c`.
 `write_backslash.c` verifies literal backslash emission.
 `write_quote.c` verifies an escaped quote in a string literal.
 Consecutive literal writes are collected in source order after independent
