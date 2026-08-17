@@ -1,12 +1,20 @@
 (** A small, independently compilable specification of the typed staging
     boundary used by the executable normaliser. *)
 
-From Coq Require Import Lists.List.
+From Coq Require Import Arith.Arith Lists.List.
 
 Inductive nty : Type :=
 | NType : nat -> nty
 | NFun : nty -> nty -> nty
 | NCode : nty -> nty.
+
+Inductive nty_level : nty -> nat -> Prop :=
+| NTLType : forall i, nty_level (NType i) (S i)
+| NTLFun : forall A B i j,
+    nty_level A i -> nty_level B j ->
+    nty_level (NFun A B) (Nat.max i j)
+| NTLCode : forall A i,
+    nty_level A i -> nty_level (NCode A) i.
 
 Inductive nterm : Type :=
 | NVar : nat -> nterm
