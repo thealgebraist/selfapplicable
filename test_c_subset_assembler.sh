@@ -308,6 +308,7 @@ expect_bytes fixtures/while_write_inclusive_four.c "414200ff414200ff"
 expect_bytes fixtures/while_write_inclusive_five.c "414200ff43414200ff43"
 expect_bytes fixtures/while_write_inclusive_adjacent_binary.c "4100ff4100ff"
 expect_bytes fixtures/while_write_inclusive_unbraced_increment_binary.c "4100ff4100ff"
+expect_bytes fixtures/while_write_inclusive_braced_adjacent_binary.c "4100ff4100ff"
 expect_bytes fixtures/while_write_unbraced_increment_binary.c "4100ff4100ff"
 expect_output fixtures/while_write_inclusive_braced.c "JJ"
 expect_status fixtures/global_return.c 4

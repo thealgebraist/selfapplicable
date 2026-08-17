@@ -335,6 +335,8 @@ The same payload is accepted with an unbraced explicit increment in
 `while_write_inclusive_unbraced_increment_binary.c`.
 Strict-bound unbraced explicit increments are covered by
 `while_write_unbraced_increment_binary.c`.
+The braced inclusive counterpart is covered by
+`while_write_inclusive_braced_adjacent_binary.c`.
 The same zero-iteration guarantee applies to bounded `for` loops;
 `loop_write_zero.c` covers that form.
 Bounded `for` loops also accept inclusive bounds (`i <= N`), covered by
