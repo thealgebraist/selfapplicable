@@ -92,6 +92,9 @@ int main(){using namespace csem;try{
   StructFields structs{{"Node",{{"value",integer()},{"next",NodePtr}}}};
   auto Mode=enum_type("Mode");
   auto Char=character(); if(size_of(Char,structs)!=1||same(Char,integer())||!same(infer(allocate(Char),{}, {},structs),pointer(Char)))throw std::runtime_error("char type failed");
+  Function char_identity{"char_identity",{{"c",Char}},Char,{variable("c")}}; Functions char_functions{{char_identity.name,&char_identity}}; check(char_identity,char_functions,{});
+  if(!same(infer(call(char_identity.name,{variable("c")}),{{"c",Char}},char_functions,{}),Char))throw std::runtime_error("char function signature failed");
+  bool bad_char_call=false;try{(void)infer(call(char_identity.name,{variable("n")}),{{"n",integer()}},char_functions,{});}catch(std::exception const&){bad_char_call=true;}if(!bad_char_call)throw std::runtime_error("integer passed to char function");
   auto CharPtr=pointer(Char); if(!same(infer(binary(BinOp::Add,variable("chars"),literal(1)),{{"chars",CharPtr}}, {},structs),CharPtr)||!same(infer(index(variable("chars"),literal(1)),{{"chars",CharPtr}}, {},structs),Char))throw std::runtime_error("char pointer arithmetic failed");
   auto CharPair=structure("CharPair"); StructFields char_structs{{"CharPair",{{"tag",Char},{"value",integer()}}}};
   if(size_of(CharPair,char_structs)!=5||field_offset(CharPair,"value",char_structs)!=1||!same(infer(member(variable("cp"),"tag"),{{"cp",CharPair}}, {},char_structs),Char))throw std::runtime_error("char struct field failed");
