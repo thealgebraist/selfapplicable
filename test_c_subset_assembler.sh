@@ -515,6 +515,7 @@ expect_status fixtures/newfstatat_query.c 1
 expect_status fixtures/fchownat_query.c 1
 expect_status fixtures/readlinkat_query.c 1
 expect_status fixtures/renameat2_query.c 1
+expect_status fixtures/symlinkat_query.c 1
 expect_status fixtures/landlock_add_rule_query.c 1
 expect_status fixtures/landlock_restrict_self_query.c 1
 expect_status fixtures/keyctl_query.c 1
