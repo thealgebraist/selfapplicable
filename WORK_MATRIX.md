@@ -15,7 +15,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Coq reflexive-transitive staged reduction | [x] | CI run `32039514912` compiles `nred_star` and `staged_round_trip_star` |
 | Core language | Typed preservation for staged reduction | [x] | CI run `32039783247` proves preservation for the explicit `nstage` quote/unquote step |
 | Core language | Transitivity of staged reduction closure | [x] | CI run `32039878989` proves `nred_star_trans` |
-| Core language | Staging/reduction interface lemmas | [ ] | Added `nred_star_refl` and `nstage_is_nred`; await CI confirmation |
+| Core language | Staging/reduction interface lemmas | [x] | CI run `32039960975` proves `nred_star_refl` and `nstage_is_nred` |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
