@@ -188,9 +188,9 @@ Lemma cexpr_step_preserves_big : forall M σ e e' v,
   cexpr_big M σ e' v ->
   cexpr_big M σ e v.
 Proof.
-  intros M σ e e' v Hstep.
-  revert v.
-  induction Hstep; intros v Hbig.
+  intros M σ e e' result Hstep.
+  revert result.
+  induction Hstep; intros result Hbig.
   - inversion Hbig; subst. constructor.
   - inversion Hbig; subst.
     apply (CXBLoad M σ p a v).
