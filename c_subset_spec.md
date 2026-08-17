@@ -465,6 +465,13 @@ touch("/tmp/new-file");
 chdir("/");
 ```
 
+`symlink("target", "path")` lowers to Linux `symlink` and reports its
+success or failure status:
+
+```c
+symlink("/dev/null", "/tmp/link");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
