@@ -172,6 +172,7 @@ bool emit_sched_setaffinity_query_mode = false;
 bool emit_sched_getcpu_query_mode = false;
 bool emit_getpriority_query_mode = false;
 bool emit_setpriority_query_mode = false;
+bool emit_getgroups_query_mode = false;
 bool emit_getrlimit_query_mode = false;
 bool emit_getrusage_query_mode = false;
 bool emit_getxattr_query_mode = false;
@@ -2157,6 +2158,7 @@ Program parse_main(std::string const& s) {
   emit_sched_getcpu_query_mode=std::regex_search(body,std::regex(R"re(\bsched_getcpu_query\s*\(\s*\)\s*;)re"));
   emit_getpriority_query_mode=std::regex_search(body,std::regex(R"re(\bgetpriority_query\s*\(\s*\)\s*;)re"));
   emit_setpriority_query_mode=std::regex_search(body,std::regex(R"re(\bsetpriority_query\s*\(\s*\)\s*;)re"));
+  emit_getgroups_query_mode=std::regex_search(body,std::regex(R"re(\bgetgroups_query\s*\(\s*\)\s*;)re"));
   emit_getrlimit_query_mode=std::regex_search(body,std::regex(R"re(\bgetrlimit_query\s*\(\s*\)\s*;)re"));
   emit_getrusage_query_mode=std::regex_search(body,std::regex(R"re(\bgetrusage_query\s*\(\s*\)\s*;)re"));
   emit_getxattr_query_mode=std::regex_search(body,std::regex(R"re(\bgetxattr_query\s*\(\s*\)\s*;)re"));
@@ -5308,6 +5310,15 @@ void emit_setpriority_query(Program const&) {
     <<"  mov $60, %eax\n  syscall\n";
 }
 
+void emit_getgroups_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $115, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lgetgroups_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lgetgroups_done\n"
+    <<".Lgetgroups_fail:\n  mov $1, %edi\n.Lgetgroups_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
 void emit_getrlimit_query(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $97, %eax\n  xor %edi, %edi\n  lea getrlimit_value(%rip), %rsi\n  syscall\n"
@@ -6307,6 +6318,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_sched_getcpu_query_mode) { csubset::emit_sched_getcpu_query(program); return 0; }
     if(csubset::emit_getpriority_query_mode) { csubset::emit_getpriority_query(program); return 0; }
     if(csubset::emit_setpriority_query_mode) { csubset::emit_setpriority_query(program); return 0; }
+    if(csubset::emit_getgroups_query_mode) { csubset::emit_getgroups_query(program); return 0; }
     if(csubset::emit_getrlimit_query_mode) { csubset::emit_getrlimit_query(program); return 0; }
     if(csubset::emit_getrusage_query_mode) { csubset::emit_getrusage_query(program); return 0; }
     if(csubset::emit_getxattr_query_mode) { csubset::emit_getxattr_query(program); return 0; }

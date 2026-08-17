@@ -226,6 +226,7 @@ expect_status fixtures/readstdin_empty.c 0
 expect_status fixtures/sleep_zero.c 0
 expect_status fixtures/nice_one.c 0
 expect_status fixtures/setpriority_query.c 1
+expect_status fixtures/getgroups_query.c 0
 expect_status fixtures/isatty_stdin.c 1
 expect_status fixtures/sync.c 0
 expect_status fixtures/fsync_payload.c 0
