@@ -215,5 +215,6 @@ expect_reject fixtures/array_index_bad.c
 expect_reject fixtures/write_bad_hex_string.c
 expect_reject fixtures/write_bad_octal_string.c
 expect_reject fixtures/loop_write_bad_hex.c
+expect_reject fixtures/loop_write_bad_octal.c
 
 echo "assembler regression: PASS"
