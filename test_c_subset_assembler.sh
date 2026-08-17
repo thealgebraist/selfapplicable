@@ -102,6 +102,7 @@ expect_status fixtures/function_pointer_struct_nested_field.c 6
 expect_status fixtures/switch_return.c 7
 expect_status fixtures/switch_default_return.c 3
 expect_status fixtures/switch_two_cases.c 7
+expect_status fixtures/switch_three_cases.c 11
 expect_status fixtures/enum_switch.c 7
 expect_status fixtures/enum_switch_implicit.c 8
 expect_status fixtures/bitwise_return.c 2
