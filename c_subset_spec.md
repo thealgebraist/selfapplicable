@@ -245,6 +245,8 @@ Four-fragment inclusive payloads are covered by
 `loop_write_inclusive_four.c`.
 Five-fragment inclusive payloads are covered by
 `loop_write_inclusive_five.c`, completing the current fragment-depth ladder.
+Inclusive payload lengths remain checked; malformed metadata is rejected by
+`loop_write_inclusive_bad_length.c`.
 Braced inclusive `for` bodies are covered by
 `loop_write_inclusive_braced.c`.
 This also composes with braced bodies and explicit `i++`, as shown by
