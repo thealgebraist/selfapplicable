@@ -239,6 +239,8 @@ Bounded `for` loops also accept inclusive bounds (`i <= N`), covered by
 `loop_write_inclusive.c`.
 Inclusive loops accept adjacent fragments and binary escapes as well;
 `loop_write_inclusive_adjacent.c` covers that combination.
+Three-fragment inclusive writes, including NUL and high-byte payloads, are
+covered by `loop_write_inclusive_three.c`.
 Braced inclusive `for` bodies are covered by
 `loop_write_inclusive_braced.c`.
 This also composes with braced bodies and explicit `i++`, as shown by
