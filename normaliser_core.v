@@ -135,6 +135,29 @@ Inductive nquote : nty -> nnormal -> nterm -> Prop :=
 Definition staged_normalise (Γ : list nty) (t : nterm) (A : nty) (n : nterm) : Prop :=
   ntyped Γ t A /\ exists v, nquote A v n.
 
+(* A sound normalization result carries the computational path separately
+   from the typing and quotation facts.  Keeping the path explicit prevents
+   the specification from silently treating quotation as evaluation. *)
+Definition staged_normalise_result
+    (Γ : list nty) (t : nterm) (A : nty) (n : nterm) : Prop :=
+  ntyped Γ t A /\
+  (exists v, nquote A v n) /\
+  nred_star t n.
+
+Lemma staged_normalise_result_typed : forall Γ t A n,
+  staged_normalise_result Γ t A n -> ntyped Γ t A.
+Proof.
+  intros Γ t A n H.
+  exact (proj1 H).
+Qed.
+
+Lemma staged_normalise_result_reaches : forall Γ t A n,
+  staged_normalise_result Γ t A n -> nred_star t n.
+Proof.
+  intros Γ t A n H.
+  exact (proj2 (proj2 H)).
+Qed.
+
 Lemma quote_preserves_type : forall Γ t A,
   ntyped Γ t A -> ntyped Γ (NQuote t) (NCode A).
 Proof.

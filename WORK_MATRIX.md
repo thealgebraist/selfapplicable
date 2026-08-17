@@ -19,6 +19,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Lift staging steps into reduction closure | [x] | CI run `32040043748` proves `nstage_to_nred_star` |
 | Core language | Compose staging with later reductions | [x] | CI run `32040215194` proves `nstage_then_nred_star` |
 | Core language | Lift ordinary steps into reduction closure | [x] | CI run `32040318557` proves `nred_to_nred_star` |
+| Core language | Explicit typed staged-normalization result contract | [ ] | Added `staged_normalise_result` with typing, quotation, and reduction witnesses; await CI confirmation |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
