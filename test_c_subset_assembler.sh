@@ -264,6 +264,7 @@ expect_status fixtures/prctl_get_name.c 0
 expect_status fixtures/prctl_get_dumpable.c 0
 expect_status fixtures/prctl_get_no_new_privs.c 0
 expect_status fixtures/prctl_get_seccomp.c 0
+expect_status fixtures/prctl_get_timerslack.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
