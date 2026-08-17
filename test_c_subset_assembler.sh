@@ -377,6 +377,7 @@ expect_status fixtures/connect_query.c 1
 expect_status fixtures/accept_query.c 1
 expect_status fixtures/getsockname_query.c 1
 expect_status fixtures/getpeername_query.c 1
+expect_status fixtures/recvfrom_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
