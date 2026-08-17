@@ -297,6 +297,7 @@ bool emit_preadv2_query_mode = false;
 bool emit_pwritev2_query_mode = false;
 bool emit_readv_query_mode = false;
 bool emit_writev_query_mode = false;
+bool emit_preadv_query_mode = false;
 bool emit_fchownat_query_mode = false;
 bool emit_readlinkat_query_mode = false;
 bool emit_renameat2_query_mode = false;
@@ -2267,6 +2268,7 @@ Program parse_main(std::string const& s) {
   emit_pwritev2_query_mode=std::regex_search(body,std::regex(R"re(\bpwritev2_query\s*\(\s*\)\s*;)re"));
   emit_readv_query_mode=std::regex_search(body,std::regex(R"re(\breadv_query\s*\(\s*\)\s*;)re"));
   emit_writev_query_mode=std::regex_search(body,std::regex(R"re(\bwritev_query\s*\(\s*\)\s*;)re"));
+  emit_preadv_query_mode=std::regex_search(body,std::regex(R"re(\bpreadv_query\s*\(\s*\)\s*;)re"));
   emit_fchownat_query_mode=std::regex_search(body,std::regex(R"re(\bfchownat_query\s*\(\s*\)\s*;)re"));
   emit_readlinkat_query_mode=std::regex_search(body,std::regex(R"re(\breadlinkat_query\s*\(\s*\)\s*;)re"));
   emit_renameat2_query_mode=std::regex_search(body,std::regex(R"re(\brenameat2_query\s*\(\s*\)\s*;)re"));
@@ -4177,6 +4179,15 @@ void emit_writev_query(Program const&) {
     <<"  test %eax, %eax\n  js .Lwritev_fail\n"
     <<"  xor %edi, %edi\n  jmp .Lwritev_done\n"
     <<".Lwritev_fail:\n  mov $1, %edi\n.Lwritev_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_preadv_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $295, %eax\n  mov $-1, %edi\n  xor %rsi, %rsi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  xor %r8d, %r8d\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lpreadv_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lpreadv_done\n"
+    <<".Lpreadv_fail:\n  mov $1, %edi\n.Lpreadv_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
 }
 
@@ -6262,6 +6273,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_pwritev2_query_mode) { csubset::emit_pwritev2_query(program); return 0; }
     if(csubset::emit_readv_query_mode) { csubset::emit_readv_query(program); return 0; }
     if(csubset::emit_writev_query_mode) { csubset::emit_writev_query(program); return 0; }
+    if(csubset::emit_preadv_query_mode) { csubset::emit_preadv_query(program); return 0; }
     if(csubset::emit_readlinkat_query_mode) { csubset::emit_readlinkat_query(program); return 0; }
     if(csubset::emit_renameat2_query_mode) { csubset::emit_renameat2_query(program); return 0; }
     if(csubset::emit_symlinkat_query_mode) { csubset::emit_symlinkat_query(program); return 0; }
