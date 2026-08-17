@@ -336,6 +336,7 @@ expect_status fixtures/lsm_set_self_attr_query.c 1
 expect_status fixtures/open_tree_query.c 1
 expect_status fixtures/fsopen_query.c 1
 expect_status fixtures/fsconfig_query.c 1
+expect_status fixtures/fsmount_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
