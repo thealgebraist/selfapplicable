@@ -500,6 +500,7 @@ expect_status fixtures/pkey_alloc_query.c 0
 expect_status fixtures/pkey_free_query.c 1
 expect_status fixtures/pkey_mprotect_query.c 0
 expect_status fixtures/quotactl_fd_query.c 1
+expect_status fixtures/quotactl_query.c 1
 expect_status fixtures/landlock_add_rule_query.c 1
 expect_status fixtures/landlock_restrict_self_query.c 1
 expect_status fixtures/keyctl_query.c 1
