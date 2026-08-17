@@ -138,6 +138,7 @@ fragments.
 fragments.
 `write_adjacent_mixed_backslash_octal.c` combines backslash and octal
 fragments.
+`write_binary_four.c` covers four-fragment binary concatenation at top level.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
