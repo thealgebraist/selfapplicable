@@ -52,6 +52,7 @@ Lemma nsubst0_var0 : forall s,
 Proof.
   intros s.
   cbn [nsubst0 nsubst].
+  rewrite Nat.ltb_irrefl.
   rewrite Nat.eqb_refl.
   reflexivity.
 Qed.
