@@ -311,6 +311,7 @@ expect_status fixtures/fcntl_getfl_stdout.c 0
 expect_status fixtures/fcntl_getown_stdout.c 0
 expect_status fixtures/fcntl_getsig_stdout.c 0
 expect_status fixtures/epoll_ctl_query.c 0
+expect_status fixtures/epoll_pwait_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
