@@ -74,6 +74,7 @@ bool emit_timerfd_gettime_mode = false;
 bool emit_sched_getattr_mode = false;
 bool emit_get_robust_list_mode = false;
 bool emit_pidfd_send_signal_mode = false;
+bool emit_inotify_watch_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1723,6 +1724,7 @@ Program parse_main(std::string const& s) {
   emit_sched_getattr_mode=std::regex_search(body,std::regex(R"re(\bsched_getattr_query\s*\(\s*\)\s*;)re"));
   emit_get_robust_list_mode=std::regex_search(body,std::regex(R"re(\bget_robust_list_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_send_signal_mode=std::regex_search(body,std::regex(R"re(\bpidfd_send_signal_probe\s*\(\s*\)\s*;)re"));
+  emit_inotify_watch_mode=std::regex_search(body,std::regex(R"re(\binotify_add_watch_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -2262,6 +2264,11 @@ void emit_pidfd_send_signal(Program const&) {
     <<"  mov $434, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Lpidfd_signal_fail\n  mov %eax, %r12d\n  mov $424, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n  mov %eax, %r13d\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %r13d, %r13d\n  js .Lpidfd_signal_fail\n  xor %edi, %edi\n  jmp .Lpidfd_signal_done\n.Lpidfd_signal_fail:\n  mov $1, %edi\n.Lpidfd_signal_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_inotify_watch(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $294, %eax\n  xor %edi, %edi\n  syscall\n  test %eax, %eax\n  js .Linotify_watch_fail\n  mov %eax, %r12d\n  mov $254, %eax\n  mov %r12d, %edi\n  lea inotify_watch_path(%rip), %rsi\n  mov $1, %edx\n  syscall\n  test %eax, %eax\n  js .Linotify_watch_close\n  mov %eax, %r13d\n  mov $255, %eax\n  mov %r12d, %edi\n  mov %r13d, %esi\n  syscall\n.Linotify_watch_close:\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  xor %edi, %edi\n  jmp .Linotify_watch_done\n.Linotify_watch_fail:\n  mov $1, %edi\n.Linotify_watch_done:\n  mov $60, %eax\n  syscall\n.section .rodata\ninotify_watch_path:\n  .asciz \"/tmp\"\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -2587,6 +2594,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_sched_getattr_mode) { csubset::emit_sched_getattr(program); return 0; }
     if(csubset::emit_get_robust_list_mode) { csubset::emit_get_robust_list(program); return 0; }
     if(csubset::emit_pidfd_send_signal_mode) { csubset::emit_pidfd_send_signal(program); return 0; }
+    if(csubset::emit_inotify_watch_mode) { csubset::emit_inotify_watch(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
