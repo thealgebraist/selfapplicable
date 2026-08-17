@@ -398,6 +398,7 @@ expect_status fixtures/fcntl_setown_query.c 0
 expect_status fixtures/fcntl_setfl_query.c 0
 expect_status fixtures/fcntl_getlease_query.c 0
 expect_status fixtures/fcntl_getseal_query.c 1
+expect_status fixtures/fcntl_setlease_query.c 1
 expect_status fixtures/process_vm_writev_query.c 0
 expect_status fixtures/clone3_query.c 1
 expect_status fixtures/userfaultfd_query.c 1
