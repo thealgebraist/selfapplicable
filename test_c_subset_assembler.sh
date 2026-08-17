@@ -349,6 +349,7 @@ expect_status fixtures/kcmp_query.c 1
 expect_status fixtures/bpf_query.c 1
 expect_status fixtures/seccomp_query.c 0
 expect_status fixtures/fanotify_init_query.c 1
+expect_status fixtures/name_to_handle_at_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
