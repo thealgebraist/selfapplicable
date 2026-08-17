@@ -5906,7 +5906,8 @@ void emit_nice(Program const& p) {
     return;
   }
   std::cout<<".text\n.globl _start\n_start:\n"
-    <<"  mov $34, %eax\n  mov $"<<p.nice_increment<<", %edi\n  syscall\n  test %eax, %eax\n  js .Lnice_fail\n  xor %edi, %edi\n  jmp .Lnice_done\n.Lnice_fail:\n  mov $1, %edi\n.Lnice_done:\n  mov $60, %eax\n  syscall\n";
+    <<"  mov $140, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Lnice_fail\n  mov $20, %ecx\n  sub %eax, %ecx\n  add $"<<p.nice_increment<<", %ecx\n"
+    <<"  mov $141, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  mov %ecx, %edx\n  syscall\n  test %eax, %eax\n  js .Lnice_fail\n  xor %edi, %edi\n  jmp .Lnice_done\n.Lnice_fail:\n  mov $1, %edi\n.Lnice_done:\n  mov $60, %eax\n  syscall\n";
 }
 
 void emit_writefd(Program const& p) {
