@@ -191,10 +191,22 @@ Proof.
   intros M σ e e' v Hstep.
   induction Hstep; intros Hbig.
   - inversion Hbig; subst. constructor.
-  - inversion Hbig; subst. eapply CXBLoad; eauto.
-  - inversion Hbig; subst. eauto using CXBLoad.
-  - inversion Hbig; subst. eapply CXBAdd; eauto.
-  - inversion Hbig; subst. eapply CXBAdd; eauto.
+  - inversion Hbig; subst.
+    eapply CXBLoad.
+    + apply IHHstep. exact H2.
+    + exact H3.
+  - inversion Hbig; subst.
+    apply CXBLoad.
+    + constructor.
+    + assumption.
+  - inversion Hbig; subst.
+    eapply CXBAdd.
+    + apply IHHstep. exact H2.
+    + exact H3.
+  - inversion Hbig; subst.
+    eapply CXBAdd.
+    + exact H2.
+    + apply IHHstep. exact H3.
   - inversion Hbig; subst. constructor.
 Qed.
 
