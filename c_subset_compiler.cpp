@@ -904,6 +904,13 @@ Program parse_main(std::string const& s) {
     if(std::stoi(w[2])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
     p.output.clear();
   }
+  static const std::regex do_unbraced_inclusive_adjacent_write_loop(
+    R"re(int\s+i\s*=\s*0\s*;\s*do\s+write\s*\(\s*1\s*,\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*while\s*\(\s*i\s*<=\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,do_unbraced_inclusive_adjacent_write_loop)) {
+    p.loop_count=std::stoi(w[4]); p.loop_present=true; p.loop_do=true; p.loop_inclusive=true; p.loop_output=decode_write(w[1].str())+decode_write(w[2].str());
+    if(std::stoi(w[3])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
   static const std::regex nonzero_do_init(R"(\bint\s+i\s*=\s*([^;]+);\s*do\s*\{)");
   std::smatch do_init_match;
   if(std::regex_search(body,do_init_match,nonzero_do_init) && !std::regex_match(do_init_match[1].str(),std::regex(R"(\s*0\s*)"))) throw std::runtime_error("unsupported do initializer");
