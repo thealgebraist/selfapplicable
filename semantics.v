@@ -263,6 +263,13 @@ Inductive ccase_selected : nat -> list (nat * cmstmt) -> cmstmt -> Prop :=
     n <> tag -> ccase_selected n rest selected ->
     ccase_selected n ((tag, body) :: rest) selected.
 
+Lemma ccase_selected_in : forall n cases body,
+  ccase_selected n cases body -> In (n, body) cases.
+Proof.
+  intros n cases body H.
+  induction H; simpl; auto.
+Qed.
+
 Inductive cmstmt_big : cmemory -> cstore -> cmstmt -> option cval -> cstore -> Prop :=
 | CMBSkip : forall M σ, cmstmt_big M σ CMSkip None σ
 | CMBAssign : forall M σ a e v,
