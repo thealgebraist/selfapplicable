@@ -432,6 +432,7 @@ expect_status fixtures/symlink_query.c 1
 expect_status fixtures/link_query.c 1
 expect_status fixtures/rename_query.c 1
 expect_status fixtures/access_query.c 0
+expect_status fixtures/stat_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
