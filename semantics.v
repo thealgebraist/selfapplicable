@@ -214,6 +214,20 @@ Inductive cmstmt_typed : ctype_ctx -> cmstmt -> cty -> Prop :=
     cexpr_typed_in Γ e τ ->
     cmstmt_typed Γ (CMReturn e) τ.
 
+Inductive cmcases_typed : ctype_ctx -> list (nat * cmstmt) -> Prop :=
+| CMCasesNil : forall Γ, cmcases_typed Γ []
+| CMCasesCons : forall Γ tag body rest,
+    cmstmt_typed Γ body CVoid ->
+    cmcases_typed Γ rest ->
+    cmcases_typed Γ ((tag, body) :: rest).
+
+Inductive cmswitch_typed : ctype_ctx -> cexpr -> list (nat * cmstmt) -> cmstmt -> Prop :=
+| CMSwitchTyped : forall Γ e cases default,
+    cexpr_typed_in Γ e CInt ->
+    cmcases_typed Γ cases ->
+    cmstmt_typed Γ default CVoid ->
+    cmswitch_typed Γ e cases default.
+
 Inductive ccase_selected : nat -> list (nat * cmstmt) -> cmstmt -> Prop :=
 | CCSHere : forall n body rest,
     ccase_selected n ((n, body) :: rest) body
