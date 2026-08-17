@@ -246,6 +246,7 @@ expect_status fixtures/null_guard.c 1
 expect_status fixtures/recursive_base_case.c 0
 expect_output fixtures/while_write.c "www"
 expect_output fixtures/while_write_zero.c ""
+expect_output fixtures/while_write_inclusive_zero.c "K"
 expect_bytes fixtures/while_write_adjacent_binary.c "41004100"
 expect_bytes fixtures/while_write_braced.c "51005100"
 expect_output fixtures/while_write_explicit_increment.c "RRR"

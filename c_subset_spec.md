@@ -231,6 +231,8 @@ The bound may be inclusive (`i <= N`), as tested by
 comparison in the generated assembly.
 Zero bounds are preserved as zero-iteration loops rather than being mistaken
 for an absent loop; `while_write_zero.c` covers that edge case.
+The inclusive counterpart `while_write_inclusive_zero.c` confirms that `i <= 0`
+still executes once.
 This also composes with braced bodies and explicit `i++`, as shown by
 `while_write_inclusive_braced.c`.
 
