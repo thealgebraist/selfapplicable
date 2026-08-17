@@ -324,6 +324,7 @@ expect_reject fixtures/while_write_unbounded.c
 expect_reject fixtures/do_write_unbounded.c
 expect_reject fixtures/do_write_nonzero_init.c
 expect_reject fixtures/do_write_nonincrement.c
+expect_reject fixtures/do_write_bad_length.c
 expect_reject fixtures/loop_write_unbounded.c
 expect_reject fixtures/loop_write_nonzero_init.c
 expect_reject fixtures/loop_write_nonincrement.c
