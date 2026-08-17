@@ -297,6 +297,19 @@ Proof.
     + exact IH.
 Qed.
 
+Lemma nred_star_app_both : forall f f' a a',
+  nred_star f f' ->
+  nred_star a a' ->
+  nred_star (NApp f a) (NApp f' a').
+Proof.
+  intros f f' a a' Hf Ha.
+  apply nred_star_trans with (u := NApp f' a).
+  - apply nred_star_app_left.
+    exact Hf.
+  - apply nred_star_app_right.
+    exact Ha.
+Qed.
+
 Lemma nred_star_lam : forall t u,
   nred_star t u -> nred_star (NLam t) (NLam u).
 Proof.
