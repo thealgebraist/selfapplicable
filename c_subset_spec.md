@@ -237,6 +237,8 @@ The same zero-iteration guarantee applies to bounded `for` loops;
 `loop_write_zero.c` covers that form.
 Bounded `for` loops also accept inclusive bounds (`i <= N`), covered by
 `loop_write_inclusive.c`.
+Inclusive loops accept adjacent fragments and binary escapes as well;
+`loop_write_inclusive_adjacent.c` covers that combination.
 This also composes with braced bodies and explicit `i++`, as shown by
 `while_write_inclusive_braced.c`.
 
