@@ -212,6 +212,7 @@ expect_status fixtures/fdatasync_payload.c 0
 expect_status fixtures/fcntl_getfd.c 0
 expect_status fixtures/setpgid_self.c 0
 expect_status fixtures/yield.c 0
+expect_status fixtures/getpid_live.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
