@@ -191,24 +191,7 @@ Proof.
   intros M σ e e' result Hstep.
   revert result.
   induction Hstep; intros result Hbig.
-  - inversion Hbig; subst. constructor.
-  - inversion Hbig; subst.
-    apply (CXBLoad M σ p a result).
-    + apply IHHstep. exact H0.
-    + exact H3.
-  - inversion Hbig; subst.
-    apply (CXBLoad M σ (CXVal (CVPtr a)) a result).
-    + constructor.
-    + assumption.
-  - inversion Hbig; subst.
-    eapply CXBAdd.
-    + apply IHHstep. assumption.
-    + assumption.
-  - inversion Hbig; subst.
-    eapply CXBAdd.
-    + assumption.
-    + apply IHHstep. assumption.
-  - inversion Hbig; subst. constructor.
+  all: inversion Hbig; subst; eauto using cexpr_big.
 Qed.
 
 Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
