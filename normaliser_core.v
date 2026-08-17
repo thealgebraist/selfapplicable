@@ -97,6 +97,9 @@ Lemma nsubst0_under_bound_lambda : forall s,
 Proof.
   intros s.
   cbn [nsubst0 nsubst].
+  assert (0 <? 1 = true) as Hlt by reflexivity.
+  rewrite Hlt.
+  reflexivity.
 Qed.
 
 Lemma nsubst0_under_outer_lambda : forall s,
