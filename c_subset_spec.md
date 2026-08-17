@@ -216,6 +216,8 @@ The same restricted loop may use an unbraced write statement followed by
 `i++`, covered by `do_write_unbraced.c`.
 The unbraced form also accepts inclusive bounds, covered by
 `do_write_unbraced_inclusive.c`.
+The unbraced form accepts adjacent binary fragments as covered by
+`do_write_unbraced_adjacent_binary.c`.
 The post-test bound may be inclusive (`i <= N`), covered by
 `do_write_inclusive.c`.
 `do_write_inclusive_zero.c` confirms that an inclusive zero bound still
