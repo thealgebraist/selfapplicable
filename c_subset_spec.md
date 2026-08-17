@@ -229,6 +229,8 @@ single counter update.
 The bound may be inclusive (`i <= N`), as tested by
 `while_write_inclusive.c`; inclusive loops use the corresponding signed
 comparison in the generated assembly.
+This also composes with braced bodies and explicit `i++`, as shown by
+`while_write_inclusive_braced.c`.
 
 The first filesystem primitive is the `pwd` pattern:
 
