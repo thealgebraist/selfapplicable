@@ -145,6 +145,7 @@ expect_output fixtures/loop_write_adjacent.c "ABAB"
 expect_output fixtures/loop_write_adjacent_three.c "ABCABC"
 expect_output fixtures/loop_write_adjacent_four.c "ABCDABCD"
 expect_output fixtures/loop_write_adjacent_five.c "ABCDEABCDE"
+expect_output fixtures/loop_write_adjacent_six.c "ABCDEFABCDEF"
 expect_output fixtures/write_backslash.c "A\\B"
 expect_output fixtures/write_quote.c 'A"B'
 expect_output fixtures/write_two.c "AB"

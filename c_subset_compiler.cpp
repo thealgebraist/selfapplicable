@@ -903,14 +903,22 @@ Program parse_main(std::string const& s) {
   // Collect every literal write in source order.  This deliberately keeps
   // each call's declared byte count independently checked before combining
   // the payload into one static message.
-  if(p.output.empty()) for(std::sregex_iterator it(body.begin(),body.end(),write), end; it!=end; ++it) {
+  if(p.output.empty() && body.find("for") == std::string::npos)
+    for(std::sregex_iterator it(body.begin(),body.end(),write), end; it!=end; ++it) {
     auto payload=decode_write((*it)[1].str());
     if(std::stoi((*it)[2])!=(int)payload.size()) throw std::runtime_error("write length mismatch");
     p.output+=payload;
   }
+  static const std::regex six_adjacent_loop(
+    R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*write\s*\(\s*1\s*,\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,w,six_adjacent_loop)) {
+    p.loop_count=std::stoi(w[1]); p.loop_output=decode_write(w[2].str())+decode_write(w[3].str())+decode_write(w[4].str())+decode_write(w[5].str())+decode_write(w[6].str())+decode_write(w[7].str());
+    if(std::stoi(w[8])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
+    p.output.clear();
+  }
   static const std::regex five_adjacent_loop(
     R"re(for\s*\(\s*int\s+i\s*=\s*0\s*;\s*i\s*<\s*([0-9]+)\s*;\s*i\+\+\s*\)\s*write\s*\(\s*1\s*,\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*"([^\n]*)"\s*,\s*([0-9]+)\s*\)\s*;)re");
-  if(std::regex_search(body,w,five_adjacent_loop)) {
+  if(p.loop_count==0 && std::regex_search(body,w,five_adjacent_loop)) {
     p.loop_count=std::stoi(w[1]); p.loop_output=decode_write(w[2].str())+decode_write(w[3].str())+decode_write(w[4].str())+decode_write(w[5].str())+decode_write(w[6].str());
     if(std::stoi(w[7])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
     p.output.clear();
