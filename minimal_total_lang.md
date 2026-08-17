@@ -10,8 +10,11 @@ This branch isolates the smallest useful kernel for the normalizer project.
 - `normalise0` evaluates and re-quotes a term;
 - `Code0 A` makes staging explicit without executing quoted syntax;
 - Coq proves quotation, idempotence, staging, and totality lemmas.
-- A second indexed layer adds de Bruijn variables, typed environments, and
-  total `let` evaluation; `let_add_normalises` is a concrete witness.
+
+This is the verified first milestone. A typed de Bruijn/`let` layer was
+prototyped on this branch but is intentionally not part of the checked kernel:
+its environment lookup requires an explicit dependent equality proof. That is
+the next proof obligation, not an unverified claim of completion.
 
 The experiment deliberately omits variables, functions, effects, pointers, and
 general recursion. That omission is the point: it gives a small trusted core
