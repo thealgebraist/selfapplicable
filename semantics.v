@@ -626,6 +626,25 @@ Proof.
     + exact Htyped.
 Qed.
 
+Lemma typed_seq_skip_semantic_agreement : forall M Γ σ s r σ',
+  cmstmt_typed Γ (CMSeq CMSkip s) r ->
+  cmstmt_big M σ s None σ' ->
+  cmconfig_typed Γ (s, σ') ->
+  cmstmt_big M σ (CMSeq CMSkip s) None σ' /\
+  cmstmt_step_star M (CMSeq CMSkip s, σ) (s, σ) /\
+  cmconfig_typed Γ (s, σ').
+Proof.
+  intros M Γ σ s r σ' Hseq Hsecond Htyped.
+  split.
+  - apply CMBSeq.
+    + constructor.
+    + exact Hsecond.
+  - split.
+    + apply cmstmt_step_to_star.
+      constructor.
+    + exact Htyped.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
