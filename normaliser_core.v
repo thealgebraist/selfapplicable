@@ -364,26 +364,28 @@ Fixpoint nplug (C : nctx) (t : nterm) : nterm :=
   | NCUnquote C' => NUnquote (nplug C' t)
   end.
 
-Fixpoint nctx_subst (s : nterm) (C : nctx) : nctx :=
+Fixpoint nctx_subst (depth : nat) (s : nterm) (C : nctx) : nctx :=
   match C with
   | NCHole => NCHole
-  | NCAppLeft C' a => NCAppLeft (nctx_subst s C') (nsubst0 s a)
-  | NCAppRight f C' => NCAppRight (nsubst0 s f) (nctx_subst s C')
-  | NCLam C' => NCLam (nctx_subst s C')
-  | NCQuote C' => NCQuote (nctx_subst s C')
-  | NCUnquote C' => NCUnquote (nctx_subst s C')
+  | NCAppLeft C' a => NCAppLeft (nctx_subst depth s C') (nsubst depth s a)
+  | NCAppRight f C' => NCAppRight (nsubst depth s f) (nctx_subst depth s C')
+  | NCLam C' => NCLam (nctx_subst (S depth) s C')
+  | NCQuote C' => NCQuote (nctx_subst depth s C')
+  | NCUnquote C' => NCUnquote (nctx_subst depth s C')
   end.
 
-Lemma nsubst0_plug : forall s C t,
-  nsubst0 s (nplug C t) = nplug (nctx_subst s C) (nsubst0 s t).
+Lemma nsubst_plug : forall depth s C t,
+  nsubst depth s (nplug C t) =
+  nplug (nctx_subst depth s C) (nsubst depth s t).
 Proof.
-  intros s C t.
+  intros depth s C t.
+  revert depth s t.
   induction C as [| C IHC a | f C IHC | C IHC | C IHC | C IHC];
-    simpl.
+    intros depth s t; simpl.
   - reflexivity.
-  - rewrite nsubst0_app, IHC.
+  - rewrite IHC.
     reflexivity.
-  - rewrite nsubst0_app, IHC.
+  - rewrite IHC.
     reflexivity.
   - rewrite IHC.
     reflexivity.
