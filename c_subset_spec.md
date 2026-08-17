@@ -97,6 +97,8 @@ Malformed escapes in adjacent fragments are rejected by
 `write_adjacent_bad_hex.c`.
 Invalid hexadecimal digits in adjacent fragments are covered by
 `write_adjacent_bad_hex_digits.c`.
+Invalid octal digits in adjacent fragments are covered by
+`write_adjacent_bad_octal_digits.c`.
 Out-of-range octal fragments are rejected by
 `write_adjacent_bad_octal.c`.
 Unsupported escapes in adjacent fragments are rejected by
