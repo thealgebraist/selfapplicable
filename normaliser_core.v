@@ -392,6 +392,25 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma nctx_compose_assoc : forall C D E,
+  nctx_compose (nctx_compose C D) E =
+  nctx_compose C (nctx_compose D E).
+Proof.
+  induction C as [| C IHC a | f C IHC | C IHC | C IHC | C IHC];
+    intros D E; simpl.
+  - reflexivity.
+  - rewrite IHC.
+    reflexivity.
+  - rewrite IHC.
+    reflexivity.
+  - rewrite IHC.
+    reflexivity.
+  - rewrite IHC.
+    reflexivity.
+  - rewrite IHC.
+    reflexivity.
+Qed.
+
 Lemma nred_star_plug : forall C t u,
   nred_star t u -> nred_star (nplug C t) (nplug C u).
 Proof.

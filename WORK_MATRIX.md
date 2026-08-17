@@ -34,6 +34,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Core language | Staged execution followed by normalization | [x] | CI run `32042807905` proves `nred_star_unquote_quote_then` |
 | Core language | General one-hole reduction contexts | [x] | CI run `32042898162` proves `nctx`, `nplug`, and `nred_star_plug` |
 | Core language | Composable reduction contexts | [x] | CI run `32042983327` proves `nctx_compose` and `nplug_compose` |
+| Core language | Context composition associativity | [ ] | Added `nctx_compose_assoc`; await CI confirmation |
 | C subset | Integer returns and conditionals | [x] | `fixtures/` regression suite |
 | C subset | Structs and field access | [x] | `struct_*` fixtures |
 | C subset | Pointers and pointer arithmetic | [x] | `pointer_*` fixtures |
