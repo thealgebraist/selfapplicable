@@ -269,6 +269,8 @@ Its update clause must be the literal `i++`; `loop_write_nonincrement.c`
 verifies rejection of alternative updates.
 Braced inclusive `for` bodies are covered by
 `loop_write_inclusive_braced.c`.
+Strict-bound braced `for` bodies with five fragments are covered by
+`loop_write_braced_five.c`.
 This also composes with braced bodies and explicit `i++`, as shown by
 `while_write_inclusive_braced.c`.
 
