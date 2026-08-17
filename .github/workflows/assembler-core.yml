@@ -49,9 +49,9 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq coq
-          coqc -q semantics.v
-          coqc -q normaliser_core.v
-          coqc -q minimal_total_lang.v
+          timeout 120s coqc -q semantics.v
+          timeout 120s coqc -q normaliser_core.v
+          timeout 120s coqc -q minimal_total_lang.v
 
       - name: Assemble and run switch fixtures
         shell: bash
