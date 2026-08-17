@@ -32,15 +32,20 @@ Fixpoint nshift (d cutoff : nat) (t : nterm) : nterm :=
   | NUnquote code => NUnquote (nshift d cutoff code)
   end.
 
-Fixpoint nsubst0 (replacement : nterm) (t : nterm) : nterm :=
+Fixpoint nsubst (depth : nat) (replacement : nterm) (t : nterm) : nterm :=
   match t with
-  | NVar 0 => replacement
-  | NVar (S k) => NVar k
-  | NLam body => NLam (nsubst0 (nshift 1 0 replacement) body)
-  | NApp f a => NApp (nsubst0 replacement f) (nsubst0 replacement a)
-  | NQuote code => NQuote (nsubst0 replacement code)
-  | NUnquote code => NUnquote (nsubst0 replacement code)
+  | NVar k =>
+      if k <? depth then NVar k
+      else if k =? depth then nshift depth 0 replacement
+      else NVar (pred k)
+  | NLam body => NLam (nsubst (S depth) replacement body)
+  | NApp f a => NApp (nsubst depth replacement f) (nsubst depth replacement a)
+  | NQuote code => NQuote (nsubst depth replacement code)
+  | NUnquote code => NUnquote (nsubst depth replacement code)
   end.
+
+Definition nsubst0 (replacement : nterm) (t : nterm) : nterm :=
+  nsubst 0 replacement t.
 
 Lemma nsubst0_var0 : forall s,
   nsubst0 s (NVar 0) = s.
