@@ -299,6 +299,7 @@ expect_status fixtures/get_robust_list_query.c 0
 expect_status fixtures/pidfd_send_signal_probe.c 1
 expect_status fixtures/inotify_add_watch_query.c 0
 expect_status fixtures/splice_zero.c 0
+expect_status fixtures/sync_file_range_stdout.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
