@@ -1758,7 +1758,7 @@ void emit_link(Program const& p) {
 
 void emit_readlink(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
-    <<"  mov $89, %eax\n  lea readlink_path(%rip), %rdi\n  lea readlink_buf(%rip), %rsi\n  mov $4096, %edx\n  syscall\n  test %eax, %eax\n  js .Lreadlink_fail\n  mov %eax, %edx\n  mov $1, %eax\n  mov $1, %edi\n  lea readlink_buf(%rip), %rsi\n  syscall\n  xor %edi, %edi\n  jmp .Lreadlink_done\n.Lreadlink_fail:\n  mov $1, %edi\n.Lreadlink_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nreadlink_path:\n  .asciz \""<<p.readlink_path<<"\"\n.bss\n.align 8\nreadlink_buf:\n  .skip 4096\n";
+    <<"  mov $89, %eax\n  lea readlink_path(%rip), %rdi\n  lea readlink_buf(%rip), %rsi\n  mov $4096, %edx\n  syscall\n  test %eax, %eax\n  js .Lreadlink_fail\n  mov %eax, %r12d\n  xor %r13d, %r13d\n.Lreadlink_write:\n  cmp %r12d, %r13d\n  jge .Lreadlink_done_ok\n  mov $1, %eax\n  mov $1, %edi\n  lea readlink_buf(%rip), %rsi\n  add %r13, %rsi\n  mov %r12d, %edx\n  sub %r13d, %edx\n  syscall\n  test %eax, %eax\n  jle .Lreadlink_fail\n  add %eax, %r13d\n  jmp .Lreadlink_write\n.Lreadlink_done_ok:\n  xor %edi, %edi\n  jmp .Lreadlink_done\n.Lreadlink_fail:\n  mov $1, %edi\n.Lreadlink_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nreadlink_path:\n  .asciz \""<<p.readlink_path<<"\"\n.bss\n.align 8\nreadlink_buf:\n  .skip 4096\n";
 }
 
 void emit_rename(Program const& p) {
