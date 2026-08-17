@@ -61,6 +61,8 @@ std::string faccessat2_path_value;
 bool emit_syncfs_mode = false;
 bool emit_io_uring_setup_mode = false;
 bool emit_io_uring_enter_mode = false;
+bool emit_statfs_mode = false;
+std::string statfs_path_value;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1689,6 +1691,8 @@ Program parse_main(std::string const& s) {
   emit_syncfs_mode=std::regex_search(body,std::regex(R"re(\bsyncfs_stdout\s*\(\s*\)\s*;)re"));
   emit_io_uring_setup_mode=std::regex_search(body,std::regex(R"re(\bio_uring_setup_query\s*\(\s*\)\s*;)re"));
   emit_io_uring_enter_mode=std::regex_search(body,std::regex(R"re(\bio_uring_enter_query\s*\(\s*\)\s*;)re"));
+  std::smatch statfs_match;
+  if(std::regex_search(body,statfs_match,std::regex(R"re(statfs\s*\(\s*"([^"]*)"\s*\)\s*;)re"))) { emit_statfs_mode=true; statfs_path_value=statfs_match[1].str(); }
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -2160,6 +2164,11 @@ void emit_io_uring_enter(Program const&) {
     <<"  mov $425, %eax\n  mov $1, %edi\n  lea io_enter_params(%rip), %rsi\n  syscall\n  test %eax, %eax\n  js .Lio_enter_setup_fail\n  mov %eax, %r12d\n  mov $426, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  xor %r8d, %r8d\n  xor %r9d, %r9d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Lio_enter_fail\n  xor %edi, %edi\n  jmp .Lio_enter_done\n.Lio_enter_setup_fail:\n.Lio_enter_fail:\n  mov $1, %edi\n.Lio_enter_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nio_enter_params:\n  .skip 120\n";
 }
 
+void emit_statfs(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $137, %eax\n  lea statfs_path(%rip), %rdi\n  lea statfs_buf(%rip), %rsi\n  syscall\n  test %eax, %eax\n  js .Lstatfs_fail\n  xor %edi, %edi\n  jmp .Lstatfs_done\n.Lstatfs_fail:\n  mov $1, %edi\n.Lstatfs_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nstatfs_path:\n  .asciz \""<<statfs_path_value<<"\"\n.bss\n.align 8\nstatfs_buf:\n  .skip 120\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2433,6 +2442,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_syncfs_mode) { csubset::emit_syncfs(program); return 0; }
     if(csubset::emit_io_uring_setup_mode) { csubset::emit_io_uring_setup(program); return 0; }
     if(csubset::emit_io_uring_enter_mode) { csubset::emit_io_uring_enter(program); return 0; }
+    if(csubset::emit_statfs_mode) { csubset::emit_statfs(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
