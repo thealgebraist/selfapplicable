@@ -539,6 +539,8 @@ Separate checked stderr calls concatenate in source order in
 `write_stderr_two_calls.c`.
 Mixed literal stdout/stderr calls preserve source order through the
 `write_mixed_streams.c` fixture.
+The harness captures both descriptors together and asserts the exact `OE`
+sequence.
 
 `readstdin(size)` reads up to a bounded number of bytes from descriptor 0 and
 forwards them to stdout:

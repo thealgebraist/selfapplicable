@@ -162,6 +162,17 @@ expect_stderr() {
   test "$actual" = "$expected" || { echo "FAIL: $source: stderr mismatch" >&2; exit 1; }
 }
 
+expect_combined_output() {
+  source=$1
+  expected=$2
+  stem=$(basename "$source" .c)
+  "$tmp/c_subset_compiler" "$root/$source" > "$tmp/$stem.s"
+  as --64 "$tmp/$stem.s" -o "$tmp/$stem.o"
+  ld "$tmp/$stem.o" -o "$tmp/$stem"
+  actual=$("$tmp/$stem" 2>&1)
+  test "$actual" = "$expected" || { echo "FAIL: $source: combined output mismatch" >&2; exit 1; }
+}
+
 expect_output fixtures/cat.c "cat payload"
 expect_status fixtures/mkdir_existing.c 1
 expect_status fixtures/rm_missing.c 1
@@ -184,6 +195,7 @@ expect_stderr fixtures/write_stderr_four_adjacent.c "AB"
 expect_stderr fixtures/write_stderr_five_adjacent.c "ABC"
 expect_stderr fixtures/write_stderr_two_calls.c "AB"
 expect_status fixtures/write_mixed_streams.c 0
+expect_combined_output fixtures/write_mixed_streams.c OE
 expect_status fixtures/readstdin_empty.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
