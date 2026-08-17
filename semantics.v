@@ -189,6 +189,28 @@ Inductive cmstmt : Type :=
 | CMCall : cmstmt -> cmstmt
 | CMReturn : cexpr -> cmstmt.
 
+Inductive cmstmt_typed : ctype_ctx -> cmstmt -> cty -> Prop :=
+| CMSTSkip : forall Γ τ, cmstmt_typed Γ CMSkip τ
+| CMSTAssign : forall Γ slot e,
+    cexpr_typed_in Γ e (Γ slot) ->
+    cmstmt_typed Γ (CMAssign slot e) CVoid
+| CMSTSeq : forall Γ s1 s2 τ,
+    cmstmt_typed Γ s1 CVoid ->
+    cmstmt_typed Γ s2 τ ->
+    cmstmt_typed Γ (CMSeq s1 s2) τ
+| CMSTIf : forall Γ e st sf,
+    cexpr_typed_in Γ e CInt ->
+    cmstmt_typed Γ st CVoid ->
+    cmstmt_typed Γ sf CVoid ->
+    cmstmt_typed Γ (CMIf e st sf) CVoid
+| CMSTWhile : forall Γ e body,
+    cexpr_typed_in Γ e CInt ->
+    cmstmt_typed Γ body CVoid ->
+    cmstmt_typed Γ (CMWhile e body) CVoid
+| CMSTReturn : forall Γ e τ,
+    cexpr_typed_in Γ e τ ->
+    cmstmt_typed Γ (CMReturn e) τ.
+
 Inductive ccase_selected : nat -> list (nat * cmstmt) -> cmstmt -> Prop :=
 | CCSHere : forall n body rest,
     ccase_selected n ((n, body) :: rest) body
