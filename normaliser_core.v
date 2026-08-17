@@ -42,6 +42,20 @@ Fixpoint nsubst0 (replacement : nterm) (t : nterm) : nterm :=
   | NUnquote code => NUnquote (nsubst0 replacement code)
   end.
 
+Lemma nsubst0_var0 : forall s,
+  nsubst0 s (NVar 0) = s.
+Proof.
+  intros s.
+  reflexivity.
+Qed.
+
+Lemma nsubst0_var_succ : forall s k,
+  nsubst0 s (NVar (S k)) = NVar k.
+Proof.
+  intros s k.
+  reflexivity.
+Qed.
+
 (* The staged computational boundary.  Quotation is inert data; only an
    unquote of an immediately available quotation crosses the boundary. *)
 Inductive nred : nterm -> nterm -> Prop :=
@@ -59,6 +73,14 @@ Inductive nred : nterm -> nterm -> Prop :=
     nred t t' -> nred (NLam t) (NLam t')
 | NRUnquote : forall c c',
     nred c c' -> nred (NUnquote c) (NUnquote c').
+
+Lemma beta_identity : forall s,
+  nred (NApp (NLam (NVar 0)) s) s.
+Proof.
+  intros s.
+  change nred (NApp (NLam (NVar 0)) s) (nsubst0 s (NVar 0)).
+  constructor.
+Qed.
 
 Inductive nred_star : nterm -> nterm -> Prop :=
 | NRSRefl : forall t, nred_star t t
