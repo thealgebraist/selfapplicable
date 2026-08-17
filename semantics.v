@@ -90,6 +90,7 @@ Inductive cexpr : Type :=
 | CXSlot : nat -> cexpr
 | CXLoad : cexpr -> cexpr
 | CXAddr : nat -> cexpr
+| CXField : cexpr -> string -> cexpr
 | CXAdd : cexpr -> cexpr -> cexpr.
 
 Inductive cval_typed : cval -> cty -> Prop :=
@@ -106,6 +107,7 @@ Inductive cexpr_typed : cexpr -> cty -> Prop :=
     cexpr_typed (CXAdd e1 e2) CInt.
 
 Definition ctype_ctx := nat -> cty.
+Definition cfield_ctx := string -> option cty.
 
 Inductive cexpr_typed_in : ctype_ctx -> cexpr -> cty -> Prop :=
 | CXTCVal : forall Γ v τ,
@@ -116,6 +118,10 @@ Inductive cexpr_typed_in : ctype_ctx -> cexpr -> cty -> Prop :=
     cexpr_typed_in Γ (CXAddr a) (CPtr CInt)
 | CXTCSLoad : forall Γ e τ,
     cexpr_typed_in Γ e (CPtr τ) -> cexpr_typed_in Γ (CXLoad e) τ
+| CXTCSField : forall Γ e name fields τ,
+    cexpr_typed_in Γ e (CStruct name) ->
+    fields name = Some τ ->
+    cexpr_typed_in Γ (CXField e name) τ
 | CXTCSAdd : forall Γ e1 e2,
     cexpr_typed_in Γ e1 CInt -> cexpr_typed_in Γ e2 CInt ->
     cexpr_typed_in Γ (CXAdd e1 e2) CInt.
