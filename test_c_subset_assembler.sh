@@ -233,6 +233,7 @@ expect_status fixtures/setdomainname_query.c 1
 expect_status fixtures/get_thread_area_query.c 1
 expect_status fixtures/ustat_query.c 1
 expect_status fixtures/afs_syscall_query.c 1
+expect_status fixtures/nfsservctl_query.c 1
 expect_status fixtures/isatty_stdin.c 1
 expect_status fixtures/sync.c 0
 expect_status fixtures/fsync_payload.c 0
