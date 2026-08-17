@@ -224,6 +224,7 @@ bool emit_epoll_create_query_mode = false;
 bool emit_epoll_ctl_query_mode = false;
 bool emit_epoll_wait_query_mode = false;
 bool emit_inotify_init_query_mode = false;
+bool emit_inotify_add_watch_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -2023,6 +2024,7 @@ Program parse_main(std::string const& s) {
   emit_epoll_ctl_query_mode=std::regex_search(body,std::regex(R"re(\bepoll_ctl_query\s*\(\s*\)\s*;)re"));
   emit_epoll_wait_query_mode=std::regex_search(body,std::regex(R"re(\bepoll_wait_query\s*\(\s*\)\s*;)re"));
   emit_inotify_init_query_mode=std::regex_search(body,std::regex(R"re(\binotify_init_query\s*\(\s*\)\s*;)re"));
+  emit_inotify_add_watch_query_mode=std::regex_search(body,std::regex(R"re(\binotify_add_watch_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -3810,6 +3812,15 @@ void emit_inotify_init_query(Program const&) {
     <<".Linotify_init_fail:\n  mov $1, %edi\n.Linotify_init_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_inotify_add_watch_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $254, %eax\n  mov $1, %edi\n  lea inotify_watch_path(%rip), %rsi\n  mov $1, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Linotify_add_watch_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Linotify_add_watch_done\n"
+    <<".Linotify_add_watch_fail:\n  mov $1, %edi\n.Linotify_add_watch_done:\n  mov $60, %eax\n  syscall\n"
+    <<".section .rodata\ninotify_watch_path:\n  .asciz \".\"\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -4131,6 +4142,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_futex_wake_mode) { csubset::emit_futex_wake(program); return 0; }
     if(csubset::emit_epoll_wait_query_mode) { csubset::emit_epoll_wait_query(program); return 0; }
     if(csubset::emit_inotify_init_query_mode) { csubset::emit_inotify_init_query(program); return 0; }
+    if(csubset::emit_inotify_add_watch_query_mode) { csubset::emit_inotify_add_watch_query(program); return 0; }
     if(csubset::emit_epoll_wait_mode) { csubset::emit_epoll_wait(program); return 0; }
     if(csubset::emit_futex_wait_mode) { csubset::emit_futex_wait(program); return 0; }
     if(csubset::emit_timerfd_gettime_mode) { csubset::emit_timerfd_gettime(program); return 0; }
