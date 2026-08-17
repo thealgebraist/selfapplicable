@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0; unsigned chmod_mode=0, access_mode=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, error_output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path, symlink_target, symlink_path, link_old, link_new, readlink_path, rename_old, rename_new, chmod_path, access_path, truncate_path; unsigned long long size_bytes=0, truncate_size=0, random_bytes=0, stdin_bytes=0; unsigned chmod_mode=0, access_mode=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, symlink=false, link=false, readlink=false, rename=false, chmod=false, access=false, truncate=false, getrandom=false, readstdin=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -1528,6 +1528,8 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,resize_file)) { p.truncate=true; p.truncate_path=d[1].str(); p.truncate_size=std::stoull(d[2]); }
   static const std::regex random_bytes_call(R"re(getrandom\s*\(\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,random_bytes_call)) { p.getrandom=true; p.random_bytes=std::stoull(d[1]); if(p.random_bytes>4096) throw std::runtime_error("getrandom request too large"); }
+  static const std::regex stdin_copy(R"re(readstdin\s*\(\s*([0-9]+)\s*\)\s*;)re");
+  if(std::regex_search(body,d,stdin_copy)) { p.readstdin=true; p.stdin_bytes=std::stoull(d[1]); if(p.stdin_bytes>4096) throw std::runtime_error("stdin request too large"); }
   static const std::regex exists(R"re(if\s*\(\s*exists\s*\(\s*"([^"]*)"\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
   if(std::regex_search(body,d,exists)) { p.exists=true; p.exists_path=d[1].str(); p.then_status=std::stoi(d[2]); p.else_status=std::stoi(d[3]); }
   static const std::regex isdir(R"re(if\s*\(\s*isdir\s*\(\s*"([^"]*)"\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -1685,6 +1687,11 @@ void emit_getrandom(Program const& p) {
     <<"  mov $318, %eax\n  lea random_buf(%rip), %rdi\n  mov $"<<p.random_bytes<<", %esi\n  xor %edx, %edx\n  syscall\n  test %eax, %eax\n  js .Lrandom_fail\n  mov %eax, %edx\n  mov $1, %eax\n  mov $1, %edi\n  lea random_buf(%rip), %rsi\n  syscall\n  xor %edi, %edi\n  jmp .Lrandom_done\n.Lrandom_fail:\n  mov $1, %edi\n.Lrandom_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nrandom_buf:\n  .skip 4096\n";
 }
 
+void emit_readstdin(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  xor %eax, %eax\n  xor %edi, %edi\n  lea stdin_buf(%rip), %rsi\n  mov $"<<p.stdin_bytes<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lstdin_fail\n  mov %eax, %edx\n  mov $1, %eax\n  mov $1, %edi\n  lea stdin_buf(%rip), %rsi\n  syscall\n  xor %edi, %edi\n  jmp .Lstdin_done\n.Lstdin_fail:\n  mov $1, %edi\n.Lstdin_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nstdin_buf:\n  .skip 4096\n";
+}
+
 void emit_isdir(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
            <<"  mov $332, %eax\n  mov $-100, %edi\n  lea isdir_path(%rip), %rsi\n  xor %edx, %edx\n  mov $2047, %r10d\n  lea isdir_buf(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lisdir_no\n  movzwl 28(%r8), %eax\n  and $61440, %eax\n  cmp $16384, %eax\n  jne .Lisdir_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lisdir_done\n.Lisdir_no:\n  mov $"<<p.else_status<<", %edi\n.Lisdir_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nisdir_path:\n  .asciz \""<<p.directory_path<<"\"\n.bss\n.align 8\nisdir_buf:\n  .skip 256\n";
@@ -1724,6 +1731,7 @@ int main(int argc,char **argv) {
     if(program.access) { csubset::emit_access(program); return 0; }
     if(program.truncate) { csubset::emit_truncate(program); return 0; }
     if(program.getrandom) { csubset::emit_getrandom(program); return 0; }
+    if(program.readstdin) { csubset::emit_readstdin(program); return 0; }
     if(program.filter.size()) { csubset::emit_filtered_directory(program); return 0; }
     std::cout<<".text\n.globl _start\n_start:\n";
     if(!program.error_output.empty()) std::cout

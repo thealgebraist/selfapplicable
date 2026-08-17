@@ -526,6 +526,13 @@ declared-length validation are shared:
 write(2, "warning\n", 8);
 ```
 
+`readstdin(size)` reads up to a bounded number of bytes from descriptor 0 and
+forwards them to stdout:
+
+```c
+readstdin(4096);
+```
+
 The same one-level primitive is exposed as:
 
 ```c
