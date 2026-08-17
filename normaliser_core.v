@@ -44,6 +44,10 @@ Inductive nred_star : nterm -> nterm -> Prop :=
 | NRSNext : forall t u v,
     nred t u -> nred_star u v -> nred_star t v.
 
+Inductive nstage : nterm -> nterm -> Prop :=
+| NSQuoteUnquote : forall t,
+    nstage (NUnquote (NQuote t)) t.
+
 Inductive ntyped : list nty -> nterm -> nty -> Prop :=
 | NTVar : forall Γ n A,
     nth_error Γ n = Some A -> ntyped Γ (NVar n) A
@@ -127,13 +131,11 @@ Qed.
 
 Lemma staged_round_trip_preserves_type : forall Γ t A u,
   ntyped Γ t A ->
-  nred (NUnquote (NQuote t)) u ->
+  nstage (NUnquote (NQuote t)) u ->
   ntyped Γ u A.
 Proof.
   intros Γ t A u Htyped Hred.
-  assert (u = t) as Hu.
-  { inversion Hred; reflexivity. }
-  subst u.
+  inversion Hred; subst.
   exact Htyped.
 Qed.
 
