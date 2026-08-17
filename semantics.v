@@ -328,6 +328,19 @@ Inductive cmstmt_big : cmemory -> cstore -> cmstmt -> option cval -> cstore -> P
     cexpr_big M σ e v ->
     cmstmt_big M σ (CMReturn e) (Some v) σ.
 
+Lemma assignment_preserves_store_type : forall M Γ σ a e v,
+  cstore_typed Γ σ ->
+  cexpr_big M σ e v ->
+  cval_typed v (Γ a) ->
+  cmstmt_big M σ (CMAssign a e) None (cstore_update σ a v) /\
+  cstore_typed Γ (cstore_update σ a v).
+Proof.
+  intros M Γ σ a e v Hσ He Hv.
+  split.
+  - now apply CMBAssign.
+  - now apply cstore_update_preserves_type.
+Qed.
+
 Definition cmconfig := (cmstmt * cstore)%type.
 
 Inductive cmstmt_step : cmemory -> cmconfig -> cmconfig -> Prop :=
