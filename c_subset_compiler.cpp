@@ -22,7 +22,7 @@ std::string read_source(const char *path) {
   return all;
 }
 
-struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path; unsigned long long size_bytes=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
+struct Program { int argc_value=-1, then_status=0, else_status=0, switch_case=-1, switch_case_status=0, switch_case2=-1, switch_case2_status=0, switch_default_status=0; std::string output, loop_output, directory, filter, exists_path, directory_path, regular_path, size_path, cat_path, mkdir_path, rm_path, rmdir_path, touch_path, chdir_path; unsigned long long size_bytes=0; int loop_count=0; bool loop_present=false, loop_inclusive=false, loop_do=false, argv1=false, arg_help=false, cwd=false, listdir=false, cat=false, mkdir=false, rm=false, rmdir=false, touch=false, chdir=false, exists=false, is_directory=false, is_regular=false, size_gt=false, function_call=false, null_guard=false, pointer_equal=false, switch_return=false, switch_two_cases=false; };
 
 Program parse_main(std::string const& s) {
   std::smatch main_match;
@@ -1505,6 +1505,8 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,d,remove_dir)) { p.rmdir=true; p.rmdir_path=d[1].str(); }
   static const std::regex touch_file(R"re(touch\s*\(\s*"([^"]*)"\s*\)\s*;)re");
   if(std::regex_search(body,d,touch_file)) { p.touch=true; p.touch_path=d[1].str(); }
+  static const std::regex change_dir(R"re(chdir\s*\(\s*"([^"]*)"\s*\)\s*;)re");
+  if(std::regex_search(body,d,change_dir)) { p.chdir=true; p.chdir_path=d[1].str(); }
   static const std::regex exists(R"re(if\s*\(\s*exists\s*\(\s*"([^"]*)"\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
   if(std::regex_search(body,d,exists)) { p.exists=true; p.exists_path=d[1].str(); p.then_status=std::stoi(d[2]); p.else_status=std::stoi(d[3]); }
   static const std::regex isdir(R"re(if\s*\(\s*isdir\s*\(\s*"([^"]*)"\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -1617,6 +1619,11 @@ void emit_touch(Program const& p) {
     <<"  mov $257, %eax\n  mov $-100, %edi\n  lea touch_path(%rip), %rsi\n  mov $65, %edx\n  mov $420, %r10d\n  syscall\n  test %eax, %eax\n  js .Ltouch_fail\n  mov %eax, %edi\n  mov $3, %eax\n  syscall\n  xor %edi, %edi\n  jmp .Ltouch_done\n.Ltouch_fail:\n  mov $1, %edi\n.Ltouch_done:\n  mov $60, %eax\n  syscall\n.section .rodata\ntouch_path:\n  .asciz \""<<p.touch_path<<"\"\n";
 }
 
+void emit_chdir(Program const& p) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $80, %eax\n  lea chdir_path(%rip), %rdi\n  syscall\n  test %eax, %eax\n  js .Lchdir_fail\n  xor %edi, %edi\n  jmp .Lchdir_done\n.Lchdir_fail:\n  mov $1, %edi\n.Lchdir_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nchdir_path:\n  .asciz \""<<p.chdir_path<<"\"\n";
+}
+
 void emit_isdir(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
            <<"  mov $332, %eax\n  mov $-100, %edi\n  lea isdir_path(%rip), %rsi\n  xor %edx, %edx\n  mov $2047, %r10d\n  lea isdir_buf(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lisdir_no\n  movzwl 28(%r8), %eax\n  and $61440, %eax\n  cmp $16384, %eax\n  jne .Lisdir_no\n  mov $"<<p.then_status<<", %edi\n  jmp .Lisdir_done\n.Lisdir_no:\n  mov $"<<p.else_status<<", %edi\n.Lisdir_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nisdir_path:\n  .asciz \""<<p.directory_path<<"\"\n.bss\n.align 8\nisdir_buf:\n  .skip 256\n";
@@ -1647,6 +1654,7 @@ int main(int argc,char **argv) {
     if(program.rm) { csubset::emit_rm(program); return 0; }
     if(program.rmdir) { csubset::emit_rmdir(program); return 0; }
     if(program.touch) { csubset::emit_touch(program); return 0; }
+    if(program.chdir) { csubset::emit_chdir(program); return 0; }
     if(program.filter.size()) { csubset::emit_filtered_directory(program); return 0; }
     std::cout<<".text\n.globl _start\n_start:\n";
     if(!program.output.empty()) std::cout

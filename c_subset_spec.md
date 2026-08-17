@@ -458,6 +458,13 @@ rmdir("/tmp/old-directory");
 touch("/tmp/new-file");
 ```
 
+`chdir("path")` lowers directly to Linux `chdir` and returns 0 on success or
+1 on failure:
+
+```c
+chdir("/");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
