@@ -846,6 +846,10 @@ Program parse_main(std::string const& s) {
     std::size_t nl; while((nl=value.find("\\n"))!=std::string::npos) value.replace(nl,2,"\n");
     while((nl=value.find("\\t"))!=std::string::npos) value.replace(nl,2,"\t");
     while((nl=value.find("\\r"))!=std::string::npos) value.replace(nl,2,"\r");
+    while((nl=value.find("\\a"))!=std::string::npos) value.replace(nl,2,"\a");
+    while((nl=value.find("\\b"))!=std::string::npos) value.replace(nl,2,"\b");
+    while((nl=value.find("\\f"))!=std::string::npos) value.replace(nl,2,"\f");
+    while((nl=value.find("\\v"))!=std::string::npos) value.replace(nl,2,"\v");
     while((nl=value.find("\\\""))!=std::string::npos) value.replace(nl,2,"\"");
     while((nl=value.find("\\\\"))!=std::string::npos) value.replace(nl,2,"\\");
     return value;
@@ -865,6 +869,10 @@ Program parse_main(std::string const& s) {
     std::size_t nl; while((nl=p.loop_output.find("\\n"))!=std::string::npos) p.loop_output.replace(nl,2,"\n");
     while((nl=p.loop_output.find("\\t"))!=std::string::npos) p.loop_output.replace(nl,2,"\t");
     while((nl=p.loop_output.find("\\r"))!=std::string::npos) p.loop_output.replace(nl,2,"\r");
+    while((nl=p.loop_output.find("\\a"))!=std::string::npos) p.loop_output.replace(nl,2,"\a");
+    while((nl=p.loop_output.find("\\b"))!=std::string::npos) p.loop_output.replace(nl,2,"\b");
+    while((nl=p.loop_output.find("\\f"))!=std::string::npos) p.loop_output.replace(nl,2,"\f");
+    while((nl=p.loop_output.find("\\v"))!=std::string::npos) p.loop_output.replace(nl,2,"\v");
     while((nl=p.loop_output.find("\\\""))!=std::string::npos) p.loop_output.replace(nl,2,"\"");
     while((nl=p.loop_output.find("\\\\"))!=std::string::npos) p.loop_output.replace(nl,2,"\\");
     if(std::stoi(w[3])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");

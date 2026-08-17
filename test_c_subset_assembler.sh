@@ -155,6 +155,7 @@ expect_bytes() {
   test "$actual" = "$expected" || { echo "FAIL: $source: byte mismatch" >&2; exit 1; }
 }
 expect_bytes fixtures/write_carriage_return.c "410d42"
+expect_bytes fixtures/write_control_escapes.c "07080c0b"
 expect_status fixtures/enum_sizeof_return.c 4
 expect_reject fixtures/enum_sizeof_undeclared.c
 expect_reject fixtures/enum_switch_duplicate.c
