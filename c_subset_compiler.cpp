@@ -189,6 +189,8 @@ bool emit_getresgid_query_mode = false;
 bool emit_getresuid_query_mode = false;
 bool emit_setuid_query_mode = false;
 bool emit_setgid_query_mode = false;
+bool emit_getuid_query_mode = false;
+bool emit_getgid_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1953,6 +1955,8 @@ Program parse_main(std::string const& s) {
   emit_getresuid_query_mode=std::regex_search(body,std::regex(R"re(\bgetresuid_query\s*\(\s*\)\s*;)re"));
   emit_setuid_query_mode=std::regex_search(body,std::regex(R"re(\bsetuid_query\s*\(\s*\)\s*;)re"));
   emit_setgid_query_mode=std::regex_search(body,std::regex(R"re(\bsetgid_query\s*\(\s*\)\s*;)re"));
+  emit_getuid_query_mode=std::regex_search(body,std::regex(R"re(\bgetuid_query\s*\(\s*\)\s*;)re"));
+  emit_getgid_query_mode=std::regex_search(body,std::regex(R"re(\bgetgid_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -3446,6 +3450,20 @@ void emit_setgid_query(Program const&) {
     <<".Lsetgid_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_getuid_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $102, %eax\n  syscall\n  test %eax, %eax\n  js .Lgetuid_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lgetuid_done\n"
+    <<".Lgetuid_fail:\n  mov $1, %edi\n.Lgetuid_done:\n  mov $60, %eax\n  syscall\n";
+}
+
+void emit_getgid_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $104, %eax\n  syscall\n  test %eax, %eax\n  js .Lgetgid_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lgetgid_done\n"
+    <<".Lgetgid_fail:\n  mov $1, %edi\n.Lgetgid_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -3886,6 +3904,8 @@ int main(int argc,char **argv) {
     if(csubset::emit_getresuid_query_mode) { csubset::emit_getresuid_query(program); return 0; }
     if(csubset::emit_setuid_query_mode) { csubset::emit_setuid_query(program); return 0; }
     if(csubset::emit_setgid_query_mode) { csubset::emit_setgid_query(program); return 0; }
+    if(csubset::emit_getuid_query_mode) { csubset::emit_getuid_query(program); return 0; }
+    if(csubset::emit_getgid_query_mode) { csubset::emit_getgid_query(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
