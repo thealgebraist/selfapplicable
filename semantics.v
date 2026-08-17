@@ -115,6 +115,42 @@ Inductive cexpr_step : cmemory -> cexpr -> cexpr -> Prop :=
     cexpr_step M (CXAdd (CXVal (CVInt x)) (CXVal (CVInt y)))
       (CXVal (CVInt (x+y))).
 
+Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
+  fun a' => if Nat.eqb a a' then v else σ a'.
+
+Inductive cmstmt : Type :=
+| CMSkip : cmstmt
+| CMAssign : nat -> cexpr -> cmstmt
+| CMSeq : cmstmt -> cmstmt -> cmstmt
+| CMReturn : cexpr -> cmstmt.
+
+Inductive cmstmt_big : cmemory -> cstore -> cmstmt -> option cval -> cstore -> Prop :=
+| CMBSkip : forall M σ, cmstmt_big M σ CMSkip None σ
+| CMBAssign : forall M σ a e v,
+    cexpr_big M σ e v ->
+    cmstmt_big M σ (CMAssign a e) None (cstore_update σ a v)
+| CMBSeq : forall M σ s1 s2 r σ' σ'',
+    cmstmt_big M σ s1 None σ' ->
+    cmstmt_big M σ' s2 r σ'' ->
+    cmstmt_big M σ (CMSeq s1 s2) r σ''
+| CMBReturn : forall M σ e v,
+    cexpr_big M σ e v ->
+    cmstmt_big M σ (CMReturn e) (Some v) σ.
+
+Definition cmconfig := (cmstmt * cstore)%type.
+
+Inductive cmstmt_step : cmemory -> cmconfig -> cmconfig -> Prop :=
+| CMSAssign : forall M σ a e v,
+    cexpr_big M σ e v ->
+    cmstmt_step M (CMAssign a e, σ) (CMSkip, cstore_update σ a v)
+| CMSSeqStep : forall M σ s1 s1' s2 σ',
+    cmstmt_step M (s1, σ) (s1', σ') ->
+    cmstmt_step M (CMSeq s1 s2, σ) (CMSeq s1' s2, σ')
+| CMSSeqSkip : forall M σ s,
+    cmstmt_step M (CMSeq CMSkip s, σ) (s, σ)
+| CMSReturnValue : forall M σ v,
+    cmstmt_step M (CMReturn (CXVal v), σ) (CMSkip, σ).
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof.
