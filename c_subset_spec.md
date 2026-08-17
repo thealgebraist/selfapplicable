@@ -113,6 +113,8 @@ fragments.
 `write_adjacent_mixed.c` combines question-mark and octal fragments.
 `write_adjacent_mixed_whitespace.c` combines newline and octal fragments.
 `write_adjacent_mixed_tab_hex.c` combines tab and hexadecimal fragments.
+`write_adjacent_mixed_cr_hex.c` combines carriage-return and hexadecimal
+fragments.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
