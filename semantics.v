@@ -229,7 +229,9 @@ Lemma cexpr_step_to_star : forall M σ e e',
   cexpr_step M σ e e' -> cexpr_step_star M σ e e'.
 Proof.
   intros M σ e e' H.
-  eapply CXRSNext; eauto.
+  eapply CXRSNext.
+  - exact H.
+  - constructor.
 Qed.
 
 Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
@@ -445,7 +447,9 @@ Lemma cmstmt_step_to_star : forall M c c',
   cmstmt_step M c c' -> cmstmt_step_star M c c'.
 Proof.
   intros M c c' H.
-  eapply CMSRNext; eauto.
+  eapply CMSRNext.
+  - exact H.
+  - constructor.
 Qed.
 
 Lemma small_step_assignment_preserves_store_type : forall M Γ σ a e v,
