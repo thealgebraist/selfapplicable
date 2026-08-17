@@ -417,13 +417,13 @@ Proof.
   induction HC; simpl.
   - exact HD.
   - constructor.
-    exact (IHHC HD).
+    exact IHHC.
   - constructor.
-    exact (IHHC HD).
+    exact IHHC.
   - constructor.
-    exact (IHHC HD).
+    exact IHHC.
   - constructor.
-    exact (IHHC HD).
+    exact IHHC.
 Qed.
 
 Lemma nplug_compose : forall C D t,
