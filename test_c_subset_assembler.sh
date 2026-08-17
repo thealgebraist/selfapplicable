@@ -443,6 +443,7 @@ expect_status fixtures/pipe_query.c 0
 expect_status fixtures/pipe2_query.c 0
 expect_status fixtures/eventfd_query.c 0
 expect_status fixtures/timerfd_query.c 0
+expect_status fixtures/epoll_create_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
