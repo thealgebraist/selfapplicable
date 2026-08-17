@@ -444,6 +444,13 @@ same success/failure status convention:
 rm("/tmp/old-file");
 ```
 
+`rmdir("path")` uses the same syscall with `AT_REMOVEDIR` and therefore
+removes only directories:
+
+```c
+rmdir("/tmp/old-directory");
+```
+
 The same one-level primitive is exposed as:
 
 ```c
