@@ -709,7 +709,7 @@ Program parse_main(std::string const& s) {
       if(!std::regex_search(body,symbolic)) throw std::runtime_error("return expression is outside subset");
       // Macro-expanded constants and external status helpers are represented
       // by the freestanding ABI stub until the typed constant layer is added.
-      static const std::regex pointer_sizeof_return(R"(return\s+sizeof\s*\(\s*int\s*\*\s*\)\s*;)");
+      static const std::regex pointer_sizeof_return(R"(return\s+sizeof\s*\(\s*(?:int|char)\s*\*\s*\)\s*;)");
       static const std::regex int_sizeof_return(R"(return\s+sizeof\s*\(\s*int\s*\)\s*;)");
       static const std::regex char_sizeof_return(R"(return\s+sizeof\s*\(\s*char\s*\)\s*;)");
       static const std::regex enum_sizeof_return(R"(return\s+sizeof\s*\(\s*enum\s+([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*;)");
