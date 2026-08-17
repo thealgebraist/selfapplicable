@@ -196,6 +196,7 @@ expect_stderr fixtures/write_stderr_five_adjacent.c "ABC"
 expect_stderr fixtures/write_stderr_two_calls.c "AB"
 expect_status fixtures/write_mixed_streams.c 0
 expect_combined_output fixtures/write_mixed_streams.c OE
+expect_combined_output fixtures/write_mixed_streams_three.c OEO
 expect_status fixtures/readstdin_empty.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0

@@ -541,6 +541,8 @@ Mixed literal stdout/stderr calls preserve source order through the
 `write_mixed_streams.c` fixture.
 The harness captures both descriptors together and asserts the exact `OE`
 sequence.
+Three interleaved calls are covered by `write_mixed_streams_three.c`, which
+asserts `OEO`.
 
 `readstdin(size)` reads up to a bounded number of bytes from descriptor 0 and
 forwards them to stdout:
