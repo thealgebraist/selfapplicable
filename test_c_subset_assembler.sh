@@ -448,6 +448,7 @@ expect_status fixtures/epoll_ctl_query.c 1
 expect_status fixtures/epoll_wait_query.c 1
 expect_status fixtures/inotify_init_query.c 0
 expect_status fixtures/inotify_add_watch_query.c 1
+expect_status fixtures/memfd_query.c 0
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
