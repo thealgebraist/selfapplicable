@@ -329,6 +329,8 @@ Four-fragment inclusive while payloads are covered by
 `while_write_inclusive_four.c`.
 Five-fragment inclusive while payloads are covered by
 `while_write_inclusive_five.c`.
+Two adjacent fragments in an inclusive while payload are covered by
+`while_write_inclusive_adjacent_binary.c`.
 The same zero-iteration guarantee applies to bounded `for` loops;
 `loop_write_zero.c` covers that form.
 Bounded `for` loops also accept inclusive bounds (`i <= N`), covered by
