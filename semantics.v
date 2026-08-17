@@ -576,6 +576,20 @@ Proof.
     + now apply typed_skip_config.
 Qed.
 
+Lemma typed_skip_semantic_agreement : forall M Γ σ,
+  cmconfig_typed Γ (CMSkip, σ) ->
+  cmstmt_big M σ CMSkip None σ /\
+  cmstmt_step_star M (CMSkip, σ) (CMSkip, σ) /\
+  cmconfig_typed Γ (CMSkip, σ).
+Proof.
+  intros M Γ σ Hconfig.
+  split.
+  - constructor.
+  - split.
+    + constructor.
+    + exact Hconfig.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.
