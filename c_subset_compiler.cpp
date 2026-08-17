@@ -951,6 +951,13 @@ Program parse_main(std::string const& s) {
     if(std::stoi(w[7])!=(int)p.loop_output.size()) throw std::runtime_error("loop write length mismatch");
     p.output.clear();
   }
+  static const std::regex braced_while_two_writes(
+    R"re(int\s+i\s*=\s*0\s*;\s*while\s*\(\s*i\s*<\s*([0-9]+)\s*\)\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*\}\s*)re");
+  if(p.loop_count==0 && std::regex_search(body,w,braced_while_two_writes)) {
+    auto first=decode_write(w[2].str()), second=decode_write(w[4].str());
+    if(std::stoi(w[3])!=(int)first.size() || std::stoi(w[5])!=(int)second.size()) throw std::runtime_error("loop write length mismatch");
+    p.loop_count=std::stoi(w[1]); p.loop_present=true; p.loop_output=first+second; p.output.clear();
+  }
   static const std::regex braced_while_adjacent_increment_loop(
     R"re(int\s+i\s*=\s*0\s*;\s*while\s*\(\s*i\s*<\s*([0-9]+)\s*\)\s*\{\s*write\s*\(\s*1\s*,\s*"([^"]*)"\s*"([^"]*)"\s*,\s*([0-9]+)\s*\)\s*;\s*i\+\+\s*;\s*\}\s*)re");
   if(p.loop_count==0 && std::regex_search(body,w,braced_while_adjacent_increment_loop)) {
