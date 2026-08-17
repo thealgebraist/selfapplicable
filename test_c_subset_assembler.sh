@@ -274,6 +274,7 @@ expect_status fixtures/prctl_get_mce_kill.c 0
 expect_status fixtures/capget.c 0
 expect_status fixtures/statx_tmp.c 0
 expect_status fixtures/listxattr_tmp.c 0
+expect_status fixtures/flistxattr_stdout.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
