@@ -223,6 +223,8 @@ Adjacent literal fragments, including embedded binary bytes, use the same
 rules; `while_write_adjacent_binary.c` covers that case. Three adjacent while
 fragments, including binary bytes, are covered by `while_write_three.c`.
 Four adjacent while fragments are covered by `while_write_four.c`.
+Five adjacent while fragments are covered by `while_write_five.c`, completing
+the current while fragment-depth ladder.
 The loop body may also be enclosed in braces, as in
 `while_write_braced.c`.
 Braced loops may include the explicit `i++` update, covered by
