@@ -72,6 +72,15 @@ Proof.
   - apply nred_star_refl.
 Qed.
 
+Lemma nred_to_nred_star : forall t u,
+  nred t u -> nred_star t u.
+Proof.
+  intros t u Hstep.
+  eapply NRSNext.
+  - exact Hstep.
+  - apply nred_star_refl.
+Qed.
+
 Lemma nred_star_trans : forall t u v,
   nred_star t u -> nred_star u v -> nred_star t v.
 Proof.
