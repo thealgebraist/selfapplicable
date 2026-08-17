@@ -237,6 +237,8 @@ Three separate checked writes, including an embedded NUL, are covered by
 `while_write_three_body_writes.c`.
 Four separate checked writes in a strict-bound while body are covered by
 `while_write_four_body_writes.c`.
+Five separate checked writes in a strict-bound while body are covered by
+`while_write_five_body_writes.c`.
 Braced loops may include the explicit `i++` update, covered by
 `while_write_explicit_increment.c`; the backend checks and supplies the same
 single counter update.
