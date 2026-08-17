@@ -16,9 +16,7 @@ jobs:
         run: g++ -std=c++23 -Wall -Wextra -pedantic -O2 c_subset_compiler.cpp -o c_subset_compiler-ci
 
       - name: Build and run dependent normalizer
-        run: |
-          g++ -std=c++23 -Wall -Wextra -pedantic -O2 normaliser.cpp -o normaliser-ci
-          ./normaliser-ci
+        run: make check-normaliser
 
       - name: Assemble and run control-flow fixtures
         shell: bash
