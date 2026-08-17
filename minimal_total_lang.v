@@ -131,7 +131,7 @@ Fixpoint lookup1 (Γ : Ctx1) (A : Ty0) (v : Var1 Γ A)
       end
   | There1 _ _ _ v' => fun ρ' =>
       match ρ' with
-      | ECons1 _ _ _ ρ'' => lookup1 _ _ v' ρ''
+      | ECons1 c t _ ρ'' => lookup1 c _ v' ρ''
       end
   end ρ.
 
