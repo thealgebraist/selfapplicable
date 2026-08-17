@@ -143,6 +143,7 @@ fragments.
 `write_binary_three_nonempty.c` adds an ordinary leading byte to the binary
 three-fragment form.
 `write_binary_four_nonempty.c` extends that coverage to four fragments.
+`write_binary_four_full.c` places ordinary bytes around the binary fragments.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
