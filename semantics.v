@@ -881,16 +881,7 @@ Theorem small_step_preserves_big_step : forall t u n,
 Proof.
   intros t u n Hstep.
   induction Hstep; intros Hvalue.
-  - inversion Hvalue; subst.
-    constructor.
-    + eauto.
-    + assumption.
-  - inversion Hvalue; subst.
-    constructor.
-    + assumption.
-    + eauto.
-  - inversion Hvalue; subst.
-    constructor; constructor.
+  all: inversion Hvalue; subst; eauto.
 Qed.
 
 (* The proof above is deliberately phrased over the relation rather than an
