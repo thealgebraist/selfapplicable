@@ -282,6 +282,7 @@ bool emit_waitid_query_mode = false;
 bool emit_wait4_query_mode = false;
 bool emit_capget_query_mode = false;
 bool emit_umount2_query_mode = false;
+bool emit_readahead_query_mode = false;
 bool emit_landlock_add_rule_query_mode = false;
 bool emit_landlock_restrict_self_query_mode = false;
 bool emit_keyctl_query_mode = false;
@@ -2232,6 +2233,7 @@ Program parse_main(std::string const& s) {
   emit_wait4_query_mode=std::regex_search(body,std::regex(R"re(\bwait4_query\s*\(\s*\)\s*;)re"));
   emit_capget_query_mode=std::regex_search(body,std::regex(R"re(\bcapget_query\s*\(\s*\)\s*;)re"));
   emit_umount2_query_mode=std::regex_search(body,std::regex(R"re(\bumount2_query\s*\(\s*\)\s*;)re"));
+  emit_readahead_query_mode=std::regex_search(body,std::regex(R"re(\breadahead_query\s*\(\s*\)\s*;)re"));
   emit_landlock_add_rule_query_mode=std::regex_search(body,std::regex(R"re(\blandlock_add_rule_query\s*\(\s*\)\s*;)re"));
   emit_landlock_restrict_self_query_mode=std::regex_search(body,std::regex(R"re(\blandlock_restrict_self_query\s*\(\s*\)\s*;)re"));
   emit_keyctl_query_mode=std::regex_search(body,std::regex(R"re(\bkeyctl_query\s*\(\s*\)\s*;)re"));
@@ -3957,6 +3959,15 @@ void emit_umount2_query(Program const&) {
     <<"  test %eax, %eax\n  js .Lumount2_fail\n"
     <<"  xor %edi, %edi\n  jmp .Lumount2_done\n"
     <<".Lumount2_fail:\n  mov $1, %edi\n.Lumount2_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
+void emit_readahead_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $187, %eax\n  mov $-1, %edi\n  xor %rsi, %rsi\n  xor %edx, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lreadahead_query_fail\n"
+    <<"  xor %edi, %edi\n  jmp .Lreadahead_query_done\n"
+    <<".Lreadahead_query_fail:\n  mov $1, %edi\n.Lreadahead_query_done:\n"
     <<"  mov $60, %eax\n  syscall\n";
 }
 
@@ -6026,6 +6037,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_wait4_query_mode) { csubset::emit_wait4_query(program); return 0; }
     if(csubset::emit_capget_query_mode) { csubset::emit_capget_query(program); return 0; }
     if(csubset::emit_umount2_query_mode) { csubset::emit_umount2_query(program); return 0; }
+    if(csubset::emit_readahead_query_mode) { csubset::emit_readahead_query(program); return 0; }
     if(csubset::emit_landlock_add_rule_query_mode) { csubset::emit_landlock_add_rule_query(program); return 0; }
     if(csubset::emit_landlock_restrict_self_query_mode) { csubset::emit_landlock_restrict_self_query(program); return 0; }
     if(csubset::emit_keyctl_query_mode) { csubset::emit_keyctl_query(program); return 0; }
