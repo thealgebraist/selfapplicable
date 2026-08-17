@@ -178,6 +178,7 @@ bool emit_fcntl_getlease_query_mode = false;
 bool emit_fcntl_getseal_query_mode = false;
 bool emit_fcntl_setlease_query_mode = false;
 bool emit_fcntl_setpipe_sz_query_mode = false;
+bool emit_fcntl_dupfd_cloexec_query_mode = false;
 bool emit_clone3_query_mode = false;
 bool emit_userfaultfd_query_mode = false;
 bool emit_kcmp_query_mode = false;
@@ -2046,6 +2047,7 @@ Program parse_main(std::string const& s) {
   emit_fcntl_getseal_query_mode=std::regex_search(body,std::regex(R"re(\bfcntl_getseal_query\s*\(\s*\)\s*;)re"));
   emit_fcntl_setlease_query_mode=std::regex_search(body,std::regex(R"re(\bfcntl_setlease_query\s*\(\s*\)\s*;)re"));
   emit_fcntl_setpipe_sz_query_mode=std::regex_search(body,std::regex(R"re(\bfcntl_setpipe_sz_query\s*\(\s*\)\s*;)re"));
+  emit_fcntl_dupfd_cloexec_query_mode=std::regex_search(body,std::regex(R"re(\bfcntl_dupfd_cloexec_query\s*\(\s*\)\s*;)re"));
   emit_clone3_query_mode=std::regex_search(body,std::regex(R"re(\bclone3_query\s*\(\s*\)\s*;)re"));
   emit_userfaultfd_query_mode=std::regex_search(body,std::regex(R"re(\buserfaultfd_query\s*\(\s*\)\s*;)re"));
   emit_kcmp_query_mode=std::regex_search(body,std::regex(R"re(\bkcmp_query\s*\(\s*\)\s*;)re"));
@@ -4555,6 +4557,16 @@ void emit_fcntl_setpipe_sz_query(Program const&) {
     <<"  mov $60, %eax\n  syscall\n.bss\n.align 8\nfcntl_setpipe_pair:\n  .skip 8\n";
 }
 
+void emit_fcntl_dupfd_cloexec_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $72, %eax\n  xor %edi, %edi\n  mov $1030, %esi\n  xor %edx, %edx\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lfcntl_dupfd_ce_fail\n"
+    <<"  mov %eax, %edi\n  mov $3, %eax\n  syscall\n"
+    <<"  xor %edi, %edi\n  jmp .Lfcntl_dupfd_ce_done\n"
+    <<".Lfcntl_dupfd_ce_fail:\n  mov $1, %edi\n.Lfcntl_dupfd_ce_done:\n"
+    <<"  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -4998,6 +5010,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_fcntl_getseal_query_mode) { csubset::emit_fcntl_getseal_query(program); return 0; }
     if(csubset::emit_fcntl_setlease_query_mode) { csubset::emit_fcntl_setlease_query(program); return 0; }
     if(csubset::emit_fcntl_setpipe_sz_query_mode) { csubset::emit_fcntl_setpipe_sz_query(program); return 0; }
+    if(csubset::emit_fcntl_dupfd_cloexec_query_mode) { csubset::emit_fcntl_dupfd_cloexec_query(program); return 0; }
     if(csubset::emit_process_vm_writev_query_mode) { csubset::emit_process_vm_writev_query(program); return 0; }
     if(csubset::emit_clone3_query_mode) { csubset::emit_clone3_query(program); return 0; }
     if(csubset::emit_userfaultfd_query_mode) { csubset::emit_userfaultfd_query(program); return 0; }
