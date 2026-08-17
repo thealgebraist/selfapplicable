@@ -425,16 +425,6 @@ Proof.
     simpl; try rewrite IHC; reflexivity.
 Qed.
 
-Lemma nred_star_nested_plug : forall C D t u,
-  nred_star t u ->
-  nred_star (nplug C (nplug D t)) (nplug C (nplug D u)).
-Proof.
-  intros C D t u H.
-  rewrite nplug_compose, nplug_compose.
-  apply nred_star_plug.
-  exact H.
-Qed.
-
 Lemma nred_star_plug : forall C t u,
   nred_star t u -> nred_star (nplug C t) (nplug C u).
 Proof.
@@ -456,6 +446,16 @@ Proof.
   - apply nred_star_unquote.
     apply IHC.
     exact H.
+Qed.
+
+Lemma nred_star_nested_plug : forall C D t u,
+  nred_star t u ->
+  nred_star (nplug C (nplug D t)) (nplug C (nplug D u)).
+Proof.
+  intros C D t u H.
+  rewrite nplug_compose, nplug_compose.
+  apply nred_star_plug.
+  exact H.
 Qed.
 
 Inductive ntyped : list nty -> nterm -> nty -> Prop :=
