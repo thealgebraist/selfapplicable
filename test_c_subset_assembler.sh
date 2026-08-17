@@ -394,6 +394,7 @@ expect_status fixtures/sched_setparam_query.c 1
 expect_status fixtures/sched_getscheduler_query.c 1
 expect_status fixtures/sched_get_priority_max_query.c 0
 expect_status fixtures/sched_get_priority_min_query.c 0
+expect_status fixtures/sched_rr_get_interval_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
