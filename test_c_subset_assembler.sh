@@ -198,6 +198,7 @@ expect_status fixtures/write_mixed_streams.c 0
 expect_combined_output fixtures/write_mixed_streams.c OE
 expect_combined_output fixtures/write_mixed_streams_three.c OEO
 expect_combined_output fixtures/write_mixed_streams_spaced.c OE
+expect_combined_output fixtures/write_mixed_adjacent.c OEX
 expect_status fixtures/readstdin_empty.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
