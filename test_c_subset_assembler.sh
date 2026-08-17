@@ -457,6 +457,7 @@ expect_status fixtures/finit_module_query.c 1
 expect_status fixtures/delete_module_query.c 1
 expect_status fixtures/init_module_query.c 1
 expect_status fixtures/sysfs_query.c 0
+expect_status fixtures/uselib_query.c 1
 expect_status fixtures/lookup_dcookie_query.c 1
 expect_status fixtures/setns_query.c 1
 expect_status fixtures/open_by_handle_at_query.c 1
