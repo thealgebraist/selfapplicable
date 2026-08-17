@@ -5,6 +5,7 @@ from html import escape
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import argparse
+import re
 
 
 ROOT = Path(__file__).resolve().parent
@@ -12,12 +13,8 @@ ROOT = Path(__file__).resolve().parent
 
 def inline(text: str) -> str:
     result = escape(text)
-    result = result.replace("`", "<code>", 1) if "`" in result else result
-    if "</code>" not in result and "<code>" in result:
-        result += "</code>"
-    result = result.replace("**", "<strong>", 1) if "**" in result else result
-    if "<strong>" in result and "</strong>" not in result:
-        result += "</strong>"
+    result = re.sub(r"`([^`]+)`", r"<code>\1</code>", result)
+    result = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", result)
     return result
 
 
