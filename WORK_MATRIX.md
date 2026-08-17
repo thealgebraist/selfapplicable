@@ -29,6 +29,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Target | Output write register correctness | [x] | Fixed 32/64-bit `writefd` register mismatch |
 | Testing | Per-target timeout in status tests | [x] | `test_c_subset_assembler.sh` |
 | Testing | Timeout coverage for output/reject helpers | [x] | `test_c_subset_assembler.sh` |
+| Testing | Continuous assembler-only CI gate | [x] | GitHub Actions run `32036698013` passed |
 | Testing | Full regression run under current host load | [ ] | Run to completion; prior runs exposed stale failures/hangs |
 | Semantics | Coq big-step semantics | [ ] | Formalize and check the current C-subset/NbE correspondence |
 | Semantics | Coq small-step semantics | [ ] | Add preservation/progress proofs for the C subset |
