@@ -111,6 +111,7 @@ fragments.
 `write_adjacent_form_vertical.c` verifies form-feed and vertical-tab fragments.
 `write_adjacent_binary_mixed.c` combines NUL and high-byte fragments.
 `write_adjacent_mixed.c` combines question-mark and octal fragments.
+`write_adjacent_mixed_whitespace.c` combines newline and octal fragments.
 Counted-loop writes use the same decoding path, covered by
 `loop_write_escape.c`.
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
