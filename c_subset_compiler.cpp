@@ -850,6 +850,14 @@ Program parse_main(std::string const& s) {
     while((nl=value.find("\\b"))!=std::string::npos) value.replace(nl,2,"\b");
     while((nl=value.find("\\f"))!=std::string::npos) value.replace(nl,2,"\f");
     while((nl=value.find("\\v"))!=std::string::npos) value.replace(nl,2,"\v");
+    for(std::size_t pos=0; (pos=value.find('\\',pos))!=std::string::npos;) {
+      if(pos+3<value.size() && value[pos+1]>='0' && value[pos+1]<='7' &&
+         value[pos+2]>='0' && value[pos+2]<='7' && value[pos+3]>='0' && value[pos+3]<='7') {
+        auto oct=std::stoi(value.substr(pos+1,3),nullptr,8);
+        if(oct>255) throw std::runtime_error("octal string escape out of range");
+        value.replace(pos,4,std::string(1,static_cast<char>(oct)));
+      } else ++pos;
+    }
     while((nl=value.find("\\0"))!=std::string::npos) value.replace(nl,2,std::string(1,'\0'));
     while((nl=value.find("\\\""))!=std::string::npos) value.replace(nl,2,"\"");
     while((nl=value.find("\\\\"))!=std::string::npos) value.replace(nl,2,"\\");
