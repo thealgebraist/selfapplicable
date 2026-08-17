@@ -287,6 +287,7 @@ expect_status fixtures/io_uring_setup_query.c 0
 expect_status fixtures/io_uring_enter_query.c 0
 expect_status fixtures/statfs_tmp.c 0
 expect_status fixtures/fstatfs_stdout.c 0
+expect_status fixtures/getdents64_tmp.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0

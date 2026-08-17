@@ -64,6 +64,7 @@ bool emit_io_uring_enter_mode = false;
 bool emit_statfs_mode = false;
 std::string statfs_path_value;
 bool emit_fstatfs_mode = false;
+bool emit_getdents64_mode = false;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1695,6 +1696,7 @@ Program parse_main(std::string const& s) {
   std::smatch statfs_match;
   if(std::regex_search(body,statfs_match,std::regex(R"re(statfs\s*\(\s*"([^"]*)"\s*\)\s*;)re"))) { emit_statfs_mode=true; statfs_path_value=statfs_match[1].str(); }
   emit_fstatfs_mode=std::regex_search(body,std::regex(R"re(\bfstatfs_stdout\s*\(\s*\)\s*;)re"));
+  emit_getdents64_mode=std::regex_search(body,std::regex(R"re(\bgetdents64_tmp\s*\(\s*\)\s*;)re"));
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -2176,6 +2178,11 @@ void emit_fstatfs(Program const&) {
     <<"  mov $138, %eax\n  mov $1, %edi\n  lea fstatfs_buf(%rip), %rsi\n  syscall\n  test %eax, %eax\n  js .Lfstatfs_fail\n  xor %edi, %edi\n  jmp .Lfstatfs_done\n.Lfstatfs_fail:\n  mov $1, %edi\n.Lfstatfs_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nfstatfs_buf:\n  .skip 120\n";
 }
 
+void emit_getdents64(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $2, %eax\n  lea getdents_path(%rip), %rdi\n  xor %esi, %esi\n  xor %edx, %edx\n  syscall\n  test %eax, %eax\n  js .Lgetdents_fail\n  mov %eax, %r12d\n  mov $217, %eax\n  mov %r12d, %edi\n  lea getdents_buf(%rip), %rsi\n  mov $8192, %edx\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Lgetdents_fail\n  xor %edi, %edi\n  jmp .Lgetdents_done\n.Lgetdents_fail:\n  mov $1, %edi\n.Lgetdents_done:\n  mov $60, %eax\n  syscall\n.section .rodata\ngetdents_path:\n  .asciz \"/tmp\"\n.bss\n.align 8\ngetdents_buf:\n  .skip 8192\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2451,6 +2458,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_io_uring_enter_mode) { csubset::emit_io_uring_enter(program); return 0; }
     if(csubset::emit_statfs_mode) { csubset::emit_statfs(program); return 0; }
     if(csubset::emit_fstatfs_mode) { csubset::emit_fstatfs(program); return 0; }
+    if(csubset::emit_getdents64_mode) { csubset::emit_getdents64(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
