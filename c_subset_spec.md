@@ -220,7 +220,8 @@ while (i < 3) write(1, "w", 1);
 It uses the same checked literal payload and counter lowering as the bounded
 `for` form. Unbounded or non-literal `while` loops remain outside the subset.
 Adjacent literal fragments, including embedded binary bytes, use the same
-rules; `while_write_adjacent_binary.c` covers that case.
+rules; `while_write_adjacent_binary.c` covers that case. Three adjacent while
+fragments, including binary bytes, are covered by `while_write_three.c`.
 The loop body may also be enclosed in braces, as in
 `while_write_braced.c`.
 Braced loops may include the explicit `i++` update, covered by
