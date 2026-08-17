@@ -319,6 +319,7 @@ expect_status fixtures/io_uring_register_query.c 0
 expect_status fixtures/eventfd_read_query.c 0
 expect_status fixtures/eventfd_write_query.c 0
 expect_status fixtures/memfd_secret_query.c 0
+expect_status fixtures/rseq_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1
