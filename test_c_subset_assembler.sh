@@ -354,6 +354,7 @@ expect_status fixtures/lookup_dcookie_query.c 1
 expect_status fixtures/setns_query.c 1
 expect_status fixtures/open_by_handle_at_query.c 1
 expect_status fixtures/io_setup_query.c 1
+expect_status fixtures/perf_event_open_query.c 1
 expect_status fixtures/timerfd_settime_query.c 0
 expect_status fixtures/signalfd4_query.c 0
 expect_status fixtures/pidfd_getfd_probe.c 1

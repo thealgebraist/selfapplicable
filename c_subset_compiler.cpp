@@ -131,6 +131,7 @@ bool emit_lookup_dcookie_query_mode = false;
 bool emit_setns_query_mode = false;
 bool emit_open_by_handle_at_query_mode = false;
 bool emit_io_setup_query_mode = false;
+bool emit_perf_event_open_query_mode = false;
 bool emit_timerfd_settime_mode = false;
 bool emit_signalfd4_mode = false;
 bool emit_pidfd_getfd_mode = false;
@@ -1837,6 +1838,7 @@ Program parse_main(std::string const& s) {
   emit_setns_query_mode=std::regex_search(body,std::regex(R"re(\bsetns_query\s*\(\s*\)\s*;)re"));
   emit_open_by_handle_at_query_mode=std::regex_search(body,std::regex(R"re(\bopen_by_handle_at_query\s*\(\s*\)\s*;)re"));
   emit_io_setup_query_mode=std::regex_search(body,std::regex(R"re(\bio_setup_query\s*\(\s*\)\s*;)re"));
+  emit_perf_event_open_query_mode=std::regex_search(body,std::regex(R"re(\bperf_event_open_query\s*\(\s*\)\s*;)re"));
   emit_timerfd_settime_mode=std::regex_search(body,std::regex(R"re(\btimerfd_settime_query\s*\(\s*\)\s*;)re"));
   emit_signalfd4_mode=std::regex_search(body,std::regex(R"re(\bsignalfd4_query\s*\(\s*\)\s*;)re"));
   emit_pidfd_getfd_mode=std::regex_search(body,std::regex(R"re(\bpidfd_getfd_probe\s*\(\s*\)\s*;)re"));
@@ -2806,6 +2808,15 @@ void emit_io_setup_query(Program const&) {
     <<".Lio_setup_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_perf_event_open_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $298, %eax\n  xor %edi, %edi\n  mov $-1, %esi\n  mov $-1, %edx\n  xor %r10d, %r10d\n  xor %r8d, %r8d\n  xor %r9d, %r9d\n  syscall\n"
+    <<"  test %eax, %eax\n  js .Lperf_open_fail\n"
+    <<"  mov %eax, %edi\n  mov $3, %eax\n  syscall\n  xor %edi, %edi\n  jmp .Lperf_open_done\n"
+    <<".Lperf_open_fail:\n  mov $1, %edi\n"
+    <<".Lperf_open_done:\n  mov $60, %eax\n  syscall\n";
+}
+
 void emit_timerfd_settime(Program const&) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $283, %eax\n  xor %edi, %edi\n  xor %esi, %esi\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  mov %eax, %r12d\n  mov $286, %eax\n  mov %r12d, %edi\n  xor %esi, %esi\n  lea timer_set_new(%rip), %rdx\n  xor %r10d, %r10d\n  syscall\n  mov %r12d, %edi\n  mov $3, %eax\n  syscall\n  test %eax, %eax\n  js .Ltimer_set_fail\n  xor %edi, %edi\n  jmp .Ltimer_set_done\n.Ltimer_set_fail:\n  mov $1, %edi\n.Ltimer_set_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\ntimer_set_new:\n  .skip 32\n";
@@ -3188,6 +3199,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_setns_query_mode) { csubset::emit_setns_query(program); return 0; }
     if(csubset::emit_open_by_handle_at_query_mode) { csubset::emit_open_by_handle_at_query(program); return 0; }
     if(csubset::emit_io_setup_query_mode) { csubset::emit_io_setup_query(program); return 0; }
+    if(csubset::emit_perf_event_open_query_mode) { csubset::emit_perf_event_open_query(program); return 0; }
     if(csubset::emit_timerfd_settime_mode) { csubset::emit_timerfd_settime(program); return 0; }
     if(csubset::emit_signalfd4_mode) { csubset::emit_signalfd4(program); return 0; }
     if(csubset::emit_pidfd_getfd_mode) { csubset::emit_pidfd_getfd(program); return 0; }
