@@ -164,6 +164,7 @@ expect_bytes() {
 }
 expect_bytes fixtures/loop_write_high_byte.c "ffff"
 expect_bytes fixtures/loop_write_octal.c "4141"
+expect_bytes fixtures/loop_write_hex_single.c "045a045a"
 expect_bytes fixtures/write_carriage_return.c "410d42"
 expect_bytes fixtures/loop_write_carriage_return.c "410d42410d42"
 expect_bytes fixtures/loop_write_control_escapes.c "07080c0b07080c0b"

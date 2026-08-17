@@ -103,6 +103,7 @@ Counted-loop writes use the same decoding path, covered by
 `loop_write_hex.c` verifies that hexadecimal escapes use the same path.
 `loop_write_high_byte.c` verifies repeated high-byte hexadecimal payloads.
 `loop_write_octal.c` verifies repeated octal payloads.
+`loop_write_hex_single.c` verifies repeated one-digit hexadecimal payloads.
 `loop_write_quote.c` verifies escaped quotes in counted-loop payloads.
 `loop_write_apostrophe.c` verifies escaped apostrophes in the same path.
 `loop_write_question.c` verifies escaped question marks in counted loops.
