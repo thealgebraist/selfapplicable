@@ -77,6 +77,15 @@ Proof.
   constructor.
 Qed.
 
+Lemma application_preserves_result_type : forall Γ f a A B,
+  ntyped Γ f (NFun A B) ->
+  ntyped Γ a A ->
+  ntyped Γ (NApp f a) B.
+Proof.
+  intros Γ f a A B Hf Ha.
+  now apply NTApp.
+Qed.
+
 Lemma staged_normalise_has_type : forall Γ t A n,
   staged_normalise Γ t A n -> ntyped Γ t A.
 Proof.
