@@ -558,6 +558,24 @@ Proof.
     + exact Htyped.
 Qed.
 
+Lemma typed_return_semantic_agreement : forall M Γ σ v τ,
+  cmconfig_typed Γ (CMReturn (CXVal v), σ) ->
+  cstore_typed Γ σ ->
+  cval_typed v τ ->
+  cmstmt_big M σ (CMReturn (CXVal v)) (Some v) σ /\
+  cmstmt_step_star M (CMReturn (CXVal v), σ) (CMSkip, σ) /\
+  cmconfig_typed Γ (CMSkip, σ).
+Proof.
+  intros M Γ σ v τ Hconfig Hσ Hv.
+  split.
+  - apply CMBReturn.
+    constructor.
+  - split.
+    + apply cmstmt_step_to_star.
+      constructor.
+    + now apply typed_skip_config.
+Qed.
+
 Theorem small_step_preserves_big_step : forall t u n,
   cstep t u -> ceval [] u n -> ceval [] t n.
 Proof. Admitted.

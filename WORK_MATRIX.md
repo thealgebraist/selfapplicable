@@ -79,6 +79,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Typed terminal skip configuration | [x] | CI run `32046525816` proves `typed_skip_config` |
 | Semantics | Typed assignment big-step result | [x] | CI run `32046679180` proves `typed_assignment_config_big` |
 | Semantics | Typed assignment big/small-step agreement | [x] | CI run `32046816812` proves `typed_assignment_semantic_agreement` |
+| Semantics | Typed return big/small-step agreement | [ ] | Added `typed_return_semantic_agreement`; await CI confirmation |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |
