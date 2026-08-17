@@ -71,6 +71,7 @@ Legend: `[x]` verified in the current repository; `[ ]` still to do.
 | Semantics | Small-step typed assignment preservation | [x] | CI run `32043962999` proves `small_step_assignment_preserves_store_type` |
 | Semantics | C-expression small-step/big-step bridge | [x] | CI run `32045111676` proves `cexpr_step_preserves_big` |
 | Semantics | C-expression multi-step/big-step bridge | [x] | CI run `32045271877` proves `cexpr_step_star_preserves_big` |
+| Semantics | C-expression reduction closure transitivity | [ ] | Added `cexpr_step_star_trans`; await CI confirmation |
 | Semantics | Typed call arity invariant | [x] | CI run `32038978602` proves argument/parameter list lengths agree |
 | Semantics | Ott source specification | [ ] | Import the syntax and rules into an Ott definition and generate artifacts |
 | Semantics | Formal proof of self-applicability | [ ] | Connect staged code, evaluator, and quotation theorem formally |

@@ -214,6 +214,19 @@ Proof.
     + apply IHHstar. exact Hbig.
 Qed.
 
+Lemma cexpr_step_star_trans : forall M σ e1 e2 e3,
+  cexpr_step_star M σ e1 e2 ->
+  cexpr_step_star M σ e2 e3 ->
+  cexpr_step_star M σ e1 e3.
+Proof.
+  intros M σ e1 e2 e3 H12 H23.
+  induction H12.
+  - exact H23.
+  - eapply CXRSNext.
+    + exact H.
+    + apply IHH12. exact H23.
+Qed.
+
 Definition cstore_update (σ : cstore) (a : nat) (v : cval) : cstore :=
   fun a' => if Nat.eqb a a' then v else σ a'.
 
