@@ -350,6 +350,7 @@ expect_status fixtures/shmget_query.c 1
 expect_status fixtures/shmat_query.c 1
 expect_status fixtures/shmdt_query.c 1
 expect_status fixtures/shmctl_query.c 1
+expect_status fixtures/semctl_query.c 1
 expect_status fixtures/lsm_list_modules_query.c 1
 expect_status fixtures/lsm_set_self_attr_query.c 1
 expect_status fixtures/open_tree_query.c 1
