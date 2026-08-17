@@ -35,6 +35,30 @@ jobs:
       - name: Check semantic tooling entry point
         run: ./check_semantics.sh
 
+      - name: Assemble and run switch fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          declare -A expected=(
+            [switch_return.c]=7
+            [switch_two_cases.c]=7
+            [switch_three_cases.c]=11
+            [switch_four_cases.c]=11
+            [switch_five_cases.c]=11
+            [enum_switch.c]=7
+            [enum_switch_implicit.c]=8
+          )
+          for fixture in "${!expected[@]}"; do
+            ./c_subset_compiler-ci "fixtures/$fixture" > "$fixture.s"
+            as --64 "$fixture.s" -o "$fixture.o"
+            ld "$fixture.o" -o "$fixture.bin"
+            set +e
+            timeout 5 "./$fixture.bin"
+            actual=$?
+            set -e
+            test "$actual" -eq "${expected[$fixture]}"
+          done
+
       - name: Build and verify release bundle
         shell: bash
         run: |
