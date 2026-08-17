@@ -22,6 +22,8 @@ bool emit_getsid_mode = false;
 unsigned long long getsid_pid_value = 0;
 bool emit_sched_getscheduler_mode = false;
 unsigned long long sched_getscheduler_pid_value = 0;
+bool emit_sched_getparam_mode = false;
+unsigned long long sched_getparam_pid_value = 0;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1611,6 +1613,8 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,getsid_match,std::regex(R"re(getsid\s*\(\s*([0-9]+)\s*\)\s*;)re"))) { emit_getsid_mode=true; getsid_pid_value=std::stoull(getsid_match[1]); }
   std::smatch scheduler_match;
   if(std::regex_search(body,scheduler_match,std::regex(R"re(sched_getscheduler\s*\(\s*([0-9]+)\s*\)\s*;)re"))) { emit_sched_getscheduler_mode=true; sched_getscheduler_pid_value=std::stoull(scheduler_match[1]); }
+  std::smatch getparam_match;
+  if(std::regex_search(body,getparam_match,std::regex(R"re(sched_getparam\s*\(\s*([0-9]+)\s*\)\s*;)re"))) { emit_sched_getparam_mode=true; sched_getparam_pid_value=std::stoull(getparam_match[1]); }
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -1931,6 +1935,11 @@ void emit_sched_getscheduler(Program const&) {
     <<"  mov $145, %eax\n  mov $"<<sched_getscheduler_pid_value<<", %edi\n  syscall\n  test %eax, %eax\n  js .Lsched_getscheduler_fail\n  xor %edi, %edi\n  jmp .Lsched_getscheduler_done\n.Lsched_getscheduler_fail:\n  mov $1, %edi\n.Lsched_getscheduler_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_sched_getparam(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $143, %eax\n  mov $"<<sched_getparam_pid_value<<", %edi\n  lea sched_param_buf(%rip), %rsi\n  syscall\n  test %eax, %eax\n  js .Lsched_getparam_fail\n  xor %edi, %edi\n  jmp .Lsched_getparam_done\n.Lsched_getparam_fail:\n  mov $1, %edi\n.Lsched_getparam_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nsched_param_buf:\n  .skip 4\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2174,6 +2183,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_getpgid_mode) { csubset::emit_getpgid(program); return 0; }
     if(csubset::emit_getsid_mode) { csubset::emit_getsid(program); return 0; }
     if(csubset::emit_sched_getscheduler_mode) { csubset::emit_sched_getscheduler(program); return 0; }
+    if(csubset::emit_sched_getparam_mode) { csubset::emit_sched_getparam(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
