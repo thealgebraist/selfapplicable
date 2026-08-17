@@ -212,6 +212,8 @@ clobbers.
 A restricted post-test loop is supported as `do { write(...); i++; } while
 (i < N);`. The backend emits the body before testing the bound, preserving
 the mandatory first iteration; `do_write.c` covers this form.
+`do_write_zero.c` verifies that the first iteration remains present even with
+a zero bound.
 
 A bounded `while` form is also supported when its counter is initialized to
 zero and compared against a literal:
