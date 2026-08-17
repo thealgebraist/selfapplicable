@@ -1669,7 +1669,7 @@ void emit_exists(Program const& p) {
 
 void emit_cat(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
-    <<"  mov $257, %eax\n  mov $-100, %edi\n  lea cat_path(%rip), %rsi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n  test %eax, %eax\n  js .Lcat_done\n  mov %eax, %r12d\n.Lcat_read:\n  mov $0, %eax\n  mov %r12d, %edi\n  lea cat_buf(%rip), %rsi\n  mov $8192, %edx\n  syscall\n  test %eax, %eax\n  jle .Lcat_close\n  mov %eax, %r13d\n  mov $1, %eax\n  mov $1, %edi\n  lea cat_buf(%rip), %rsi\n  mov %r13d, %edx\n  syscall\n  jmp .Lcat_read\n.Lcat_close:\n  mov $3, %eax\n  mov %r12d, %edi\n  syscall\n.Lcat_done:\n  xor %edi, %edi\n  mov $60, %eax\n  syscall\n.section .rodata\ncat_path:\n  .asciz \""<<p.cat_path<<"\"\n.bss\n.align 8\ncat_buf:\n  .skip 8192\n";
+    <<"  mov $257, %eax\n  mov $-100, %edi\n  lea cat_path(%rip), %rsi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  syscall\n  test %eax, %eax\n  js .Lcat_done\n  mov %eax, %r12d\n.Lcat_read:\n  mov $0, %eax\n  mov %r12d, %edi\n  lea cat_buf(%rip), %rsi\n  mov $8192, %edx\n  syscall\n  test %eax, %eax\n  jle .Lcat_close\n  mov %eax, %r13d\n  xor %r14d, %r14d\n.Lcat_write:\n  cmp %r13d, %r14d\n  jge .Lcat_read\n  mov $1, %eax\n  mov $1, %edi\n  lea cat_buf(%rip), %rsi\n  add %r14, %rsi\n  mov %r13d, %edx\n  sub %r14d, %edx\n  syscall\n  test %eax, %eax\n  jle .Lcat_error\n  add %eax, %r14d\n  jmp .Lcat_write\n.Lcat_error:\n  mov $3, %eax\n  mov %r12d, %edi\n  syscall\n  mov $1, %edi\n  jmp .Lcat_exit\n.Lcat_close:\n  mov $3, %eax\n  mov %r12d, %edi\n  syscall\n.Lcat_done:\n  xor %edi, %edi\n.Lcat_exit:\n  mov $60, %eax\n  syscall\n.section .rodata\ncat_path:\n  .asciz \""<<p.cat_path<<"\"\n.bss\n.align 8\ncat_buf:\n  .skip 8192\n";
 }
 
 void emit_mkdir(Program const& p) {
