@@ -245,6 +245,7 @@ expect_status fixtures/eventfd_zero.c 0
 expect_status fixtures/timerfd_monotonic.c 0
 expect_status fixtures/inotify_zero.c 0
 expect_status fixtures/pidfd_init.c 0
+expect_status fixtures/memfd_create.c 0
 expect_stdin_output fixtures/readstdin_four.c ABCD ABCD
 expect_stdin_output fixtures/readstdin_eof_after_chunk.c ABCD ABCD
 expect_status fixtures/dup_stdout_stderr.c 0
