@@ -640,6 +640,24 @@ Proof.
     + exact Htyped.
 Qed.
 
+Lemma typed_if_zero_unfold : forall M Γ σ e st sf,
+  cmstmt_typed Γ (CMIf e st sf) CVoid ->
+  cexpr_big M σ e (CVInt 0) ->
+  cstore_typed Γ σ ->
+  cmstmt_step M (CMIf e st sf, σ) (sf, σ) /\
+  cmconfig_typed Γ (sf, σ).
+Proof.
+  intros M Γ σ e st sf Hif He Hσ.
+  assert (Helse : cmstmt_typed Γ sf CVoid) by
+    (inversion Hif; assumption).
+  split.
+  - now apply CMSIfZero.
+  - exists sf, σ, CVoid.
+    split.
+    + reflexivity.
+    + split; assumption.
+Qed.
+
 Lemma typed_seq_skip_semantic_agreement : forall M Γ σ s r σ',
   cmstmt_typed Γ (CMSeq CMSkip s) r ->
   cmstmt_big M σ s None σ' ->
