@@ -127,6 +127,30 @@ Proof.
     + exact IH.
 Qed.
 
+Lemma nred_star_app_left : forall f f' a,
+  nred_star f f' -> nred_star (NApp f a) (NApp f' a).
+Proof.
+  intros f f' a H.
+  induction H as [f | f f' g Hstep Htail IH].
+  - apply nred_star_refl.
+  - eapply NRSNext.
+    + apply NRAppLeft.
+      exact Hstep.
+    + exact IH.
+Qed.
+
+Lemma nred_star_app_right : forall f a a',
+  nred_star a a' -> nred_star (NApp f a) (NApp f a').
+Proof.
+  intros f a a' H.
+  induction H as [a | a a' b Hstep Htail IH].
+  - apply nred_star_refl.
+  - eapply NRSNext.
+    + apply NRAppRight.
+      exact Hstep.
+    + exact IH.
+Qed.
+
 Inductive ntyped : list nty -> nterm -> nty -> Prop :=
 | NTVar : forall Γ n A,
     nth_error Γ n = Some A -> ntyped Γ (NVar n) A
