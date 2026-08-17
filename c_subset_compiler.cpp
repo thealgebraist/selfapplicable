@@ -42,6 +42,8 @@ bool emit_prctl_get_tid_address_mode = false;
 bool emit_prctl_get_thp_disable_mode = false;
 bool emit_prctl_get_mce_kill_mode = false;
 bool emit_capget_mode = false;
+bool emit_statx_mode = false;
+std::string statx_path_value;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1651,6 +1653,8 @@ Program parse_main(std::string const& s) {
   emit_prctl_get_thp_disable_mode=std::regex_search(body,std::regex(R"re(\bprctl_get_thp_disable\s*\(\s*\)\s*;)re"));
   emit_prctl_get_mce_kill_mode=std::regex_search(body,std::regex(R"re(\bprctl_get_mce_kill\s*\(\s*\)\s*;)re"));
   emit_capget_mode=std::regex_search(body,std::regex(R"re(\bcapget\s*\(\s*\)\s*;)re"));
+  std::smatch statx_match;
+  if(std::regex_search(body,statx_match,std::regex(R"re(statx\s*\(\s*"([^"]*)"\s*\)\s*;)re"))) { emit_statx_mode=true; statx_path_value=statx_match[1].str(); }
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -2056,6 +2060,11 @@ void emit_capget(Program const&) {
     <<"  mov $125, %eax\n  lea capget_header(%rip), %rdi\n  lea capget_data(%rip), %rsi\n  syscall\n  test %eax, %eax\n  js .Lcapget_fail\n  xor %edi, %edi\n  jmp .Lcapget_done\n.Lcapget_fail:\n  mov $1, %edi\n.Lcapget_done:\n  mov $60, %eax\n  syscall\n.data\n.align 8\ncapget_header:\n  .long 0x20080522\n  .long 0\n.bss\n.align 8\ncapget_data:\n  .skip 8\n";
 }
 
+void emit_statx(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $332, %eax\n  mov $-100, %edi\n  lea statx_path(%rip), %rsi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  lea statx_buf(%rip), %r8\n  syscall\n  test %eax, %eax\n  js .Lstatx_fail\n  xor %edi, %edi\n  jmp .Lstatx_done\n.Lstatx_fail:\n  mov $1, %edi\n.Lstatx_done:\n  mov $60, %eax\n  syscall\n.section .rodata\nstatx_path:\n  .asciz \""<<statx_path_value<<"\"\n.bss\n.align 8\nstatx_buf:\n  .skip 256\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2316,6 +2325,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_prctl_get_thp_disable_mode) { csubset::emit_prctl_get_thp_disable(program); return 0; }
     if(csubset::emit_prctl_get_mce_kill_mode) { csubset::emit_prctl_get_mce_kill(program); return 0; }
     if(csubset::emit_capget_mode) { csubset::emit_capget(program); return 0; }
+    if(csubset::emit_statx_mode) { csubset::emit_statx(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
