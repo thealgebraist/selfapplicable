@@ -55,6 +55,7 @@ bool emit_openat2_mode = false;
 std::string openat2_path_value;
 bool emit_close_range_mode = false;
 bool emit_membarrier_query_mode = false;
+bool emit_get_mempolicy_query_mode = false;
 std::string read_source(const char *path) {
   std::ifstream in(path); if(!in) throw std::runtime_error("cannot open source");
   std::string all,line;
@@ -1677,6 +1678,7 @@ Program parse_main(std::string const& s) {
   if(std::regex_search(body,openat2_match,std::regex(R"re(openat2\s*\(\s*"([^"]*)"\s*\)\s*;)re"))) { emit_openat2_mode=true; openat2_path_value=openat2_match[1].str(); }
   emit_close_range_mode=std::regex_search(body,std::regex(R"re(\bclose_range_test\s*\(\s*\)\s*;)re"));
   emit_membarrier_query_mode=std::regex_search(body,std::regex(R"re(\bmembarrier_query\s*\(\s*\)\s*;)re"));
+  emit_get_mempolicy_query_mode=std::regex_search(body,std::regex(R"re(\bget_mempolicy_query\s*\(\s*\)\s*;)re"));
   static const std::regex priority_call(R"re(setpriority\s*\(\s*([0-9]+)\s*,\s*([0-9]+)\s*,\s*([0-9]+)\s*\)\s*;)re");
   if(std::regex_search(body,d,priority_call)) { p.setpriority=true; p.priority_which=std::stoul(d[1]); p.priority_who=std::stoul(d[2]); p.priority_value=std::stoul(d[3]); if(p.priority_value>19) throw std::runtime_error("priority out of range"); }
   static const std::regex root_test(R"re(if\s*\(\s*isroot\s*\(\s*\)\s*\)\s*return\s+([0-9]+)\s*;\s*return\s+([0-9]+)\s*;)re");
@@ -2123,6 +2125,11 @@ void emit_membarrier_query(Program const&) {
     <<"  mov $324, %eax\n  xor %edi, %edi\n  syscall\n  test %eax, %eax\n  js .Lmembarrier_fail\n  xor %edi, %edi\n  jmp .Lmembarrier_done\n.Lmembarrier_fail:\n  mov $1, %edi\n.Lmembarrier_done:\n  mov $60, %eax\n  syscall\n";
 }
 
+void emit_get_mempolicy_query(Program const&) {
+  std::cout<<".text\n.globl _start\n_start:\n"
+    <<"  mov $239, %eax\n  lea mempolicy_mode(%rip), %rdi\n  xor %esi, %esi\n  xor %edx, %edx\n  xor %r10d, %r10d\n  xor %r8d, %r8d\n  xor %r9d, %r9d\n  syscall\n  test %eax, %eax\n  js .Lmempolicy_fail\n  xor %edi, %edi\n  jmp .Lmempolicy_done\n.Lmempolicy_fail:\n  mov $1, %edi\n.Lmempolicy_done:\n  mov $60, %eax\n  syscall\n.bss\n.align 8\nmempolicy_mode:\n  .skip 4\n";
+}
+
 void emit_setpriority(Program const& p) {
   std::cout<<".text\n.globl _start\n_start:\n"
     <<"  mov $141, %eax\n  mov $"<<p.priority_which<<", %edi\n  mov $"<<p.priority_who<<", %esi\n  mov $"<<p.priority_value<<", %edx\n  syscall\n  test %eax, %eax\n  js .Lsetpriority_fail\n  xor %edi, %edi\n  jmp .Lsetpriority_done\n.Lsetpriority_fail:\n  mov $1, %edi\n.Lsetpriority_done:\n  mov $60, %eax\n  syscall\n";
@@ -2391,6 +2398,7 @@ int main(int argc,char **argv) {
     if(csubset::emit_openat2_mode) { csubset::emit_openat2(program); return 0; }
     if(csubset::emit_close_range_mode) { csubset::emit_close_range(program); return 0; }
     if(csubset::emit_membarrier_query_mode) { csubset::emit_membarrier_query(program); return 0; }
+    if(csubset::emit_get_mempolicy_query_mode) { csubset::emit_get_mempolicy_query(program); return 0; }
     if(program.getpid) { csubset::emit_getpid(program); return 0; }
     if(program.getppid) { csubset::emit_getppid(program); return 0; }
     if(program.setpriority) { csubset::emit_setpriority(program); return 0; }
