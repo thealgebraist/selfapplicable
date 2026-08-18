@@ -7,6 +7,22 @@
 <h1>A typed ADT <code>find</code> CLI</h1>
 <p class="muted">A finite predicate language is checked before it is interpreted against the filesystem. The implementation is a compact, explicit subset of standard <code>find</code>.</p>
 <div class="card"><b>Example:</b><pre>find_adt ROOT -name skip -prune -o -type f</pre><b>Meaning:</b> print the <code>skip</code> directory, do not descend into it, otherwise print regular files.</div>
+<h2>0. Program being transformed</h2>
+<p>This is the exact input program passed to the compiler/interpreter. It is shown separately from the implementation so the transformation being explained is unambiguous:</p>
+<pre>find_adt ROOT -name skip -prune -o -type f</pre>
+<p>Its filesystem input is:</p>
+<pre>ROOT/
+├── a.c
+├── b.txt
+├── skip/
+│   └── hidden.c
+└── sub/
+    └── c.c</pre>
+<p>The transformed result is the output path stream:</p>
+<pre>ROOT/a.c
+ROOT/b.txt
+ROOT/skip
+ROOT/sub/c.c</pre>
 <h2>1. Complete program</h2>
 <p>The following panel loads the exact complete source file, including the ADT definitions, checker, parser, evaluator, traversal, pruning logic, and CLI entry point.</p>
 <pre id="source">Loading complete source…</pre>
