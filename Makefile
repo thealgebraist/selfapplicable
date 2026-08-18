@@ -13,7 +13,7 @@ check-minimal-arm64: minimal_arm64_compiler.cpp test_minimal_arm64.sh
 	$(CXX) $(CXXFLAGS) minimal_arm64_compiler.cpp -o minimal_arm64_compiler-ci
 	./test_minimal_arm64.sh ./minimal_arm64_compiler-ci
 
-check-llvm: minimal_llvm_compiler.cpp examples/selfapp_llvm.min test_minimal_llvm.sh
+check-llvm: minimal_llvm_compiler.cpp examples/selfapp_llvm.min examples/nontrivial_llvm.min test_minimal_llvm.sh
 	$(CXX) $(CXXFLAGS) minimal_llvm_compiler.cpp -o minimal_llvm_compiler-ci
 	./test_minimal_llvm.sh ./minimal_llvm_compiler-ci
 

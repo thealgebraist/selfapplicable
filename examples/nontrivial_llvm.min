@@ -1,0 +1,10 @@
+(run
+  (quote
+    (let (nat 6)
+      (let (nat 7)
+        (let (nat 8)
+          (let (nat 5)
+            (if (eq (var 3) (nat 6))
+                (add (mul (var 3) (var 2))
+                     (mul (var 1) (var 0)))
+                (nat 0))))))))
