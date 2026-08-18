@@ -51,3 +51,37 @@ The next extension is to add a typed environment and `let` to `Tm2`, then
 define the corresponding checker constructors in `Checker2`. Functions and
 general recursion should remain explicit later stages with separate totality
 arguments.
+
+## Self-application
+
+The code boundary is explicit in the formal language. `CheckerCode2 c` is a
+quoted checker program, and `Run2 code argument` is a staged program that can
+be interpreted by a checker. The constructors are total ADT constructors:
+
+```coq
+CChecker2 : Checker2
+CRun2     : Checker2 -> Checker2
+```
+
+`CChecker2` accepts exactly checker-code values. `CRun2 p` recognizes a run
+whose first operand is checker code and then runs the finite checker `p` on the
+second operand. Its recursive call is on the structural checker subterm `p`,
+so this is not unrestricted general recursion.
+
+The smallest self-application witness is:
+
+```coq
+Definition self_stage2 : Checker2 := CRun2 CChecker2.
+Definition self_program2 : Tm2 :=
+  Run2 (CheckerCode2 self_stage2) (CheckerCode2 self_stage2).
+
+Example self_application2 :
+  typecheck2 self_stage2 self_program2 = Accepted2 TCheckerTy2.
+Proof. reflexivity. Qed.
+```
+
+The result is accepted because the outer checker interprets the quoted inner
+checker and the inner checker recognizes the quoted checker as `TCheckerTy2`.
+This demonstrates self-applicability as staged interpretation, not as an
+unrestricted `Type : Type` universe. It does not claim that an arbitrary user
+checker is semantically sound; that remains a separate theorem or certificate.

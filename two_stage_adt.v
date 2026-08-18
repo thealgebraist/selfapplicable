@@ -4,16 +4,8 @@ From Coq Require Import Bool.Bool.
 Inductive Ty2 : Type :=
 | TNat2 : Ty2
 | TBool2 : Ty2
-| TPair2 : Ty2 -> Ty2 -> Ty2.
-
-Inductive Tm2 : Type :=
-| Nat2 : nat -> Tm2
-| Bool2 : bool -> Tm2
-| Add2 : Tm2 -> Tm2 -> Tm2
-| If2 : Tm2 -> Tm2 -> Tm2 -> Tm2
-| Pair2 : Tm2 -> Tm2 -> Tm2
-| Fst2 : Tm2 -> Tm2
-| Snd2 : Tm2 -> Tm2.
+| TPair2 : Ty2 -> Ty2 -> Ty2
+| TCheckerTy2 : Ty2.
 
 Inductive Checker2 : Type :=
 | CNat2 : Checker2
@@ -23,7 +15,20 @@ Inductive Checker2 : Type :=
 | CPair2 : Checker2 -> Checker2 -> Checker2
 | CFst2 : Checker2 -> Checker2
 | CSnd2 : Checker2 -> Checker2
+| CChecker2 : Checker2
+| CRun2 : Checker2 -> Checker2
 | CReject2 : Checker2.
+
+Inductive Tm2 : Type :=
+| Nat2 : nat -> Tm2
+| Bool2 : bool -> Tm2
+| Add2 : Tm2 -> Tm2 -> Tm2
+| If2 : Tm2 -> Tm2 -> Tm2 -> Tm2
+| Pair2 : Tm2 -> Tm2 -> Tm2
+| Fst2 : Tm2 -> Tm2
+| Snd2 : Tm2 -> Tm2
+| CheckerCode2 : Checker2 -> Tm2
+| Run2 : Tm2 -> Tm2 -> Tm2.
 
 Inductive CheckResult2 : Type :=
 | Accepted2 : Ty2 -> CheckResult2
@@ -34,6 +39,7 @@ Fixpoint ty_eqb2 (a b : Ty2) : bool :=
   | TNat2, TNat2 => true
   | TBool2, TBool2 => true
   | TPair2 a1 a2, TPair2 b1 b2 => ty_eqb2 a1 b1 && ty_eqb2 a2 b2
+  | TCheckerTy2, TCheckerTy2 => true
   | _, _ => false
   end.
 
@@ -97,6 +103,20 @@ Fixpoint run_type_stage2 (p : Checker2) (t : Tm2) : CheckResult2 :=
           end
       | _ => Rejected2
       end
+  | CChecker2 =>
+      match t with
+      | CheckerCode2 _ => Accepted2 TCheckerTy2
+      | _ => Rejected2
+      end
+  | CRun2 p =>
+      match t with
+      | Run2 code argument =>
+          match code with
+          | CheckerCode2 _ => run_type_stage2 p argument
+          | _ => Rejected2
+          end
+      | _ => Rejected2
+      end
   end.
 
 Definition TypeStage2 := Checker2.
@@ -122,12 +142,24 @@ Example pair_stage_accepts2 :
   Accepted2 (TPair2 TNat2 TBool2).
 Proof. reflexivity. Qed.
 
+(* The code boundary makes the type stage itself first-class.  CRun2 is a
+   total, structurally recursive interpreter combinator: it executes the
+   supplied checker on the argument carried by a quoted checker program. *)
+Definition self_stage2 : Checker2 := CRun2 CChecker2.
+Definition self_program2 : Tm2 :=
+  Run2 (CheckerCode2 self_stage2) (CheckerCode2 self_stage2).
+
+Example self_application2 :
+  typecheck2 self_stage2 self_program2 = Accepted2 TCheckerTy2.
+Proof. reflexivity. Qed.
+
 (* The runtime is deliberately separate: it can run only after the caller has
    chosen and executed a type stage. *)
 Inductive Val2 : Type :=
 | VNat2 : nat -> Val2
 | VBool2 : bool -> Val2
-| VPair2 : Val2 -> Val2 -> Val2.
+| VPair2 : Val2 -> Val2 -> Val2
+| VChecker2 : Checker2 -> Val2.
 
 Fixpoint eval2 (t : Tm2) : Val2 :=
   match t with
@@ -147,6 +179,8 @@ Fixpoint eval2 (t : Tm2) : Val2 :=
   | Pair2 x y => VPair2 (eval2 x) (eval2 y)
   | Fst2 x => match eval2 x with VPair2 a _ => a | _ => VNat2 0 end
   | Snd2 x => match eval2 x with VPair2 _ b => b | _ => VNat2 0 end
+  | CheckerCode2 c => VChecker2 c
+  | Run2 _ _ => VNat2 0
   end.
 
 Definition run2 (stage : TypeStage2) (program : Tm2) : option Val2 :=
