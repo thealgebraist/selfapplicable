@@ -20,4 +20,9 @@ expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/b.txt" "$tmpdir/root/s
 test "$actual" = "$expected"
 actual=$($compiler "$tmpdir/root" -empty -type d | sort)
 test "$actual" = "$tmpdir/root/empty"
+actual=$($compiler "$tmpdir/root" -iname '*.C' -type f | sort)
+expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/sub/c.c" | sort)
+test "$actual" = "$expected"
+actual=$($compiler "$tmpdir/root" -path "$tmpdir/root/sub/*.c" -type f)
+test "$actual" = "$tmpdir/root/sub/c.c"
 echo "ADT find CLI: PASS"
