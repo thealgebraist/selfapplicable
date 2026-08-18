@@ -21,13 +21,13 @@ against directory entries:
 
 ```text
 find_adt ROOT [-name|-iname GLOB] [-path GLOB] [-type f|d|l]
-             [-size [+|-]BYTESc] [-empty] [-not] [-o] [-print0]
+             [-size [+|-]BYTESc] [-empty] [-prune] [-not] [-o] [-print0]
              [-maxdepth N] [-mindepth N]
 ```
 
 Run `make check-find` for its regression suite. This is an explicit total
 predicate language rather than complete GNU `find` compatibility; actions such
-as `-exec`, `-delete`, and pruning remain later extensions.
+as `-exec` and `-delete` remain later extensions.
 
 The executable exercises:
 
