@@ -5,6 +5,15 @@
 #include <fstream>
 #include <sstream>
 namespace finddsl {
+// Staged compiler boundary: Find programs are first treated as code data,
+// then checked/normalized, and only the resulting code is unquoted for the
+// filesystem backend.
+struct Code { findadt::P syntax; };
+Code quote(findadt::P syntax){return Code{std::move(syntax)};}
+findadt::P unquote(const Code& code){return code.syntax;}
+Code normalize_code(const Code& code){if(!findadt::check(code.syntax))throw std::runtime_error("Find DSL type stage rejected the ADT");return code;}
+Code self_apply(const Code& source){return normalize_code(quote(unquote(source)));}
+
 struct Parser { std::vector<std::string> t; size_t i=0;
   explicit Parser(std::string s){std::string w;bool quote=false;for(char c:s){if(c=='\"'){quote=!quote;continue;}if(!quote&&(c=='('||c==')')){if(!w.empty()){t.push_back(w);w.clear();}t.emplace_back(1,c);}else if(!quote&&std::isspace((unsigned char)c)){if(!w.empty()){t.push_back(w);w.clear();}}else w+=c;}if(!w.empty())t.push_back(w);}
   std::string take(){if(i>=t.size())throw std::runtime_error("unexpected end of Find DSL");return t[i++];}
@@ -13,4 +22,4 @@ struct Parser { std::vector<std::string> t; size_t i=0;
   std::pair<std::string,findadt::P> program(){open();if(take()!="find")throw std::runtime_error("program must start with find");auto root=take();auto q=expr();if(take()!=")"||i!=t.size())throw std::runtime_error("trailing Find DSL input");return {root,q};}
 };
 }
-int main(int ac,char**av){try{if(ac!=2){std::cerr<<"usage: find_dsl_compiler PROGRAM.find\n";return 2;}std::ifstream f(av[1]);if(!f)throw std::runtime_error("cannot open Find DSL program");std::ostringstream s;s<<f.rdbuf();finddsl::Parser p(s.str());auto [root,q]=p.program();if(!findadt::check(q))throw std::runtime_error("Find DSL type stage rejected the ADT");std::cerr<<"Find DSL: checked and executing normalized ADT\n";findadt::walk(root,q,0,-1,0,false);return 0;}catch(std::exception const&e){std::cerr<<"find-dsl: "<<e.what()<<'\n';return 2;}}
+int main(int ac,char**av){try{if(ac!=2){std::cerr<<"usage: find_dsl_compiler PROGRAM.find\n";return 2;}std::ifstream f(av[1]);if(!f)throw std::runtime_error("cannot open Find DSL program");std::ostringstream s;s<<f.rdbuf();finddsl::Parser p(s.str());auto [root,q]=p.program();auto normalized=finddsl::self_apply(finddsl::quote(std::move(q)));std::cerr<<"Find DSL: quoted, normalized, and executing checked ADT\n";findadt::walk(root,finddsl::unquote(normalized),0,-1,0,false);return 0;}catch(std::exception const&e){std::cerr<<"find-dsl: "<<e.what()<<'\n';return 2;}}

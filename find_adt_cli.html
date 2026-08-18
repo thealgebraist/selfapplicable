@@ -56,7 +56,7 @@ Size(= | + | -, bytes)
 Empty
 Prune
 And(left, right) | Or(left, right) | Not(child)</pre>
-<p>The type-stage analogue is <code>check</code>. It rejects empty patterns, unknown file kinds, invalid size operators, and malformed recursive predicate nodes. Only a checked predicate reaches filesystem evaluation.</p>
+<p>The type-stage analogue is <code>check</code>. It rejects empty patterns, unknown file kinds, invalid size operators, and malformed recursive predicate nodes. The separate DSL compiler places the ADT behind an explicit <code>quote</code>/<code>unquote</code> normalization boundary before a checked predicate reaches filesystem evaluation.</p>
 <h2>3. Step-by-step evaluation</h2>
 <p>Assume this temporary tree:</p>
 <pre>ROOT/

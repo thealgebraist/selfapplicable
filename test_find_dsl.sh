@@ -9,5 +9,5 @@ sed "s#ROOT#$tmpdir/root#g" examples/find_skip.find > "$tmpdir/query.find"
 actual=$($compiler "$tmpdir/query.find" 2> "$tmpdir/stage.log" | sort)
 expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/skip" "$tmpdir/root/sub/c.c" | sort)
 test "$actual" = "$expected"
-grep -q 'checked and executing normalized ADT' "$tmpdir/stage.log"
+grep -q 'quoted, normalized, and executing checked ADT' "$tmpdir/stage.log"
 echo "Find DSL compiler/backend: PASS"
