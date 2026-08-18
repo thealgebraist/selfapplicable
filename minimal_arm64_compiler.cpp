@@ -40,11 +40,6 @@ struct Parser {
   explicit Parser(std::string text) : input(std::move(text)) {}
   void space() { while (pos < input.size() && input[pos] <= ' ') ++pos; }
   bool take(char c) { space(); if (pos < input.size() && input[pos] == c) { ++pos; return true; } return false; }
-  void word(const char *expected) {
-    space(); const std::size_t start = pos;
-    while (pos < input.size() && input[pos] > ' ' && input[pos] != ')') ++pos;
-    if (input.substr(start, pos - start) != expected) throw std::runtime_error("expected " + std::string(expected));
-  }
   std::uint64_t number() {
     space(); const std::size_t start = pos;
     while (pos < input.size() && input[pos] >= '0' && input[pos] <= '9') ++pos;
