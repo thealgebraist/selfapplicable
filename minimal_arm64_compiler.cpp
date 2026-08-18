@@ -20,10 +20,12 @@ struct Eq { struct Term *left; struct Term *right; };
 struct Pair { struct Term *first; struct Term *second; };
 struct Fst { struct Term *pair; };
 struct Snd { struct Term *pair; };
+struct Quote { struct Term *body; };
+struct Run { struct Term *code; };
 struct If { struct Term *condition; struct Term *then_branch; struct Term *else_branch; };
 struct Let { struct Term *value; struct Term *body; };
 struct Term {
-  using Node = std::variant<Nat, Bool, Var, Add, Mul, Eq, Pair, Fst, Snd, If, Let>;
+  using Node = std::variant<Nat, Bool, Var, Add, Mul, Eq, Pair, Fst, Snd, Quote, Run, If, Let>;
   Node node;
 };
 
@@ -66,6 +68,8 @@ struct Parser {
       else if (tag == "pair") result = new Term{Pair{term(), term()}};
       else if (tag == "fst") result = new Term{Fst{term()}};
       else if (tag == "snd") result = new Term{Snd{term()}};
+      else if (tag == "quote") result = new Term{Quote{term()}};
+      else if (tag == "run") result = new Term{Run{term()}};
       else if (tag == "if") result = new Term{If{term(), term(), term()}};
       else if (tag == "let") result = new Term{Let{term(), term()}};
       else throw std::runtime_error("unknown constructor: " + tag);
@@ -115,6 +119,13 @@ Term *normalize_in(const Term *term, const Env &env) {
     auto *pair = normalize_in(s->pair, env);
     return std::get<Pair>(pair->node).second;
   }
+  if (const auto *q = std::get_if<Quote>(&term->node)) {
+    return new Term{Quote{q->body}};
+  }
+  if (const auto *r = std::get_if<Run>(&term->node)) {
+    auto *code = normalize_in(r->code, env);
+    return normalize_in(std::get<Quote>(code->node).body, env);
+  }
   if (const auto *i = std::get_if<If>(&term->node)) {
     auto *condition = normalize_in(i->condition, env);
     return normalize_in(std::get<Bool>(condition->node).value ? i->then_branch : i->else_branch, env);
@@ -139,7 +150,10 @@ Code normalize_code_twice(const Code &code) { return normalize_code(normalize_co
 // unquote only the resulting code value.  This is the executable analogue of
 // stage_normalise0 in minimal_total_lang.v.
 Term *self_apply_normalizer(Term *term) {
-  const auto once = normalize_code(quote(term));
+  // The source is itself passed through the minimal language's interpreter:
+  // quote the program, then run the quoted program at the explicit stage.
+  auto *interpreted = new Term{Run{new Term{Quote{term}}}};
+  const auto once = normalize_code(quote(interpreted));
   const auto twice = normalize_code_twice(once);
   return unquote(twice);
 }

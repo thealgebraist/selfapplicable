@@ -83,6 +83,18 @@ bound pair before arithmetic consumes its projections. The pair regression
 binds `(9, 33)`, projects both fields, and emits 42. This is the executable
 shape needed before adding tagged unions or a C-struct representation.
 
+## Quoted interpreter step
+
+The executable language now has explicit `quote` and `run` constructors. A
+quoted term is inert data; `run` is the total interpreter boundary that accepts
+only a quoted term and normalizes the contained program. The compiler's normal
+path constructs `run (quote source)` before applying the staged normalizer, so
+the compiler input is interpreted by the minimal language itself before ARM64
+lowering. The regression program runs a quoted nested-let program and emits
+42. This is a bounded self-applicable interpreter: the quote/run forms are the
+first interpreter kernel, while arbitrary user-defined recursion and richer
+syntax remain future extensions.
+
 The backend also has an independent `minimal-arm64` CI workflow, so its
 verification does not depend on package installation in the larger Coq/C-subset
 workflow.
