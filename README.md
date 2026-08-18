@@ -12,6 +12,23 @@ make check-normaliser
 Run the complete local checks with `make check`; create a release bundle with
 `make release`.
 
+ADT `find` CLI
+--------------
+
+`minimal_find_cli.cpp` is a typed-ADT filesystem query tool. It constructs a
+finite predicate tree, checks that tree before traversal, and then evaluates it
+against directory entries:
+
+```text
+find_adt ROOT [-name|-iname GLOB] [-path GLOB] [-type f|d|l]
+             [-size [+|-]BYTESc] [-empty] [-not] [-o]
+             [-maxdepth N] [-mindepth N]
+```
+
+Run `make check-find` for its regression suite. This is an explicit total
+predicate language rather than complete GNU `find` compatibility; actions such
+as `-exec`, `-delete`, and pruning remain later extensions.
+
 The executable exercises:
 
 - de Bruijn variables, sorts, Pi types, lambdas, applications, quotation, and unquotation;
