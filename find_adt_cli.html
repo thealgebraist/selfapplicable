@@ -23,6 +23,16 @@
 ROOT/b.txt
 ROOT/skip
 ROOT/sub/c.c</pre>
+<h2>0.1. ADT value produced from the program</h2>
+<p>The command above is transformed into this concrete predicate ADT before it is checked or evaluated:</p>
+<pre>Or(
+  And(
+    Name { pattern = "skip", insensitive = false },
+    Prune
+  ),
+  Kind { value = 'f' }
+)</pre>
+<p>In the implementation, this value is represented by <code>P</code>, a variant containing <code>Name</code>, <code>Kind</code>, <code>Prune</code>, and shared recursive <code>And</code>/<code>Or</code>/<code>Not</code> nodes. The type-stage function <code>check</code> traverses exactly this value before <code>eval</code> and <code>walk</code> interpret it.</p>
 <h2>1. Complete program</h2>
 <p>The following panel loads the exact complete source file, including the ADT definitions, checker, parser, evaluator, traversal, pruning logic, and CLI entry point.</p>
 <pre id="source">Loading complete source…</pre>
