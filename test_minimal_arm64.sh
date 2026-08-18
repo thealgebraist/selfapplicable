@@ -29,7 +29,6 @@ printf '%s\n' '(let (pair (nat 9) (nat 33)) (add (fst (var 0)) (snd (var 0))))' 
 "$compiler" "$tmpdir/pair.min" > "$tmpdir/pair.s"
 grep -q '^    mov x0, #42$' "$tmpdir/pair.s"
 echo 'minimal ARM64 pair projection: ok'
-printf '%s\n' '(run (quote (let (nat 40) (let (nat 2) (add (var 0) (var 1))))))' > "$tmpdir/interpreter.min"
-"$compiler" "$tmpdir/interpreter.min" > "$tmpdir/interpreter.s"
+"$compiler" examples/quoted_interpreter.min > "$tmpdir/interpreter.s"
 grep -q '^    mov x0, #42$' "$tmpdir/interpreter.s"
 echo 'minimal ARM64 quoted interpreter: ok'

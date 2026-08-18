@@ -95,6 +95,9 @@ lowering. The regression program runs a quoted nested-let program and emits
 first interpreter kernel, while arbitrary user-defined recursion and richer
 syntax remain future extensions.
 
+The tracked source program is `examples/quoted_interpreter.min`; compiling it
+with `make check-minimal-arm64` emits the ARM64 exit sequence with `x0 = 42`.
+
 The backend also has an independent `minimal-arm64` CI workflow, so its
 verification does not depend on package installation in the larger Coq/C-subset
 workflow.

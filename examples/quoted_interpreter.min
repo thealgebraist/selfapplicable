@@ -1,0 +1,5 @@
+(run
+  (quote
+    (let (nat 40)
+      (let (nat 2)
+        (add (var 0) (var 1))))))
