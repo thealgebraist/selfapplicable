@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Two-stage ADT array: complete program and evaluation</title>
+<style>
+:root{--ink:#18232d;--muted:#536575;--line:#d7e0e8;--paper:#fff;--wash:#f3f7fa;--blue:#075985;--green:#065f46;--greenwash:#ecfdf5}
+*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1080px;margin:auto;padding:42px 20px 90px}article{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:42px 54px;box-shadow:0 8px 30px #17324d12}
+h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.06;letter-spacing:-.045em;margin:.2em 0 .4em}h2{border-top:1px solid var(--line);padding-top:.65em;margin-top:2.2em}h3{color:var(--blue);margin-top:1.8em}
+.lead{font-size:1.14rem;color:var(--muted)}pre{overflow:auto;background:#101923;color:#e7edf3;padding:18px 20px;border-radius:10px;font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}code{background:#edf3f7;border-radius:4px;padding:.08em .3em;font:.93em ui-monospace,SFMono-Regular,Menlo,monospace}pre code{background:none;padding:0}
+.stage{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{background:#f0f9ff;border:1px solid #b9d9ea;border-radius:10px;padding:16px}.card h3{margin-top:0}
+table{border-collapse:collapse;width:100%;margin:18px 0}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}th{background:#edf4f8}.result{border-left:4px solid #059669;background:var(--greenwash);padding:14px 18px}.muted{color:var(--muted);font-size:.94rem}
+@media(max-width:720px){article{padding:28px 20px}.stage{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main><article>
+<h1>Eight rows through two explicit stages</h1>
+<p class="lead">This page gives the complete program, its grammar, its stage types, and its evaluation. The type stage is a total ADT program supplied by the user. Only after it has been normalized and has accepted all eight rows does the calculation stage receive a typed array.</p>
+
+<h2>1. The stage types</h2>
+<pre><code>RawCode      = Code RawTerm
+TypeCode     = Code TypeProgram
+NormalizedTC = Normalized TypeProgram
+Checked A    = TypedProgram A
+Value A      = RuntimeValue A</code></pre>
+<p>The critical function types are:</p>
+<pre><code>normalizeType : TypeCode → NormalizedTC
+check         : NormalizedTC → RawCode → Option (Σ A : Ty, Checked A)
+run           : Checked A → Value A</code></pre>
+<div class="result"><strong>Stage invariant:</strong> there is no function <code>run : RawCode → Value A</code>. Runtime execution requires a checked witness.</div>
+
+<h2>2. The grammars</h2>
+<div class="stage">
+<div class="card"><h3>Raw/runtime syntax</h3><pre><code>RawTerm ::=
+    rawNat n
+  | rawBool b
+  | rawStatus Low | Medium | High
+  | rawRow RawTerm RawTerm RawTerm RawTerm
+  | rawArray8 RawTerm ... RawTerm</code></pre></div>
+<div class="card"><h3>Type-stage syntax</h3><pre><code>TypeProgram ::=
+    acceptNat
+  | acceptBool
+  | acceptStatus
+  | checkRow TypeProgram⁴
+  | checkArray8 TypeProgram
+  | reject</code></pre></div>
+</div>
+<p>The runtime type universe has four field types and two structural types:</p>
+<pre><code>Ty ::= Nat | Bool | Status | Row | Array8 Ty</code></pre>
+
+<h2>3. The complete type-stage checker</h2>
+<p>The raw representation intentionally erases field types into one tagged ADT:</p>
+<pre><code>RawField ::=
+    RawNat n
+  | RawBool b
+  | RawStatus s
+  | RawCount n
+
+RawRow = RawRow RawField RawField RawField RawField</code></pre>
+<p>The user-written checker restores the four field types:</p>
+<pre><code>checkRow (RawRow
+  (RawNat amount)
+  (RawBool enabled)
+  (RawStatus status)
+  (RawCount count))
+  = Some (Row amount enabled status count)
+
+checkRow _ = None</code></pre>
+<p>The eight-element checker sequences this operation exactly eight times:</p>
+<pre><code>checkArray8 (rawArray8 r0 r1 r2 r3 r4 r5 r6 r7) =
+  checkRow r0 >>= fun v0 →
+  checkRow r1 >>= fun v1 →
+  checkRow r2 >>= fun v2 →
+  checkRow r3 >>= fun v3 →
+  checkRow r4 >>= fun v4 →
+  checkRow r5 >>= fun v5 →
+  checkRow r6 >>= fun v6 →
+  checkRow r7 >>= fun v7 →
+  Some (Array8 v0 v1 v2 v3 v4 v5 v6 v7)</code></pre>
+<p>Here <code>&gt;&gt;=</code> is the total option bind. A single wrong field tag changes the entire result to <code>None</code>.</p>
+
+<h2>4. The complete input program</h2>
+<p>These are the eight raw rows. Each has four fields, in the order amount, enabled, status, count:</p>
+<pre><code>program =
+rawArray8
+  (rawRow (rawNat 10) (rawBool true)  (rawStatus High)   (rawCount 2))
+  (rawRow (rawNat 3)  (rawBool false) (rawStatus Low)    (rawCount 9))
+  (rawRow (rawNat 4)  (rawBool true)  (rawStatus Medium) (rawCount 5))
+  (rawRow (rawNat 8)  (rawBool true)  (rawStatus Low)    (rawCount 1))
+  (rawRow (rawNat 2)  (rawBool true)  (rawStatus High)   (rawCount 4))
+  (rawRow (rawNat 7)  (rawBool false) (rawStatus Medium) (rawCount 3))
+  (rawRow (rawNat 6)  (rawBool true)  (rawStatus Medium) (rawCount 2))
+  (rawRow (rawNat 5)  (rawBool true)  (rawStatus Low)    (rawCount 2))</code></pre>
+<p>The equivalent checked source is in <code>array8_four_field.v</code> as <code>example_array8</code>.</p>
+
+<h2>5. Step one: normalize the type stage</h2>
+<p>Before checking data, the checker program itself is normalized:</p>
+<pre><code>normalizeType (quote checkArray8)
+→ quote checkArray8</code></pre>
+<p>Because the checker is finite ADT data and its evaluator is structurally recursive, this stage terminates. Its normalized result is now the only checker supplied to the raw program.</p>
+
+<h2>6. Step two: check row zero</h2>
+<pre><code>checkRow
+  (rawRow (rawNat 10) (rawBool true)
+          (rawStatus High) (rawCount 2))
+
+→ Some (Row 10 true High 2)</code></pre>
+<p>The first field matches <code>Nat</code>, the second matches <code>Bool</code>, the third matches <code>Status</code>, and the fourth matches <code>Count</code>.</p>
+
+<h2>7. Step three: check all eight rows</h2>
+<table><thead><tr><th>Index</th><th>Raw row</th><th>Type-stage result</th></tr></thead><tbody>
+<tr><td>0</td><td>10, true, High, 2</td><td>Some Row</td></tr>
+<tr><td>1</td><td>3, false, Low, 9</td><td>Some Row</td></tr>
+<tr><td>2</td><td>4, true, Medium, 5</td><td>Some Row</td></tr>
+<tr><td>3</td><td>8, true, Low, 1</td><td>Some Row</td></tr>
+<tr><td>4</td><td>2, true, High, 4</td><td>Some Row</td></tr>
+<tr><td>5</td><td>7, false, Medium, 3</td><td>Some Row</td></tr>
+<tr><td>6</td><td>6, true, Medium, 2</td><td>Some Row</td></tr>
+<tr><td>7</td><td>5, true, Low, 2</td><td>Some Row</td></tr>
+</tbody></table>
+<p>All eight checks succeed, so the bind chain constructs:</p>
+<pre><code>Some (Array8
+  (Row 10 true High 2)
+  (Row 3 false Low 9)
+  (Row 4 true Medium 5)
+  (Row 8 true Low 1)
+  (Row 2 true High 4)
+  (Row 7 false Medium 3)
+  (Row 6 true Medium 2)
+  (Row 5 true Low 2))</code></pre>
+<p>At this point the type stage is finished. The second stage cannot see raw tags; it receives only <code>Checked (Array8 Row)</code>.</p>
+
+<h2>8. Step four: calculate the typed array</h2>
+<pre><code>statusScore Low    = 1
+statusScore Medium = 2
+statusScore High   = 3
+
+rowScore row =
+  if row.enabled
+  then row.amount * row.count + statusScore row.status
+  else 0</code></pre>
+<table><thead><tr><th>Row</th><th>Calculation</th><th>Score</th></tr></thead><tbody>
+<tr><td>0</td><td>10 × 2 + 3</td><td>23</td></tr>
+<tr><td>1</td><td>disabled</td><td>0</td></tr>
+<tr><td>2</td><td>4 × 5 + 2</td><td>22</td></tr>
+<tr><td>3</td><td>8 × 1 + 1</td><td>9</td></tr>
+<tr><td>4</td><td>2 × 4 + 3</td><td>11</td></tr>
+<tr><td>5</td><td>disabled</td><td>0</td></tr>
+<tr><td>6</td><td>6 × 2 + 2</td><td>14</td></tr>
+<tr><td>7</td><td>5 × 2 + 1</td><td>11</td></tr>
+<tr><th colspan="2">sum</th><th>90</th></tr>
+</tbody></table>
+
+<h2>9. Final stage composition</h2>
+<pre><code>run program =
+  match checkArray8 (normalizeType typeProgram) program with
+  | None =&gt; None
+  | Some typedArray =&gt;
+      Some (sum8 (map rowScore typedArray))
+
+run program
+→ Some 90</code></pre>
+<div class="result"><strong>Final result:</strong> the type stage completely normalizes and checks the eight-row data before stage two calculates <code>Some 90</code>.</div>
+
+<h2>10. Rejection trace</h2>
+<p>If row seven ends with <code>RawBool true</code> instead of <code>RawCount 2</code>:</p>
+<pre><code>checkRow (rawRow (rawNat 5) (rawBool true)
+                  (rawStatus Low) (rawBool true))
+→ None
+
+checkArray8 badProgram
+→ None
+
+run badProgram
+→ None</code></pre>
+<p>The calculation stage is never entered.</p>
+
+<h2>Source and verification</h2>
+<pre><code>coqc array8_four_field.v</code></pre>
+<p>The formal source proves by computation that the valid program returns <code>Some 90</code> and the malformed program returns <code>None</code>. The repository source is <a href="array8_four_field.v">array8_four_field.v</a>.</p>
+<p class="muted">This design proves termination and stage separation. It does not automatically prove that an arbitrary user-authored checker matches an external intended type theory; that remains a separate checker-soundness theorem.</p>
+</article></main></body></html>
