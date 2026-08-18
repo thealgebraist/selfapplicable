@@ -25,3 +25,7 @@ printf '%s\n' '(let (nat 6) (let (nat 7) (if (eq (var 0) (nat 7)) (mul (var 0) (
 "$compiler" "$tmpdir/guarded-mul.min" > "$tmpdir/guarded-mul.s"
 grep -q '^    mov x0, #42$' "$tmpdir/guarded-mul.s"
 echo 'minimal ARM64 guarded multiplication: ok'
+printf '%s\n' '(let (pair (nat 9) (nat 33)) (add (fst (var 0)) (snd (var 0))))' > "$tmpdir/pair.min"
+"$compiler" "$tmpdir/pair.min" > "$tmpdir/pair.s"
+grep -q '^    mov x0, #42$' "$tmpdir/pair.s"
+echo 'minimal ARM64 pair projection: ok'

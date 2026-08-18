@@ -78,6 +78,11 @@ still emits 42. This demonstrates that enlarging the source language does not
 require enlarging the ARM64 emitter for every source form; normalization reduces
 the new forms before lowering.
 
+Products are the next structural step: `pair`, `fst`, and `snd` normalize a
+bound pair before arithmetic consumes its projections. The pair regression
+binds `(9, 33)`, projects both fields, and emits 42. This is the executable
+shape needed before adding tagged unions or a C-struct representation.
+
 The backend also has an independent `minimal-arm64` CI workflow, so its
 verification does not depend on package installation in the larger Coq/C-subset
 workflow.

@@ -17,10 +17,13 @@ struct Var { std::size_t index; };
 struct Add { struct Term *left; struct Term *right; };
 struct Mul { struct Term *left; struct Term *right; };
 struct Eq { struct Term *left; struct Term *right; };
+struct Pair { struct Term *first; struct Term *second; };
+struct Fst { struct Term *pair; };
+struct Snd { struct Term *pair; };
 struct If { struct Term *condition; struct Term *then_branch; struct Term *else_branch; };
 struct Let { struct Term *value; struct Term *body; };
 struct Term {
-  using Node = std::variant<Nat, Bool, Var, Add, Mul, Eq, If, Let>;
+  using Node = std::variant<Nat, Bool, Var, Add, Mul, Eq, Pair, Fst, Snd, If, Let>;
   Node node;
 };
 
@@ -60,6 +63,9 @@ struct Parser {
       else if (tag == "add") result = new Term{Add{term(), term()}};
       else if (tag == "mul") result = new Term{Mul{term(), term()}};
       else if (tag == "eq") result = new Term{Eq{term(), term()}};
+      else if (tag == "pair") result = new Term{Pair{term(), term()}};
+      else if (tag == "fst") result = new Term{Fst{term()}};
+      else if (tag == "snd") result = new Term{Snd{term()}};
       else if (tag == "if") result = new Term{If{term(), term(), term()}};
       else if (tag == "let") result = new Term{Let{term(), term()}};
       else throw std::runtime_error("unknown constructor: " + tag);
@@ -97,6 +103,17 @@ Term *normalize_in(const Term *term, const Env &env) {
   if (const auto *e = std::get_if<Eq>(&term->node)) {
     auto *left = normalize_in(e->left, env); auto *right = normalize_in(e->right, env);
     return new Term{Bool{std::get<Nat>(left->node).value == std::get<Nat>(right->node).value}};
+  }
+  if (const auto *p = std::get_if<Pair>(&term->node)) {
+    return new Term{Pair{normalize_in(p->first, env), normalize_in(p->second, env)}};
+  }
+  if (const auto *f = std::get_if<Fst>(&term->node)) {
+    auto *pair = normalize_in(f->pair, env);
+    return std::get<Pair>(pair->node).first;
+  }
+  if (const auto *s = std::get_if<Snd>(&term->node)) {
+    auto *pair = normalize_in(s->pair, env);
+    return std::get<Pair>(pair->node).second;
   }
   if (const auto *i = std::get_if<If>(&term->node)) {
     auto *condition = normalize_in(i->condition, env);
