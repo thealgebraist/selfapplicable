@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Two-stage ADT: typed array of eight records</title>
+<style>
+:root{--ink:#17212b;--muted:#526170;--line:#d8e0e8;--wash:#f3f7fa;--paper:#fff;--blue:#075985}
+*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1040px;margin:auto;padding:42px 20px 80px}article{background:var(--paper);padding:42px 52px;border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 30px #17324d12}
+h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;letter-spacing:-.04em}h2{border-top:1px solid var(--line);padding-top:.7em;margin-top:2.2em}h3{color:var(--blue);margin-top:1.8em}
+.lead{font-size:1.12rem;color:var(--muted)}pre{overflow:auto;background:#101923;color:#e7edf3;padding:18px 20px;border-radius:10px;font:14px/1.55 ui-monospace,monospace}code{background:#edf3f7;padding:.08em .3em;border-radius:4px;font: .93em ui-monospace,monospace}pre code{background:none;padding:0}
+.stage{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{background:#f0f9ff;border:1px solid #b7d9eb;border-radius:10px;padding:16px}.card h3{margin-top:0}
+table{border-collapse:collapse;width:100%;margin:18px 0}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left}th{background:#edf4f8}.ok{border-left:4px solid #0f766e;background:#ecfdf5;padding:12px 18px}.warn{color:var(--muted);font-size:.94rem}
+@media(max-width:700px){article{padding:28px 20px}.stage{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main><article>
+<h1>An eight-row, four-field ADT program</h1>
+<p class="lead">This is a complete two-stage example. Stage one is a user-written total checker: it validates every field tag in every row and constructs a typed array only after all eight rows pass. Stage two calculates a weighted total over the typed data.</p>
+
+<h2>The data shape</h2>
+<p>Each row has exactly four fields with four distinct roles:</p>
+<table><thead><tr><th>Field</th><th>Raw constructor</th><th>Checked type</th><th>Runtime meaning</th></tr></thead><tbody>
+<tr><td>amount</td><td><code>RawNat4 n</code></td><td>natural number</td><td>base quantity</td></tr>
+<tr><td>enabled</td><td><code>RawBool4 b</code></td><td>boolean</td><td>whether the row contributes</td></tr>
+<tr><td>status</td><td><code>RawStatus4 Low4|Medium4|High4</code></td><td>three-case ADT</td><td>bonus score 1, 2, or 3</td></tr>
+<tr><td>count</td><td><code>RawCount4 n</code></td><td>natural count</td><td>multiplier</td></tr>
+</tbody></table>
+<p>The array is not a variable-length list. Its constructor has eight positions:</p>
+<pre><code>Array8C row0 row1 row2 row3 row4 row5 row6 row7</code></pre>
+
+<h2>Stage one: the type program</h2>
+<p>The raw input deliberately stores all fields in one tagged sum:</p>
+<pre><code>RawField4 =
+    RawNat4 natural
+  | RawBool4 boolean
+  | RawStatus4 Status4
+  | RawCount4 natural
+
+RawRow4 = RawRow RawField4 RawField4 RawField4 RawField4</code></pre>
+<p>The checker is an ordinary total function, not a privileged type-checking oracle. Its pattern match accepts only the required four tags and constructs the typed record:</p>
+<pre><code>check_row4 (RawRow
+  (RawNat4 amount)
+  (RawBool4 enabled)
+  (RawStatus4 status)
+  (RawCount4 count))
+= Some (Row4 amount enabled status count)
+
+check_row4 any_other_shape = None</code></pre>
+<p>The array checker runs that type-stage program eight times. Its result type is <code>option (Array8 Row4)</code>. Therefore a value of <code>Array8 Row4</code> cannot be produced by the checker unless every row was accepted.</p>
+<pre><code>check_array8 raw =
+  check row0 >>= fun row0' =&gt;
+  check row1 >>= fun row1' =&gt;
+  ...
+  check row7 >>= fun row7' =&gt;
+  Some (Array8C row0' row1' ... row7')</code></pre>
+<div class="stage"><div class="card"><h3>Accepted</h3><p>All eight rows have the four expected tags. Stage one returns a typed <code>Array8 Row4</code>.</p></div><div class="card"><h3>Rejected</h3><p>Even one wrong tag returns <code>None</code>. Stage two is not called.</p></div></div>
+
+<h2>The concrete eight rows</h2>
+<pre><code>0: (10, true,  High,   2)
+1: ( 3, false, Low,    9)
+2: ( 4, true,  Medium, 5)
+3: ( 8, true,  Low,    1)
+4: ( 2, true,  High,   4)
+5: ( 7, false, Medium, 3)
+6: ( 6, true,  Medium, 2)
+7: ( 5, true,  Low,    2)</code></pre>
+<p>In the minimal source syntax, the final raw row is constructed with <code>RawRow (RawNat4 5) (RawBool4 true) (RawStatus4 Low4) (RawCount4 2)</code>. The complete Coq value is in <code>array8_four_field.v</code>.</p>
+
+<h2>Stage two: the calculation</h2>
+<p>After checking, the runtime stage assigns scores with one explicit formula:</p>
+<pre><code>row_score row =
+  if row.enabled
+  then row.amount * row.count + status_score row.status
+  else 0
+
+status_score Low    = 1
+status_score Medium = 2
+status_score High   = 3
+
+calculate array = sum8 (map row_score array)</code></pre>
+<table><thead><tr><th>Row</th><th>Contribution</th><th>Value</th></tr></thead><tbody>
+<tr><td>0</td><td>10 × 2 + 3</td><td>23</td></tr>
+<tr><td>1</td><td>disabled</td><td>0</td></tr>
+<tr><td>2</td><td>4 × 5 + 2</td><td>22</td></tr>
+<tr><td>3</td><td>8 × 1 + 1</td><td>9</td></tr>
+<tr><td>4</td><td>2 × 4 + 3</td><td>11</td></tr>
+<tr><td>5</td><td>disabled</td><td>0</td></tr>
+<tr><td>6</td><td>6 × 2 + 2</td><td>14</td></tr>
+<tr><td>7</td><td>5 × 2 + 1</td><td>11</td></tr>
+<tr><th colspan="2">total</th><th>90</th></tr>
+</tbody></table>
+<div class="ok"><strong>Result:</strong> stage one returns a typed eight-row array; stage two calculates <code>Some 90</code>. An incorrectly tagged eighth row returns <code>None</code> before calculation.</div>
+
+<h2>The complete two-stage pipeline</h2>
+<pre><code>run_array8 raw =
+  match check_array8 raw with
+  | Some typed =&gt; Some (calculate4 typed)
+  | None       =&gt; None</code></pre>
+<p>This is the central separation. The type stage is itself a finite ADT program with total semantics. It is not automatically sound with respect to an external type theory; its author is responsible for the checker specification. The runtime stage receives only the typed result of that program.</p>
+
+<h2>Reproduce and verify</h2>
+<pre><code>coqc array8_four_field.v</code></pre>
+<p>The Coq examples prove by computation that the valid array produces 90 and the malformed array is rejected. The formal source is <a href="array8_four_field.v">array8_four_field.v</a>.</p>
+<p class="warn">This is intentionally a fixed-size, total example. A variable-size array, mutation, pointers, or user recursion would require new stages and new proofs rather than being silently added to this kernel.</p>
+</article></main></body></html>
