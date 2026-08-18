@@ -12,20 +12,26 @@ test "$actual" = "$expected"
 actual=$($compiler "$tmpdir/root" -type f -maxdepth 1 | sort)
 expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/b.txt" | sort)
 test "$actual" = "$expected"
+mkdir -p "$tmpdir/root/skip"
+touch "$tmpdir/root/skip/hidden.c"
 printf x > "$tmpdir/root/one"
 actual=$($compiler "$tmpdir/root" -size 1c -type f | sort)
 test "$actual" = "$tmpdir/root/one"
 actual=$($compiler "$tmpdir/root" -name '*.c' -o -name '*.txt' | sort)
-expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/b.txt" "$tmpdir/root/sub/c.c" | sort)
+expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/b.txt" "$tmpdir/root/skip/hidden.c" "$tmpdir/root/sub/c.c" | sort)
 test "$actual" = "$expected"
 actual=$($compiler "$tmpdir/root" -empty -type d | sort)
 test "$actual" = "$tmpdir/root/empty"
 actual=$($compiler "$tmpdir/root" -iname '*.C' -type f | sort)
-expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/sub/c.c" | sort)
+expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/skip/hidden.c" "$tmpdir/root/sub/c.c" | sort)
 test "$actual" = "$expected"
 actual=$($compiler "$tmpdir/root" -path "$tmpdir/root/sub/*.c" -type f)
 test "$actual" = "$tmpdir/root/sub/c.c"
 "$compiler" "$tmpdir/root" -name '*.c' -type f -print0 > "$tmpdir/print0"
 actual=$(tr '\000' '\n' < "$tmpdir/print0" | sort)
+expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/skip/hidden.c" "$tmpdir/root/sub/c.c" | sort)
+test "$actual" = "$expected"
+actual=$($compiler "$tmpdir/root" -name skip -prune -o -type f | sort)
+expected=$(printf '%s\n' "$tmpdir/root/a.c" "$tmpdir/root/b.txt" "$tmpdir/root/one" "$tmpdir/root/skip" "$tmpdir/root/sub/c.c" | sort)
 test "$actual" = "$expected"
 echo "ADT find CLI: PASS"
