@@ -52,6 +52,7 @@ jobs:
           timeout 120s coqc -q semantics.v
           timeout 120s coqc -q normaliser_core.v
           timeout 120s coqc -q minimal_total_lang.v
+          timeout 120s coqc -q two_stage_adt.v
 
       - name: Assemble and run switch fixtures
         shell: bash
