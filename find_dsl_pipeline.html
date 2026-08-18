@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Find DSL and separate self-applicable compiler</title>
+<style>body{max-width:1050px;margin:auto;padding:40px 22px 80px;background:#f5f7fb;color:#17202c;font:16px/1.58 system-ui,sans-serif}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.05}h2{margin-top:2.3em;border-bottom:1px solid #d4dce8;padding-bottom:5px}.card{background:#fff;border:1px solid #d4dce8;border-radius:10px;padding:18px;margin:18px 0}.step{border-left:4px solid #1769aa;padding-left:16px;margin:22px 0}pre{background:#172033;color:#edf4ff;padding:16px;border-radius:8px;overflow:auto;font:14px/1.5 ui-monospace,monospace}code{font-family:ui-monospace,monospace}a{color:#1769aa}.muted{color:#536174}</style></head>
+<body>
+<p><a href="examples/find_skip.find">Program being transformed</a> · <a href="find_dsl_compiler.cpp">Complete compiler source</a> · <a href="minimal_find_cli.cpp">Complete backend source</a></p>
+<h1>Find DSL → ADT → staged compiler → filesystem</h1>
+<p class="muted">This page shows the complete two-part design: a Find-specific ADT DSL implementation and a separate compiler with an explicit quotation/normalization boundary.</p>
+<div class="card"><b>Pipeline</b><pre>Find DSL source
+    ↓ parser
+Find ADT
+    ↓ quote → normalize/check → unquote
+checked normalized ADT
+    ↓ backend
+filesystem traversal and output</pre></div>
+<h2>0. Program being transformed</h2>
+<p>This is the exact source program used in the walkthrough:</p>
+<pre>(find "ROOT"
+  (or
+    (and (name "skip") (prune))
+    (type "f")))</pre>
+<p>For the evaluation trace, <code>ROOT</code> contains:</p>
+<pre>ROOT/
+├── a.c
+├── b.txt
+├── skip/
+│   └── hidden.c
+└── sub/
+    └── c.c</pre>
+<h2>1. Complete programs</h2>
+<h3>1.1 Separate DSL compiler</h3>
+<p>The following panel loads the complete <code>find_dsl_compiler.cpp</code>, including its parser, ADT staging boundary, type-stage check, and backend invocation.</p>
+<pre id="compiler">Loading complete compiler…</pre>
+<h3>1.2 ADT filesystem backend</h3>
+<p>The backend source below is loaded in full and contains the predicate ADTs, checking, evaluation, traversal, depth control, pruning, and direct CLI entry point.</p>
+<pre id="backend">Loading complete backend…</pre>
+<script>Promise.all([fetch('find_dsl_compiler.cpp').then(r=>r.text()),fetch('minimal_find_cli.cpp').then(r=>r.text())]).then(([a,b])=>{document.getElementById('compiler').textContent=a;document.getElementById('backend').textContent=b}).catch(()=>{document.getElementById('compiler').textContent='Use the complete compiler source link above.';document.getElementById('backend').textContent='Use the complete backend source link above.'})</script>
+<h2>2. ADT grammar</h2>
+<pre>Program ::= (find ROOT Expr)
+Expr    ::= (name GLOB)
+          | (iname GLOB)
+          | (path GLOB)
+          | (type f | d | l)
+          | (size [+|-]BYTESc)
+          | (empty) | (prune)
+          | (not Expr)
+          | (and Expr Expr)
+          | (or Expr Expr)</pre>
+<p>The compiler maps these forms to a recursive ADT:</p>
+<pre>Name(pattern, insensitive)
+Path(pattern)
+Kind(file | directory | symlink)
+Size(operator, bytes) | Empty | Prune
+And(left, right) | Or(left, right) | Not(child)</pre>
+<h2>3. Step-by-step evaluation</h2>
+<div class="step"><h3>Step 1 — tokenize and parse</h3><p>The source program is parsed as a parenthesized tree. The root is <code>find</code>, the filesystem root is <code>ROOT</code>, and the expression is an <code>or</code>.</p><pre>find root = "ROOT"
+expression = Or(
+  And(Name("skip"), Prune),
+  Kind('f')
+)</pre></div>
+<div class="step"><h3>Step 2 — construct the ADT</h3><pre>Or(
+  And(
+    Name { pattern = "skip", insensitive = false },
+    Prune
+  ),
+  Kind { value = 'f' }
+)</pre><p>This is the program representation passed to the compiler’s type stage.</p></div>
+<div class="step"><h3>Step 3 — quote the ADT</h3><pre>Code { syntax =
+  Or(And(Name("skip"), Prune), Kind('f'))
+}</pre><p>Quotation makes the ADT explicit code data. It is not executed merely because it has been constructed.</p></div>
+<div class="step"><h3>Step 4 — normalize and check</h3><pre>normalize_code(Code { syntax = Q })
+→ check(Q) = true
+→ Code { syntax = Q }</pre><p>The checker recursively verifies nonempty patterns, legal kinds, valid size operators, and well-formed recursive nodes.</p></div>
+<div class="step"><h3>Step 5 — unquote and evaluate <code>ROOT/skip</code></h3><pre>Name("skip")        → true
+Prune                → true
+And                  → true
+Or                    → true
+print ROOT/skip
+prunes(ROOT/skip)     → true
+do not descend</pre><p><code>hidden.c</code> is never visited because the successful branch contains <code>Prune</code>.</p></div>
+<div class="step"><h3>Step 6 — evaluate remaining paths</h3><pre>ROOT/a.c       → Kind('f') = true  → print
+ROOT/b.txt     → Kind('f') = true  → print
+ROOT/sub/c.c   → Kind('f') = true  → print</pre></div>
+<div class="step"><h3>Step 7 — final output</h3><pre>ROOT/a.c
+ROOT/b.txt
+ROOT/skip
+ROOT/sub/c.c</pre></div>
+<h2>4. Run it</h2>
+<pre>make check-find-dsl</pre>
+<p>The test constructs a temporary filesystem tree, substitutes its root into the DSL source, invokes the separate compiler, checks the staged diagnostic, and compares the backend output. The local result is:</p>
+<pre>Find DSL compiler/backend: PASS</pre>
+<p class="muted">The implementation is an explicit total core, not complete GNU <code>find</code> compatibility. <code>-exec</code> and <code>-delete</code> remain outside this staged predicate language.</p>
+</body></html>
