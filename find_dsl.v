@@ -3,7 +3,8 @@
     Strings and host filesystem effects are represented by finite abstract
     data here.  The theorem covers the language/checker/staging boundary; the
     C++ backend supplies the concrete filesystem traversal. *)
-From Coq Require Import Bool.Bool Arith.PeanoNat.
+From Coq Require Import Bool.Bool Arith.PeanoNat Lia List.List.
+Import ListNotations.
 
 Inductive FindKind : Type :=
 | FKFile : FindKind
@@ -135,4 +136,65 @@ Example prune_matches :
   eval example_find
     {| entry_name := 7; entry_path := 9; entry_kind := FKDirectory;
        entry_size := 0; entry_empty := false |} = true.
+Proof. reflexivity. Qed.
+
+(** The simplest class with a direct optimal scan.
+
+    These predicates are finite, pure, and inspect only metadata already
+    present in each entry.  There is no disjunction, negation, size lookup,
+    or action.  A compiler can therefore normalize once and scan entries
+    left-to-right without backtracking or repeated filesystem work. *)
+Inductive SimplePred : Type :=
+| SPName : nat -> SimplePred
+| SPKind : FindKind -> SimplePred
+| SPAnd : SimplePred -> SimplePred -> SimplePred.
+
+Fixpoint simple_eval (p : SimplePred) (e : FindEntry) : bool :=
+  match p with
+  | SPName n => Nat.eqb n (entry_name e)
+  | SPKind k => kind_eqb k (entry_kind e)
+  | SPAnd p q => simple_eval p e && simple_eval q e
+  end.
+
+Fixpoint simple_scan (p : SimplePred) (xs : list FindEntry) : list FindEntry :=
+  match xs with
+  | [] => []
+  | x :: rest => if simple_eval p x
+                 then x :: simple_scan p rest
+                 else simple_scan p rest
+  end.
+
+Fixpoint simple_steps (xs : list FindEntry) : nat :=
+  match xs with
+  | [] => 0
+  | _ :: rest => S (simple_steps rest)
+  end.
+
+Lemma simple_scan_steps : forall p xs,
+  simple_steps xs = length (simple_scan p xs) +
+                    length (filter (fun e => negb (simple_eval p e)) xs).
+Proof.
+  induction xs as [|x xs IH]; intros; simpl.
+  - reflexivity.
+  - destruct (simple_eval p x) eqn:H; simpl; rewrite IH; lia.
+Qed.
+
+Lemma simple_steps_length : forall xs, simple_steps xs = length xs.
+Proof. induction xs as [|x xs IH]; simpl; auto. Qed.
+
+Theorem simple_scan_linear : forall p xs,
+  simple_steps xs = length xs.
+Proof. apply simple_steps_length. Qed.
+
+Definition simple_query : SimplePred :=
+  SPAnd (SPName 7) (SPKind FKFile).
+
+Example simple_query_scan :
+  simple_scan simple_query
+    [{| entry_name := 7; entry_path := 0; entry_kind := FKFile;
+        entry_size := 4; entry_empty := false |};
+      {| entry_name := 8; entry_path := 1; entry_kind := FKFile;
+        entry_size := 4; entry_empty := false |}] =
+    [{| entry_name := 7; entry_path := 0; entry_kind := FKFile;
+        entry_size := 4; entry_empty := false |}].
 Proof. reflexivity. Qed.
