@@ -72,14 +72,14 @@ Definition row_score4 (r : Row4) : nat :=
 
 Definition sum8 (a : Array8 nat) : nat :=
   match a with
-  | Array8C a0 a1 a2 a3 a4 a5 a6 a7 =>
+  | Array8C _ a0 a1 a2 a3 a4 a5 a6 a7 =>
       a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7
   end.
 
 Definition calculate4 (a : Array8 Row4) : nat :=
   match a with
-  | Array8C r0 r1 r2 r3 r4 r5 r6 r7 =>
-      sum8 (Array8C (row_score4 r0) (row_score4 r1)
+  | Array8C _ r0 r1 r2 r3 r4 r5 r6 r7 =>
+      sum8 (@Array8C nat (row_score4 r0) (row_score4 r1)
                    (row_score4 r2) (row_score4 r3)
                    (row_score4 r4) (row_score4 r5)
                    (row_score4 r6) (row_score4 r7))
