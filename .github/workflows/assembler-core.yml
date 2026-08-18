@@ -24,6 +24,12 @@ jobs:
           set -euo pipefail
           make check-minimal-arm64
 
+      - name: Compile minimal ADT to LLVM IR
+        shell: bash
+        run: |
+          set -euo pipefail
+          make check-llvm
+
       - name: Assemble and run control-flow fixtures
         shell: bash
         run: |

@@ -45,3 +45,4 @@ findutils-src/
 /repeat
 /repeat.s
 /true_gnu*
+minimal_llvm_compiler-ci
