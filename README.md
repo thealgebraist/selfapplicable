@@ -21,7 +21,7 @@ against directory entries:
 
 ```text
 find_adt ROOT [-name|-iname GLOB] [-path GLOB] [-type f|d|l]
-             [-size [+|-]BYTESc] [-empty] [-not] [-o]
+             [-size [+|-]BYTESc] [-empty] [-not] [-o] [-print0]
              [-maxdepth N] [-mindepth N]
 ```
 
