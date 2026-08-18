@@ -4,6 +4,7 @@
 <style>body{max-width:1050px;margin:auto;padding:40px 22px 80px;background:#f5f7fb;color:#17202c;font:16px/1.58 system-ui,sans-serif}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.05}h2{margin-top:2.3em;border-bottom:1px solid #d4dce8;padding-bottom:5px}.card{background:#fff;border:1px solid #d4dce8;border-radius:10px;padding:18px;margin:18px 0}.step{border-left:4px solid #1769aa;padding-left:16px;margin:22px 0}pre{background:#172033;color:#edf4ff;padding:16px;border-radius:8px;overflow:auto;font:14px/1.5 ui-monospace,monospace}code{font-family:ui-monospace,monospace}a{color:#1769aa}.muted{color:#536174}</style></head>
 <body>
 <p><a href="examples/find_skip.find">Program being transformed</a> · <a href="find_dsl_compiler.cpp">Complete compiler source</a> · <a href="minimal_find_cli.cpp">Complete backend source</a></p>
+<p><a href="find_dsl.v">Coq formalization</a></p>
 <h1>Find DSL → ADT → staged compiler → filesystem</h1>
 <p class="muted">This page shows the complete two-part design: a Find-specific ADT DSL implementation and a separate compiler with an explicit quotation/normalization boundary.</p>
 <div class="card"><b>Pipeline</b><pre>Find DSL source
@@ -89,5 +90,6 @@ ROOT/sub/c.c</pre></div>
 <pre>make check-find-dsl</pre>
 <p>The test constructs a temporary filesystem tree, substitutes its root into the DSL source, invokes the separate compiler, checks the staged diagnostic, and compares the backend output. The local result is:</p>
 <pre>Find DSL compiler/backend: PASS</pre>
+<p>The formal counterpart is <a href="find_dsl.v"><code>find_dsl.v</code></a>. It proves quotation/unquotation, checked compilation, and the concrete example query’s staged identity.</p>
 <p class="muted">The implementation is an explicit total core, not complete GNU <code>find</code> compatibility. <code>-exec</code> and <code>-delete</code> remain outside this staged predicate language.</p>
 </body></html>

@@ -35,6 +35,10 @@ explicit `quote`/`unquote` normalization boundary, runs the type-stage check,
 and then invokes the filesystem backend. Run
 `make check-find-dsl` to verify this complete DSL-to-backend path.
 
+`find_dsl.v` formalizes the corresponding predicate ADT, entry semantics,
+total checker, quotation boundary, normalization, and the theorem that a
+checked staged program compiles to itself.
+
 The executable exercises:
 
 - de Bruijn variables, sorts, Pi types, lambdas, applications, quotation, and unquotation;
