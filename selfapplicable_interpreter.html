@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Self-applicable interpreter</title>
+<style>body{max-width:980px;margin:40px auto;padding:0 20px;font:16px/1.55 system-ui;background:#f5f7fb;color:#18202b}pre{background:#172033;color:#eef;padding:16px;overflow:auto;border-radius:8px}code{font-family:monospace}.card{background:white;border:1px solid #d6deea;border-radius:10px;padding:18px;margin:18px 0}.step{border-left:4px solid #1769aa;padding-left:16px;margin:22px 0}a{color:#1769aa}</style></head>
+<body><p><a href="two_stage_adt.v">Authoritative Coq source</a></p>
+<h1>A self-applicable interpreter</h1>
+<p>This is a complete minimal two-stage ADT interpreter. Checker programs are finite inductive data. <code>CheckerCode2</code> quotes checker data, and <code>Run2</code> explicitly crosses from data back to interpretation.</p>
+<div class="card"><b>Verified result:</b><pre>typecheck2 self_stage2 self_program2
+= Accepted2 TCheckerTy2</pre>GitHub Actions compiled the Coq file successfully for commit <code>58790a7</code>.</div>
+<h2>Complete program</h2>
+<p>The full source is linked above. The complete executable core is:</p>
+<pre>From Coq Require Import Bool.Bool.
+
+Inductive Ty2 : Type :=
+| TNat2 : Ty2 | TBool2 : Ty2
+| TPair2 : Ty2 -&gt; Ty2 -&gt; Ty2
+| TCheckerTy2 : Ty2.
+
+Inductive Checker2 : Type :=
+| CNat2 : Checker2 | CBool2 : Checker2
+| CAdd2 : Checker2 -&gt; Checker2 -&gt; Checker2
+| CIf2 : Checker2 -&gt; Checker2 -&gt; Checker2 -&gt; Checker2
+| CPair2 : Checker2 -&gt; Checker2 -&gt; Checker2
+| CFst2 : Checker2 -&gt; Checker2 | CSnd2 : Checker2 -&gt; Checker2
+| CChecker2 : Checker2 | CRun2 : Checker2 -&gt; Checker2
+| CReject2 : Checker2.
+
+Inductive Tm2 : Type :=
+| Nat2 : nat -&gt; Tm2 | Bool2 : bool -&gt; Tm2
+| Add2 : Tm2 -&gt; Tm2 -&gt; Tm2
+| If2 : Tm2 -&gt; Tm2 -&gt; Tm2 -&gt; Tm2
+| Pair2 : Tm2 -&gt; Tm2 -&gt; Tm2
+| Fst2 : Tm2 -&gt; Tm2 | Snd2 : Tm2 -&gt; Tm2
+| CheckerCode2 : Checker2 -&gt; Tm2
+| Run2 : Tm2 -&gt; Tm2 -&gt; Tm2.
+
+Inductive CheckResult2 : Type :=
+| Accepted2 : Ty2 -&gt; CheckResult2 | Rejected2 : CheckResult2.
+
+Fixpoint run_type_stage2 (p : Checker2) (t : Tm2) : CheckResult2 :=
+  match p with
+  | CReject2 =&gt; Rejected2
+  | CNat2 =&gt; match t with Nat2 _ =&gt; Accepted2 TNat2 | _ =&gt; Rejected2 end
+  | CBool2 =&gt; match t with Bool2 _ =&gt; Accepted2 TBool2 | _ =&gt; Rejected2 end
+  | CAdd2 p q =&gt;
+      match t with Add2 x y =&gt;
+        match run_type_stage2 p x, run_type_stage2 q y with
+        | Accepted2 TNat2, Accepted2 TNat2 =&gt; Accepted2 TNat2
+        | _, _ =&gt; Rejected2 end
+      | _ =&gt; Rejected2 end
+  | CChecker2 =&gt;
+      match t with CheckerCode2 _ =&gt; Accepted2 TCheckerTy2 | _ =&gt; Rejected2 end
+  | CRun2 p =&gt;
+      match t with
+      | Run2 code argument =&gt;
+          match code with
+          | CheckerCode2 _ =&gt; run_type_stage2 p argument
+          | _ =&gt; Rejected2 end
+      | _ =&gt; Rejected2 end
+  | _ =&gt; Rejected2
+  end.
+
+Definition typecheck2 := run_type_stage2.
+Definition self_stage2 : Checker2 := CRun2 CChecker2.
+Definition self_program2 : Tm2 :=
+  Run2 (CheckerCode2 self_stage2) (CheckerCode2 self_stage2).
+
+Example self_application2 :
+  typecheck2 self_stage2 self_program2 = Accepted2 TCheckerTy2.
+Proof. reflexivity. Qed.</pre>
+<p>The full source contains the remaining pair/conditional checker cases and the separate runtime value evaluator.</p>
+<h2>Step-by-step evaluation</h2>
+<div class="step"><h3>1. Substitute definitions</h3><pre>run_type_stage2
+  (CRun2 CChecker2)
+  (Run2 (CheckerCode2 (CRun2 CChecker2))
+        (CheckerCode2 (CRun2 CChecker2)))</pre></div>
+<div class="step"><h3>2. Enter the staged interpreter</h3><p>The outer checker matches <code>CRun2 p</code>, where <code>p = CChecker2</code>. The program matches <code>Run2 code argument</code>.</p><pre>code     = CheckerCode2 (CRun2 CChecker2)
+argument = CheckerCode2 (CRun2 CChecker2)</pre></div>
+<div class="step"><h3>3. Cross the code boundary</h3><p>The first operand is visibly <code>CheckerCode2 _</code>, so <code>CRun2</code> invokes its inner checker on the argument:</p><pre>run_type_stage2 CChecker2
+  (CheckerCode2 (CRun2 CChecker2))</pre></div>
+<div class="step"><h3>4. Recognize checker code</h3><p><code>CChecker2</code> has one successful case:</p><pre>match CheckerCode2 _ with
+| CheckerCode2 _ =&gt; Accepted2 TCheckerTy2
+| _ =&gt; Rejected2
+end
+= Accepted2 TCheckerTy2</pre><p><b>The interpreter has run on its own quoted checker and returned its checker-code type.</b></p></div>
+<h2>Why this is safe and total</h2>
+<ul><li>Quotation is inert data; it does not execute by itself.</li><li>Execution requires explicit <code>Run2</code>.</li><li>The interpreter recurses only through finite <code>Checker2</code> structure.</li><li>This is staged self-application, not an unrestricted <code>Type : Type</code> universe.</li><li>Totality does not prove arbitrary user checkers semantically sound; that requires a separate theorem.</li></ul>
+<p><a href="two_stage_adt.md">Read the design notes</a> · <a href="https://github.com/thealgebraist/selfapplicable/tree/research/minimal-total-adt">View the branch on GitHub</a></p>
+</body></html>
