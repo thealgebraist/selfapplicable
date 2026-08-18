@@ -24,7 +24,8 @@ struct Parser{std::string s;size_t p=0; explicit Parser(std::string x):s(std::mo
  else if(k=="var")x=make(Var{(size_t)num()});else if(k=="add"||k=="mul"||k=="eq")x=make(Bin{k=="add"?Bin::Add:k=="mul"?Bin::Mul:Bin::Eq,term(),term()});
  else if(k=="let")x=make(Let{term(),term()});else if(k=="quote")x=make(Quote{term()});else if(k=="run")x=make(Run{term()});
  else if(k=="if")x=make(If{term(),term(),term()});else throw std::runtime_error("unknown constructor: "+k);
- if(!eat(')'))throw std::runtime_error("')' expected");return x;}
+ if(!eat(')')) throw std::runtime_error("')' expected");
+ return x;}
  P parse(){P x=term();ws();if(p!=s.size())throw std::runtime_error("trailing input");return x;}};
 using Env=std::vector<P>;
 P norm(const P&x,const Env&e={}){if(auto n=std::get_if<Nat>(&x->n))return make(*n);if(auto b=std::get_if<Bool>(&x->n))return make(*b);
