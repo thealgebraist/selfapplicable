@@ -28,6 +28,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq llvm
           make check-llvm
 
       - name: Assemble and run control-flow fixtures
