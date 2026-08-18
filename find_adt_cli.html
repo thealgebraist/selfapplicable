@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Typed ADT find CLI</title>
+<style>body{max-width:1000px;margin:0 auto;padding:40px 22px 70px;background:#f5f7fb;color:#17202c;font:16px/1.58 system-ui,sans-serif}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.05}h2{margin-top:2.2em;border-bottom:1px solid #d4dce8;padding-bottom:5px}.card{background:#fff;border:1px solid #d4dce8;border-radius:10px;padding:18px;margin:18px 0}.step{border-left:4px solid #1769aa;padding-left:16px;margin:22px 0}pre{background:#172033;color:#edf4ff;padding:16px;border-radius:8px;overflow:auto;font:14px/1.5 ui-monospace,monospace}code{font-family:ui-monospace,monospace}a{color:#1769aa}.muted{color:#536174}</style></head>
+<body>
+<p><a href="minimal_find_cli.cpp">Download complete program</a> · <a href="test_minimal_find.sh">Regression test</a> · <a href="README.md">Repository notes</a></p>
+<h1>A typed ADT <code>find</code> CLI</h1>
+<p class="muted">A finite predicate language is checked before it is interpreted against the filesystem. The implementation is a compact, explicit subset of standard <code>find</code>.</p>
+<div class="card"><b>Example:</b><pre>find_adt ROOT -name skip -prune -o -type f</pre><b>Meaning:</b> print the <code>skip</code> directory, do not descend into it, otherwise print regular files.</div>
+<h2>1. Complete program</h2>
+<p>The following panel loads the exact complete source file, including the ADT definitions, checker, parser, evaluator, traversal, pruning logic, and CLI entry point.</p>
+<pre id="source">Loading complete source…</pre>
+<script>fetch('minimal_find_cli.cpp').then(r=>r.text()).then(x=>document.getElementById('source').textContent=x).catch(()=>document.getElementById('source').textContent='Use the complete source link above.')</script>
+<h2>2. Language and command surface</h2>
+<pre>find_adt ROOT
+  [-name|-iname GLOB]
+  [-path GLOB]
+  [-type f|d|l]
+  [-size [+|-]BYTESc]
+  [-empty] [-prune]
+  [-not] [-o]
+  [-maxdepth N] [-mindepth N]
+  [-print0]</pre>
+<p>The query is represented by these inductive-style alternatives:</p>
+<pre>True
+Name(pattern, insensitive)
+Path(pattern)
+Kind(f | d | l)
+Size(= | + | -, bytes)
+Empty
+Prune
+And(left, right) | Or(left, right) | Not(child)</pre>
+<p>The type-stage analogue is <code>check</code>. It rejects empty patterns, unknown file kinds, invalid size operators, and malformed recursive predicate nodes. Only a checked predicate reaches filesystem evaluation.</p>
+<h2>3. Step-by-step evaluation</h2>
+<p>Assume this temporary tree:</p>
+<pre>ROOT/
+├── a.c
+├── b.txt
+├── skip/
+│   └── hidden.c
+└── sub/
+    └── c.c</pre>
+<p>Run:</p><pre>find_adt ROOT -name skip -prune -o -type f</pre>
+<div class="step"><h3>Step 1 — parse atoms</h3><pre>Name("skip")
+Prune
+Or
+Kind('f')</pre><p>The parser splits the expression at <code>-o</code>. Each side is a conjunction; the two groups become an <code>Or</code> node.</p></div>
+<div class="step"><h3>Step 2 — build the checked ADT</h3><pre>Or(
+  And(Name("skip"), Prune),
+  Kind('f')
+)</pre><p><code>check</code> recursively validates both branches. The result is accepted because the name is nonempty, <code>Prune</code> is valid, and <code>f</code> is a supported kind.</p></div>
+<div class="step"><h3>Step 3 — visit <code>ROOT/skip</code></h3><pre>Name("skip") = true
+Prune           = true
+left branch     = true
+Or result       = true</pre><p>The directory is printed. The separate <code>prunes</code> walk decision also sees that the successful branch contains <code>Prune</code>, so traversal stops below <code>ROOT/skip</code>. <code>hidden.c</code> is never visited.</p></div>
+<div class="step"><h3>Step 4 — visit ordinary files</h3><pre>ROOT/a.c:   left false,  right Kind('f') true  → print
+ROOT/b.txt: left false,  right Kind('f') true  → print
+ROOT/sub/c.c: left false, right Kind('f') true → print</pre></div>
+<div class="step"><h3>Step 5 — output</h3><pre>ROOT/a.c
+ROOT/b.txt
+ROOT/skip
+ROOT/sub/c.c</pre><p>With <code>-print0</code>, the same paths are separated by NUL bytes rather than newlines, making the output safe for filenames containing whitespace or newlines.</p></div>
+<h2>4. Other evaluation examples</h2>
+<table><tr><th>Command</th><th>ADT/effect</th></tr><tr><td><code>-iname '*.C'</code></td><td>Lowercases both filename and glob before matching.</td></tr><tr><td><code>-size +100c</code></td><td>Checks regular file byte size greater than 100.</td></tr><tr><td><code>-empty -type d</code></td><td>Conjoins directory and empty-directory predicates.</td></tr><tr><td><code>-mindepth 1 -maxdepth 2</code></td><td>Filters printing and bounds recursive traversal depth.</td></tr><tr><td><code>! -name '*.tmp'</code></td><td>Wraps the name predicate in <code>Not</code>.</td></tr></table>
+<h2>5. Verification</h2>
+<pre>make check-find</pre>
+<p>The test creates its fixture tree with <code>mktemp</code>, checks recursive matching, depth, size, OR, empty directories, case-insensitive names, paths, NUL output, and pruning. The repository CI also runs this check; the current branch’s assembler-core workflow passed it.</p>
+<p class="muted">This is not complete GNU <code>find</code> compatibility. Actions such as <code>-exec</code> and <code>-delete</code> remain intentionally outside this total predicate core.</p>
+</body></html>
