@@ -59,7 +59,7 @@ Definition check_array8 (a : RawArray8) : option (Array8 Row4) :=
       option_bind (check_row4 r5) (fun v5 =>
       option_bind (check_row4 r6) (fun v6 =>
       option_bind (check_row4 r7) (fun v7 =>
-        Some (Array8C v0 v1 v2 v3 v4 v5 v6 v7)))))))))
+        Some (@Array8C Row4 v0 v1 v2 v3 v4 v5 v6 v7)))))))))
   end.
 
 Definition status_score4 (s : Status4) : nat :=
