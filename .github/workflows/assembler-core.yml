@@ -35,6 +35,9 @@ jobs:
       - name: Check typed ADT find CLI
         run: make check-find
 
+      - name: Check Find DSL compiler and backend
+        run: make check-find-dsl
+
       - name: Assemble and run control-flow fixtures
         shell: bash
         run: |

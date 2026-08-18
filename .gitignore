@@ -47,3 +47,4 @@ findutils-src/
 /true_gnu*
 minimal_llvm_compiler-ci
 minimal_find_cli-ci
+find_dsl_compiler-ci

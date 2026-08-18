@@ -1,7 +1,7 @@
 CXX ?= g++
 CXXFLAGS ?= -std=c++23 -Wall -Wextra -pedantic -O2
 
-.PHONY: all check-normaliser check-minimal-arm64 check-llvm check-find check-compiler check release
+.PHONY: all check-normaliser check-minimal-arm64 check-llvm check-find check-find-dsl check-compiler check release
 
 all: check-normaliser
 
@@ -21,10 +21,14 @@ check-find: minimal_find_cli.cpp test_minimal_find.sh
 	$(CXX) $(CXXFLAGS) minimal_find_cli.cpp -o minimal_find_cli-ci
 	./test_minimal_find.sh ./minimal_find_cli-ci
 
+check-find-dsl: find_dsl_compiler.cpp minimal_find_cli.cpp examples/find_skip.find test_find_dsl.sh
+	$(CXX) $(CXXFLAGS) find_dsl_compiler.cpp -o find_dsl_compiler-ci
+	./test_find_dsl.sh ./find_dsl_compiler-ci
+
 check-compiler:
 	./test_c_subset_assembler.sh
 
-check: check-normaliser check-minimal-arm64 check-llvm check-find check-compiler
+check: check-normaliser check-minimal-arm64 check-llvm check-find check-find-dsl check-compiler
 
 release:
 	./make_release_bundle.sh

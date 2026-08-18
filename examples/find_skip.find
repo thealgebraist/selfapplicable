@@ -1,0 +1,4 @@
+(find "ROOT"
+  (or
+    (and (name "skip") (prune))
+    (type "f")))

@@ -29,6 +29,11 @@ Run `make check-find` for its regression suite. This is an explicit total
 predicate language rather than complete GNU `find` compatibility; actions such
 as `-exec` and `-delete` remain later extensions.
 
+The separate `find_dsl_compiler.cpp` front end accepts programs such as
+`examples/find_skip.find`, transforms them into the same Find ADT, runs the
+type-stage check, and then invokes the filesystem backend. Run
+`make check-find-dsl` to verify this complete DSL-to-backend path.
+
 The executable exercises:
 
 - de Bruijn variables, sorts, Pi types, lambdas, applications, quotation, and unquotation;
