@@ -68,6 +68,7 @@ jobs:
           timeout 120s coqc -q minimal_total_lang.v
           timeout 120s coqc -q two_stage_adt.v
           timeout 120s coqc -q array8_four_field.v
+          timeout 120s coqc -q find_dsl.v
 
       - name: Assemble and run switch fixtures
         shell: bash
